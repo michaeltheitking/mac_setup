@@ -150,7 +150,7 @@ ssh -T git@github.com || true
 log "Switching dotfiles repo remote to SSH"
 if [ -d "$DOTFILES_DIR/.git" ]; then
   cd "$DOTFILES_DIR"
-  git remote set-url origin "git@github.com:${GITHUB_USERNAME}/dotfiles.git" || true
+  git remote set-url origin "git@github.com:${GITHUB_USERNAME}/mac_setup.git" || true
 fi
 
 log "Running dotfiles setup"
