@@ -32,7 +32,9 @@ awssync() {
     --exclude "test" \
     --exclude "test/*" \
     --exclude "test/**" \
-    --exclude "*.map"
+    --exclude "*.map" \
+  && aws cloudfront create-invalidation --distribution-id E2LXTUFU951CL5 --paths "/*" > /dev/null \
+  && echo "CloudFront cache invalidated."
 }
 
 dbox() {
@@ -45,3 +47,4 @@ alias claudeauto='claude --enable-auto-mode'
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 [[ -f ~/.zshrc.private ]] && source ~/.zshrc.private
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
