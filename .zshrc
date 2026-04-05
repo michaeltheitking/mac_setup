@@ -33,6 +33,9 @@ awssync() {
     --exclude "test/*" \
     --exclude "test/**" \
     --exclude "*.map" \
+    --exclude "docs" \
+    --exclude "docs/*" \
+    --exclude "docs/**" \
   && aws cloudfront create-invalidation --distribution-id E2LXTUFU951CL5 --paths "/*" > /dev/null \
   && echo "CloudFront cache invalidated."
 }
