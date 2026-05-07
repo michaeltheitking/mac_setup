@@ -1,3 +1,5 @@
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -51,3 +53,12 @@ alias claudeauto='claude --enable-auto-mode'
 
 [[ -f ~/.zshrc.private ]] && source ~/.zshrc.private
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Fastfetch system summary
+case $- in
+  *i*)
+    if command -v fastfetch >/dev/null 2>&1 && [[ "$TERM_PROGRAM" != "vscode" ]]; then
+      fastfetch
+    fi
+    ;;
+esac
