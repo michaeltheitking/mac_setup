@@ -16,7 +16,6 @@ BREW_CASKS=(
   cursor
   dropbox
   fantastical
-  firefox
   ghostty
   grandperspective
   istat-menus
@@ -26,6 +25,7 @@ BREW_CASKS=(
   raindropio
   raycast
   spotify
+  tailscale-app
   todoist-app
   vlc
   wispr-flow
@@ -83,14 +83,20 @@ log "Updating Homebrew"
 brew update
 
 log "Installing core CLI packages"
-brew install git gh
+for formula in git gh; do
+  if brew list --formula "$formula" >/dev/null 2>&1; then
+    echo "Already installed: $formula"
+  else
+    brew install "$formula"
+  fi
+done
 
 log "Installing GUI apps"
 for cask in "${BREW_CASKS[@]}"; do
   if brew list --cask "$cask" >/dev/null 2>&1; then
     echo "Already installed: $cask"
   else
-    brew install --cask "$cask"
+    brew install --cask --adopt "$cask"
   fi
 done
 
