@@ -10,7 +10,6 @@ SSH_CONFIG_PATH="$HOME/.ssh/config"
 
 BREW_CASKS=(
   1password
-  chatgpt
   claude
   codex
   cursor
@@ -49,12 +48,28 @@ append_line_if_missing() {
 
 log "Checking Xcode Command Line Tools"
 if ! xcode-select -p >/dev/null 2>&1; then
-  echo "Xcode Command Line Tools are not installed."
-  echo "Running: xcode-select --install"
-  xcode-select --install || true
-  echo
-  echo "Finish that install, then rerun this script."
-  exit 1
+  echo "Installing Xcode Command Line Tools (headless)..."
+  CLT_PLACEHOLDER="/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
+  touch "$CLT_PLACEHOLDER"
+  CLT_LABEL=$(softwareupdate -l 2>/dev/null \
+    | grep -E "Command Line Tools" \
+    | awk -F'Label: ' '/Label: /{print $2}' \
+    | sort -V \
+    | tail -n1)
+  if [ -n "$CLT_LABEL" ]; then
+    sudo softwareupdate -i "$CLT_LABEL" --verbose
+  else
+    echo "Could not find CLT in softwareupdate; falling back to xcode-select --install."
+    xcode-select --install || true
+    echo "Finish the GUI install, then rerun this script."
+    rm -f "$CLT_PLACEHOLDER"
+    exit 1
+  fi
+  rm -f "$CLT_PLACEHOLDER"
+  if ! xcode-select -p >/dev/null 2>&1; then
+    echo "Xcode CLT install did not complete. Rerun this script."
+    exit 1
+  fi
 fi
 
 log "Installing Homebrew if needed"
