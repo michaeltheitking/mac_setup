@@ -7,6 +7,7 @@ GIT_EMAIL="mk@michael-king.com"
 DOTFILES_DIR="$HOME/dotfiles"
 SSH_KEY_PATH="$HOME/.ssh/id_ed25519_github"
 SSH_CONFIG_PATH="$HOME/.ssh/config"
+ASTROPAD_WORKBENCH_URL="https://downloads.astropad.com/workbench/mac/latest"
 
 BREW_CASKS=(
   1password
@@ -56,6 +57,39 @@ append_line_if_missing() {
   local file="$2"
   touch "$file"
   grep -Fqx "$line" "$file" || printf "%s\n" "$line" >> "$file"
+}
+
+install_astropad_workbench() {
+  local app_path="/Applications/Astropad Workbench.app"
+  local tmp_dir
+  local dmg_path
+  local mount_dir
+  local mounted_app
+
+  if [ -d "$app_path" ]; then
+    echo "Already installed: Astropad Workbench"
+    return
+  fi
+
+  tmp_dir="$(mktemp -d)"
+  dmg_path="$tmp_dir/astropad-workbench.dmg"
+  mount_dir="$tmp_dir/mount"
+
+  mkdir -p "$mount_dir"
+  curl -fL "$ASTROPAD_WORKBENCH_URL" -o "$dmg_path"
+  hdiutil attach "$dmg_path" -nobrowse -quiet -mountpoint "$mount_dir"
+
+  mounted_app="$(find "$mount_dir" -maxdepth 1 -name "*.app" -type d -print -quit)"
+  if [ -z "$mounted_app" ]; then
+    hdiutil detach "$mount_dir" -quiet || true
+    rm -rf "$tmp_dir"
+    echo "Astropad Workbench download did not contain an app bundle."
+    exit 1
+  fi
+
+  ditto "$mounted_app" "/Applications/$(basename "$mounted_app")"
+  hdiutil detach "$mount_dir" -quiet
+  rm -rf "$tmp_dir"
 }
 
 log "Checking Xcode Command Line Tools"
@@ -133,6 +167,9 @@ for cask in "${BREW_CASKS[@]}"; do
     brew install --cask --adopt "$cask"
   fi
 done
+
+log "Installing Astropad Workbench"
+install_astropad_workbench
 
 log "Configuring Git identity"
 git config --global user.name "$GIT_NAME"
