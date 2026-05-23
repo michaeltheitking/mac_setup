@@ -1,0 +1,96 @@
+notify = ["/Users/michael/.codex/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient", "turn-ended"]
+model = "gpt-5.5"
+model_reasoning_effort = "low"
+service_tier = "fast"
+approval_policy = "on-request"
+approvals_reviewer = "guardian_subagent"
+sandbox_mode = "workspace-write"
+
+[marketplaces.openai-bundled]
+last_updated = "2026-05-23T16:02:35Z"
+source_type = "local"
+source = "/Users/michael/.codex/.tmp/bundled-marketplaces/openai-bundled"
+
+[marketplaces.openai-primary-runtime]
+last_updated = "2026-05-23T16:02:50Z"
+source_type = "local"
+source = "/Users/michael/.cache/codex-runtimes/codex-primary-runtime/plugins/openai-primary-runtime"
+
+[plugins."browser@openai-bundled"]
+enabled = true
+
+[plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[plugins."notion@openai-curated"]
+enabled = true
+
+[plugins."computer-use@openai-bundled"]
+enabled = true
+
+[plugins."chrome@openai-bundled"]
+enabled = true
+
+[features]
+js_repl = false
+
+[mcp_servers.node_repl]
+args = []
+command = "/Applications/Codex.app/Contents/Resources/node_repl"
+startup_timeout_sec = 120
+
+[mcp_servers.node_repl.env]
+BROWSER_USE_AVAILABLE_BACKENDS = "chrome,iab"
+BROWSER_USE_MARKETPLACE_NAME = "openai-bundled"
+CODEX_CLI_PATH = "/Applications/Codex.app/Contents/Resources/codex"
+CODEX_HOME = "/Users/michael/.codex"
+NODE_REPL_NATIVE_PIPE_CONNECT_TIMEOUT_MS = "1000"
+NODE_REPL_NODE_MODULE_DIRS = ""
+NODE_REPL_NODE_PATH = "/Applications/Codex.app/Contents/Resources/node"
+NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S = "167fdf579477181fba1773c1efb067b00c5a64fe85dafb50a2001bde198dc739"
+NODE_REPL_TRUSTED_CODE_PATHS = "/Users/michael/.codex"
+NODE_REPL_UNTRUSTED_ENV_ALLOWLIST = "BROWSER_USE_MARKETPLACE_NAME"
+
+[mcp_servers.todoist]
+args = ["-y", "mcp-remote", "https://ai.todoist.net/mcp"]
+command = "npx"
+startup_timeout_sec = 120
+
+[desktop]
+conversationDetailMode = "STEPS_COMMANDS"
+ambient-suggestions-enabled = true
+default-service-tier = "fast"
+keepRemoteControlAwakeWhilePluggedIn = true
+
+[projects."/Users/michael/dotfiles"]
+trust_level = "trusted"
+
+[projects."/Users/michael/Documents/Codex/2026-05-23/if-i-need-to-restructure-my"]
+trust_level = "trusted"
+
+[projects."/Users/michael/Documents/Codex/2026-05-23/can-you-trans-and-write-to"]
+trust_level = "trusted"
+
+[projects."/Users/michael/Documents/projects/entertainment_calendar"]
+trust_level = "trusted"
+
+[projects."/Users/michael/Documents/projects/intune_config"]
+trust_level = "trusted"
+
+[projects."/Users/michael/Documents/Codex/2026-05-23/where-is-the-global-agents-md"]
+trust_level = "trusted"
+
+[projects."/Users/michael/Documents/Codex/2026-05-23/where-s-the-best-place-to"]
+trust_level = "trusted"
+
+[projects."/Users/michael/Documents/Codex/2026-05-23/set-up-the-todoist-map-in"]
+trust_level = "trusted"
+
+[projects."/Users/michael/Documents/Codex/2026-05-23/set-my-config-default-to-5"]
+trust_level = "trusted"

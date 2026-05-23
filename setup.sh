@@ -8,6 +8,7 @@ mkdir -p "$HOME/.codex"
 ln -sf "$HOME/dotfiles/.zshrc" "$HOME/.zshrc"
 ln -sf "$HOME/dotfiles/.gitignore_global" "$HOME/.gitignore_global"
 ln -sf "$HOME/dotfiles/codex/AGENTS.md" "$HOME/.codex/AGENTS.md"
+ln -sf "$HOME/dotfiles/codex/config.toml" "$HOME/.codex/config.toml"
 git config --global core.excludesfile "$HOME/.gitignore_global"
 
 if [ -f "$HOME/dotfiles/.p10k.zsh" ]; then
