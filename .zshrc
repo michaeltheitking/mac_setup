@@ -6,7 +6,10 @@ typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
+if command -v brew >/dev/null 2>&1; then
+  BREW_PREFIX="$(brew --prefix)"
+  [[ -f "$BREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme" ]] && source "$BREW_PREFIX/share/powerlevel10k/powerlevel10k.zsh-theme"
+fi
 
 #if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
 #  eval "$(oh-my-posh init zsh)"
@@ -52,7 +55,9 @@ alias claudeauto='claude --enable-auto-mode'
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 [[ -f ~/.zshrc.private ]] && source ~/.zshrc.private
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+if [[ -n "${BREW_PREFIX:-}" && -f "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+  source "$BREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
 
 # Fastfetch system summary
 case $- in

@@ -10,6 +10,8 @@ SSH_CONFIG_PATH="$HOME/.ssh/config"
 
 BREW_CASKS=(
   1password
+  bartender
+  chatgpt
   claude
   codex
   cursor
@@ -18,6 +20,7 @@ BREW_CASKS=(
   ghostty
   grandperspective
   istat-menus
+  microsoft-office
   notion
   nvidia-geforce-now
   protonvpn
@@ -29,6 +32,15 @@ BREW_CASKS=(
   vlc
   wispr-flow
   zoom
+)
+
+BREW_FORMULAS=(
+  git
+  gh
+  node
+  powerlevel10k
+  zsh-autosuggestions
+  fastfetch
 )
 
 log() {
@@ -97,14 +109,21 @@ fi
 log "Updating Homebrew"
 brew update
 
-log "Installing core CLI packages"
-for formula in git gh; do
+log "Installing CLI packages"
+for formula in "${BREW_FORMULAS[@]}"; do
   if brew list --formula "$formula" >/dev/null 2>&1; then
     echo "Already installed: $formula"
   else
     brew install "$formula"
   fi
 done
+
+log "Installing Claude Code"
+if have_cmd claude; then
+  echo "Already installed: claude"
+else
+  npm install -g @anthropic-ai/claude-code
+fi
 
 log "Installing GUI apps"
 for cask in "${BREW_CASKS[@]}"; do
@@ -192,5 +211,6 @@ fi
 log "Finished"
 echo
 echo "Your Mac is bootstrapped."
+echo "Reminder: restore iStat Menus settings from the exported file in your Documents folder."
 echo "Repo remote is now:"
 git -C "$DOTFILES_DIR" remote -v || true
