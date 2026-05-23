@@ -5,6 +5,8 @@ mkdir -p "$HOME/Library/Application Support/com.mitchellh.ghostty"
 mkdir -p "$HOME/.config/ghostty"
 
 ln -sf "$HOME/dotfiles/.zshrc" "$HOME/.zshrc"
+ln -sf "$HOME/dotfiles/.gitignore_global" "$HOME/.gitignore_global"
+git config --global core.excludesfile "$HOME/.gitignore_global"
 
 if [ -f "$HOME/dotfiles/.p10k.zsh" ]; then
   ln -sf "$HOME/dotfiles/.p10k.zsh" "$HOME/.p10k.zsh"

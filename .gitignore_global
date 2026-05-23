@@ -1,0 +1,50 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Finder metadata
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+.cache/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+coverage/
+
+# OS/package manager noise
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Archives often generated locally
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
