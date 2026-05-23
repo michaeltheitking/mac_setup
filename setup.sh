@@ -3,9 +3,11 @@ set -euo pipefail
 
 mkdir -p "$HOME/Library/Application Support/com.mitchellh.ghostty"
 mkdir -p "$HOME/.config/ghostty"
+mkdir -p "$HOME/.codex"
 
 ln -sf "$HOME/dotfiles/.zshrc" "$HOME/.zshrc"
 ln -sf "$HOME/dotfiles/.gitignore_global" "$HOME/.gitignore_global"
+ln -sf "$HOME/dotfiles/codex/AGENTS.md" "$HOME/.codex/AGENTS.md"
 git config --global core.excludesfile "$HOME/.gitignore_global"
 
 if [ -f "$HOME/dotfiles/.p10k.zsh" ]; then

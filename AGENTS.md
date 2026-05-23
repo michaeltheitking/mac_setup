@@ -19,6 +19,7 @@ When setup behavior changes, update both this repo and that Notion page.
 - `setup.sh` - symlinks `.zshrc`, `.p10k.zsh`, and Ghostty config into their expected locations.
 - `.zshrc` - zsh shell config. Sources Powerlevel10k and zsh-autosuggestions only when installed.
 - `.p10k.zsh` - Powerlevel10k prompt config.
+- `codex/AGENTS.md` - global Codex instructions symlinked to `~/.codex/AGENTS.md`.
 - `ghostty/config.ghostty` - Ghostty terminal config.
 - `README.md` - brief repo inventory.
 
