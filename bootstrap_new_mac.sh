@@ -16,6 +16,7 @@ BREW_CASKS=(
   claude
   codex
   cursor
+  dockdoor
   dropbox
   fantastical
   ghostty

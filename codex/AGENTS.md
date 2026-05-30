@@ -54,6 +54,7 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 - Final responses should summarize what changed, what was verified, and any remaining risks.
 - Use clickable file references when pointing to local files.
 - Avoid unnecessary praise, filler, or restating the obvious.
+- Write project documentation to Confluence unless the user explicitly asks for another destination.
 - When writing documentation in Confluence, set an appropriate emoji icon for the page.
 
 ## Boundaries

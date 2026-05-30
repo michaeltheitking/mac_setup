@@ -6,12 +6,12 @@ Guidance for coding agents working in this dotfiles repo.
 
 This repository backs up and restores Michael's personal Mac setup. It is expected to live at `~/dotfiles` and is mirrored to `github.com/michaeltheitking/mac_setup`.
 
-The matching Notion source of truth is:
+The matching Confluence runbook is:
 
-- `Mac Setup: Backup & Restoration`
-- `https://www.notion.so/35935e13a82f81f8a46bd26bd534c388`
+- `Mac Dotfiles Runbook`
+- `https://michael-kingdocs.atlassian.net/wiki/spaces/~5570583e46f7b02769468785802b45c5e986a5/pages/61341700/Mac+Dotfiles+Runbook`
 
-When setup behavior changes, update both this repo and that Notion page.
+When setup behavior changes, update both this repo and that Confluence page.
 
 ## Repo Layout
 
@@ -70,9 +70,9 @@ Networked commands such as `brew update`, installs, `npm install -g`, `git pull`
 - If a push is rejected because the remote moved, use `git pull --rebase origin main`, resolve conflicts by preserving remote improvements and local requested changes, then push again.
 - Use `git push --force-with-lease` only when intentionally updating an already-pushed commit, such as amending its message.
 
-## Notion Sync Notes
+## Confluence Sync Notes
 
-The Notion page currently documents:
+The Confluence runbook currently documents:
 
 - Repo layout
 - Backup process
@@ -81,7 +81,7 @@ The Notion page currently documents:
 - Verification commands
 - Notes about Xcode CLT, GitHub auth, iStat Menus restore, and SSH key naming
 
-When updating the bootstrap script, mirror any user-facing behavior in Notion, especially:
+When updating the bootstrap script, mirror any user-facing behavior in Confluence, especially:
 
 - New or removed casks
 - New or removed formulae
