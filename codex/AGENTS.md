@@ -55,7 +55,7 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 - Use clickable file references when pointing to local files.
 - Avoid unnecessary praise, filler, or restating the obvious.
 - Write project documentation to Confluence unless the user explicitly asks for another destination.
-- When writing documentation in Confluence, set an appropriate emoji icon for the page.
+- When writing documentation in Confluence, set an appropriate emoji icon for the page and do not repeat the page title as the first heading or first line of the body; Confluence already renders the page title separately.
 
 ## Boundaries
 
