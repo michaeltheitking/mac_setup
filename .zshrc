@@ -48,6 +48,7 @@ export PATH="$HOME/.local/bin:$PATH"
 # Aliases
 # -----------------------------------------------------------------------------
 alias claudeauto="claude --enable-auto-mode"
+alias brewall='brew update && brew upgrade && brew cleanup'
 
 # -----------------------------------------------------------------------------
 # Functions
