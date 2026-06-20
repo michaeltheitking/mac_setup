@@ -1,3 +1,6 @@
 .zshrc.private
 ghostty/local.ghostty
 .DS_Store
+# Project-scoped Claude Code settings auto-created by `claude` in this repo;
+# this repo's Claude config lives in claude/, not a project-level .claude/.
+.claude/
