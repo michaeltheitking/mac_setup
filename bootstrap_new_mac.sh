@@ -17,7 +17,6 @@ BREW_CASKS=(
   codex
   cursor
   dockdoor
-  dropbox
   fantastical
   font-meslo-lg-nerd-font
   ghostty
