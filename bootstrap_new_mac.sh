@@ -19,6 +19,7 @@ BREW_CASKS=(
   dockdoor
   dropbox
   fantastical
+  font-meslo-lg-nerd-font
   ghostty
   grandperspective
   istat-menus
@@ -273,6 +274,11 @@ if [ -n "${ZSH_VERSION:-}" ]; then
   source "$HOME/.zshrc" || true
 else
   echo "Open a new terminal window or run: source ~/.zshrc"
+fi
+
+log "Verifying setup"
+if [ -x "$DOTFILES_DIR/verify.sh" ]; then
+  "$DOTFILES_DIR/verify.sh" || echo "verify.sh reported issues above; review before relying on this machine."
 fi
 
 log "Finished"

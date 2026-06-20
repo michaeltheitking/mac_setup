@@ -11,5 +11,6 @@ bootstrap new mac devices with basic configs
 - `claude/statusline-command.sh` - Claude Code status line command symlinked to `~/.claude/statusline-command.sh`
 - `claude/install-local-hooks.sh` - generates per-machine `~/.claude/settings.local.json` (not symlinked)
 - `setup.sh` - symlinks dotfiles into place
+- `verify.sh` - read-only health check (symlinks, required tools, settings hygiene)
 - `bootstrap_new_mac.sh` - installs tools and configures a new Mac
 - `ghostty/config.ghostty` - Ghostty terminal configuration
