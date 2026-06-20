@@ -22,6 +22,7 @@ BREW_CASKS=(
   ghostty
   grandperspective
   istat-menus
+  linear
   microsoft-office
   notion
   nvidia-geforce-now
@@ -33,7 +34,7 @@ BREW_CASKS=(
   todoist-app
   vlc
   wispr-flow
-  zoom
+  zed
 )
 
 BREW_FORMULAS=(
