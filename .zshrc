@@ -76,6 +76,7 @@ awssync() {
     --exclude "docs" \
     --exclude "docs/*" \
     --exclude "docs/**" \
+    --exclude "AGENTS.md" \
   && aws cloudfront create-invalidation --distribution-id E2LXTUFU951CL5 --paths "/*" > /dev/null \
   && echo "CloudFront cache invalidated."
 }
