@@ -48,12 +48,22 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 - Keep text readable and ensure controls do not overlap or resize unpredictably.
 - Use familiar controls and icons where appropriate.
 
+## Decision Logging
+
+- When making or changing a consequential project decision, update `docs/decisions/`.
+- Consequential decisions include provider, vendor, or API choices; architecture or module boundaries; data model or schema choices; auth or security approach; testing or CI policy; deployment or runtime assumptions; and anything that would be annoying to reverse later.
+- For each decision, create a new ADR if none exists or update the existing ADR if the decision changes.
+- ADRs should include status, context, decision, rationale, consequences, and revisit triggers.
+- Do not create ADRs for tiny bug fixes, formatting changes, or obvious implementation details.
+
 ## Communication
 
 - Keep progress updates short and concrete.
 - Final responses should summarize what changed, what was verified, and any remaining risks.
 - Use clickable file references when pointing to local files.
 - Avoid unnecessary praise, filler, or restating the obvious.
+- Log code review findings in Linear at the appropriate project or issue level.
+- If a closed Linear issue receives additional required fixes, review findings, or follow-up comments, reopen it and move it back to the backlog.
 - Write project documentation to Confluence unless the user explicitly asks for another destination.
 - When writing documentation in Confluence, set an appropriate emoji icon for the page and do not repeat the page title as the first heading or first line of the body; Confluence already renders the page title separately.
 
