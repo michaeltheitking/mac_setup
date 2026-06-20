@@ -22,7 +22,6 @@
     }
   },
   "effortLevel": "low",
-  "fastMode": true,
   "theme": "dark",
   "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true

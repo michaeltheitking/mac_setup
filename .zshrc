@@ -45,6 +45,22 @@ fi
 export PATH="$HOME/.local/bin:$PATH"
 
 # -----------------------------------------------------------------------------
+# Terminal Title
+# -----------------------------------------------------------------------------
+# Show which box I'm on in the terminal/tab title: hostname when on a remote
+# SSH session, otherwise the current directory name. Registered via add-zsh-hook
+# so it coexists with Powerlevel10k's own precmd hooks.
+autoload -Uz add-zsh-hook
+_set_terminal_title() {
+  if [[ -n "$SSH_CONNECTION" ]]; then
+    print -Pn "\e]0;SSH: %m\a"
+  else
+    print -Pn "\e]0;%1~\a"
+  fi
+}
+add-zsh-hook precmd _set_terminal_title
+
+# -----------------------------------------------------------------------------
 # Aliases
 # -----------------------------------------------------------------------------
 alias claudeauto="claude --permission-mode auto"
