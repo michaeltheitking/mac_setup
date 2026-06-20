@@ -248,12 +248,8 @@ if [ -d "$DOTFILES_DIR/.git" ]; then
 fi
 
 log "Running dotfiles setup"
-if [ -x "$DOTFILES_DIR/setup.sh" ]; then
-  "$DOTFILES_DIR/setup.sh"
-else
-  chmod +x "$DOTFILES_DIR/setup.sh"
-  "$DOTFILES_DIR/setup.sh"
-fi
+chmod +x "$DOTFILES_DIR/setup.sh"
+"$DOTFILES_DIR/setup.sh"
 
 log "Installing Claude Code plugins"
 if have_cmd claude; then

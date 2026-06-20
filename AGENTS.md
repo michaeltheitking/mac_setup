@@ -25,7 +25,6 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `claude/install-local-hooks.sh` - generates the per-machine `~/.claude/settings.local.json` (Bartender hooks + permissions); not symlinked or committed.
 - `verify.sh` - read-only health check for symlink integrity, required tools, and Claude settings hygiene. Run anytime; `bootstrap_new_mac.sh` runs it last.
 - `ghostty/config.ghostty` - Ghostty terminal config.
-- `README.md` - brief repo inventory.
 
 ## Bootstrap Script Conventions
 

@@ -57,7 +57,6 @@ awssync() {
   aws s3 sync . s3://michael-king.com --delete \
     --exclude ".*" \
     --exclude ".*/**" \
-    --exclude ".*/**" \
     --exclude "README.md" \
     --exclude "package.json" \
     --exclude "package-lock.json" \

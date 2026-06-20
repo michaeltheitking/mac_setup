@@ -17,9 +17,7 @@ ln -sf "$HOME/dotfiles/codex/AGENTS.md" "$HOME/.claude/CLAUDE.md"
 "$HOME/dotfiles/claude/install-local-hooks.sh"
 git config --global core.excludesfile "$HOME/.gitignore_global"
 
-if [ -f "$HOME/dotfiles/.p10k.zsh" ]; then
-  ln -sf "$HOME/dotfiles/.p10k.zsh" "$HOME/.p10k.zsh"
-fi
+ln -sf "$HOME/dotfiles/.p10k.zsh" "$HOME/.p10k.zsh"
 
 ln -sf "$HOME/dotfiles/ghostty/config.ghostty" "$HOME/.config/ghostty/config"
 ln -sf "$HOME/dotfiles/ghostty/config.ghostty" \

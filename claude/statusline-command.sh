@@ -1,16 +1,35 @@
 #!/bin/sh
 input=$(cat)
 
-model=$(echo "$input" | jq -r '.model.display_name // "Unknown Model"')
-effort=$(echo "$input" | jq -r '.effort.level // empty')
-used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
-worktree=$(echo "$input" | jq -r '.worktree.name // empty')
-total_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
-current_dir=$(echo "$input" | jq -r '.worktree.original_cwd // empty')
-rl_5h_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty' | awk '{printf "%.0f", $1}')
-rl_5h_reset=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
-rl_7d_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
-rl_7d_reset=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // empty')
+# Parse every field in one jq pass (this script re-renders constantly).
+# One value per line; empty fields stay empty (unlike collapsing tab/IFS splits).
+{
+  IFS= read -r model
+  IFS= read -r effort
+  IFS= read -r used
+  IFS= read -r worktree
+  IFS= read -r total_cost
+  IFS= read -r current_dir
+  IFS= read -r rl_5h_pct
+  IFS= read -r rl_5h_reset
+  IFS= read -r rl_7d_pct
+  IFS= read -r rl_7d_reset
+} <<EOF
+$(printf '%s' "$input" | jq -r '[
+  .model.display_name // "Unknown Model",
+  .effort.level // "",
+  .context_window.used_percentage // "",
+  .worktree.name // "",
+  .cost.total_cost_usd // "",
+  .worktree.original_cwd // "",
+  .rate_limits.five_hour.used_percentage // "",
+  .rate_limits.five_hour.resets_at // "",
+  .rate_limits.seven_day.used_percentage // "",
+  .rate_limits.seven_day.resets_at // ""
+] | .[]')
+EOF
+
+[ -n "$rl_5h_pct" ] && rl_5h_pct=$(printf "%.0f" "$rl_5h_pct")
 
 if [ -n "$used" ]; then
   used_display=$(printf "%.0f" "$used")
