@@ -8,7 +8,6 @@ input=$(cat)
   IFS= read -r effort
   IFS= read -r used
   IFS= read -r worktree
-  IFS= read -r total_cost
   IFS= read -r current_dir
   IFS= read -r rl_5h_pct
   IFS= read -r rl_5h_reset
@@ -20,7 +19,6 @@ $(printf '%s' "$input" | jq -r '[
   .effort.level // "",
   .context_window.used_percentage // "",
   .worktree.name // "",
-  .cost.total_cost_usd // "",
   .worktree.original_cwd // "",
   .rate_limits.five_hour.used_percentage // "",
   .rate_limits.five_hour.resets_at // "",
@@ -32,10 +30,9 @@ EOF
 [ -n "$rl_5h_pct" ] && rl_5h_pct=$(printf "%.0f" "$rl_5h_pct")
 
 if [ -n "$used" ]; then
-  used_display=$(printf "%.0f" "$used")
-  usage_str="${used_display}%"
+  used_pct=$(printf "%.0f" "$used")
 else
-  usage_str="0%"
+  used_pct=0
 fi
 
 if [ -n "$worktree" ]; then
@@ -63,13 +60,6 @@ else
   git_str="no branch"
 fi
 
-if [ -n "$total_cost" ]; then
-  cost_display=$(awk "BEGIN { printf \"%.2f\", $total_cost }")
-  block_str="\$${cost_display}"
-else
-  block_str="\$0.00"
-fi
-
 make_bar() {
   pct="$1"
   width=10
@@ -82,19 +72,23 @@ make_bar() {
   printf "%s" "$bar"
 }
 
+pct_color() {
+  if [ "$1" -ge 90 ]; then printf "%s" "$RED"
+  elif [ "$1" -ge 70 ]; then printf "%s" "$YELLOW"
+  else printf "%s" "$GREEN"
+  fi
+}
+
 format_rl() {
   pct="$1"
   reset_ts="$2"
   label="$3"
   [ -z "$pct" ] && return
-  if [ "$pct" -ge 90 ]; then color="$RED"
-  elif [ "$pct" -ge 70 ]; then color="$YELLOW"
-  else color="$GREEN"
-  fi
   reset_time=$(date -r "$reset_ts" "+%-I:%M%p" 2>/dev/null || date -d "@$reset_ts" "+%-I:%M%p" 2>/dev/null)
-  bar=$(make_bar "$pct")
-  printf "${color}${label} ${bar} ${pct}%% resets ${reset_time}${RESET}"
+  printf "$(pct_color "$pct")${label} $(make_bar "$pct") ${pct}%% resets ${reset_time}${RESET}"
 }
+
+usage_str=$(printf "$(pct_color "$used_pct")$(make_bar "$used_pct") ${used_pct}%%${RESET}")
 
 rate_limit_str=""
 rate_limit_str="${rate_limit_str}$(format_rl "$rl_5h_pct" "$rl_5h_reset" "5h")"
@@ -104,7 +98,7 @@ repo_root=$(cd "$current_dir" 2>/dev/null && git rev-parse --show-toplevel 2>/de
 dir_display=$(basename "$repo_root")
 
 if [ -n "$effort" ]; then
-  printf "🤖 %s | 💪 %s | 🧠 %s | 💰 %s | ⏱️ %s\n📁 %s | 🌳 %s | 🌿 %s" "$model" "$effort" "$usage_str" "$block_str" "$rate_limit_str" "$dir_display" "$worktree_str" "$git_str"
+  printf "🤖 %s | 💪 %s | 🧠 %s | ⏱️ %s\n📁 %s | 🌳 %s | 🌿 %s" "$model" "$effort" "$usage_str" "$rate_limit_str" "$dir_display" "$worktree_str" "$git_str"
 else
-  printf "🤖 %s | 🧠 %s | 💰 %s | ⏱️ %s\n📁 %s | 🌳 %s | 🌿 %s" "$model" "$usage_str" "$block_str" "$rate_limit_str" "$dir_display" "$worktree_str" "$git_str"
+  printf "🤖 %s | 🧠 %s | ⏱️ %s\n📁 %s | 🌳 %s | 🌿 %s" "$model" "$usage_str" "$rate_limit_str" "$dir_display" "$worktree_str" "$git_str"
 fi
