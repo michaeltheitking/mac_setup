@@ -16,10 +16,13 @@ When setup behavior changes, update both this repo and that Confluence page.
 ## Repo Layout
 
 - `bootstrap_new_mac.sh` - fresh-Mac bootstrap script for Xcode CLT, Homebrew, CLI tools, casks, Claude Code, Git, SSH, GitHub auth, and dotfile setup.
-- `setup.sh` - symlinks `.zshrc`, `.p10k.zsh`, and Ghostty config into their expected locations.
+- `setup.sh` - symlinks `.zshrc`, `.p10k.zsh`, Codex config, Claude Code config, and Ghostty config into their expected locations.
 - `.zshrc` - zsh shell config. Sources Powerlevel10k and zsh-autosuggestions only when installed.
 - `.p10k.zsh` - Powerlevel10k prompt config.
 - `codex/AGENTS.md` - global Codex instructions symlinked to `~/.codex/AGENTS.md`.
+- `codex/config.toml` - global Codex config symlinked to `~/.codex/config.toml`.
+- `claude/settings.json` - Claude Code settings symlinked to `~/.claude/settings.json`.
+- `claude/statusline-command.sh` - Claude Code status line command symlinked to `~/.claude/statusline-command.sh`.
 - `ghostty/config.ghostty` - Ghostty terminal config.
 - `README.md` - brief repo inventory.
 
