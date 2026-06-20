@@ -56,6 +56,8 @@ CLAUDE_PLUGINS=(
   "context7@claude-plugins-official"
   "skill-creator@claude-plugins-official"
   "superpowers@claude-plugins-official"
+  "atlassian@claude-plugins-official"
+  "linear@claude-plugins-official"
 )
 
 log() {
