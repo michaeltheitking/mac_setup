@@ -40,9 +40,22 @@ BREW_FORMULAS=(
   git
   gh
   node
+  jq
   powerlevel10k
   zsh-autosuggestions
   fastfetch
+)
+
+CLAUDE_MARKETPLACES=(
+  "EveryInc/compound-engineering-plugin"
+)
+
+CLAUDE_PLUGINS=(
+  "claude-md-management@claude-plugins-official"
+  "compound-engineering@compound-engineering-plugin"
+  "context7@claude-plugins-official"
+  "skill-creator@claude-plugins-official"
+  "superpowers@claude-plugins-official"
 )
 
 log() {
@@ -237,6 +250,20 @@ if [ -x "$DOTFILES_DIR/setup.sh" ]; then
 else
   chmod +x "$DOTFILES_DIR/setup.sh"
   "$DOTFILES_DIR/setup.sh"
+fi
+
+log "Installing Claude Code plugins"
+if have_cmd claude; then
+  for market in "${CLAUDE_MARKETPLACES[@]}"; do
+    claude plugin marketplace add "$market" 2>/dev/null \
+      || echo "Marketplace already added or unavailable: $market"
+  done
+  for plugin in "${CLAUDE_PLUGINS[@]}"; do
+    claude plugin install "$plugin" 2>/dev/null \
+      || echo "Could not install plugin (may already be installed): $plugin"
+  done
+else
+  echo "Skipping plugins: claude CLI not found."
 fi
 
 log "Reloading shell config if possible"

@@ -12,6 +12,8 @@ ln -sf "$HOME/dotfiles/codex/AGENTS.md" "$HOME/.codex/AGENTS.md"
 ln -sf "$HOME/dotfiles/codex/config.toml" "$HOME/.codex/config.toml"
 ln -sf "$HOME/dotfiles/claude/settings.json" "$HOME/.claude/settings.json"
 ln -sf "$HOME/dotfiles/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
+# Per-machine Claude settings (Bartender hooks + permissions); not symlinked.
+"$HOME/dotfiles/claude/install-local-hooks.sh"
 git config --global core.excludesfile "$HOME/.gitignore_global"
 
 if [ -f "$HOME/dotfiles/.p10k.zsh" ]; then
