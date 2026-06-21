@@ -28,6 +28,7 @@ $(printf '%s' "$input" | jq -r '[
 EOF
 
 [ -n "$rl_5h_pct" ] && rl_5h_pct=$(printf "%.0f" "$rl_5h_pct")
+[ -n "$rl_7d_pct" ] && rl_7d_pct=$(printf "%.0f" "$rl_7d_pct")
 
 if [ -n "$used" ]; then
   used_pct=$(printf "%.0f" "$used")
@@ -79,26 +80,22 @@ pct_color() {
   fi
 }
 
-format_rl() {
-  pct="$1"
-  reset_ts="$2"
-  label="$3"
-  [ -z "$pct" ] && return
-  reset_time=$(date -r "$reset_ts" "+%-I:%M%p" 2>/dev/null || date -d "@$reset_ts" "+%-I:%M%p" 2>/dev/null)
-  printf "$(pct_color "$pct")${label} $(make_bar "$pct") ${pct}%% resets ${reset_time}${RESET}"
-}
-
 usage_str=$(printf "$(pct_color "$used_pct")$(make_bar "$used_pct") ${used_pct}%%${RESET}")
 
 rate_limit_str=""
-rate_limit_str="${rate_limit_str}$(format_rl "$rl_5h_pct" "$rl_5h_reset" "5h")"
-# rate_limit_str="${rate_limit_str}$(format_rl "$rl_7d_pct" "$rl_7d_reset" "7d")"
+if [ -n "$rl_5h_pct" ]; then
+  reset_5h=$(date -r "$rl_5h_reset" "+%-I:%M%p" 2>/dev/null || date -d "@$rl_5h_reset" "+%-I:%M%p" 2>/dev/null)
+  rate_limit_str=$(printf "$(pct_color "$rl_5h_pct")${rl_5h_pct}%% resets ${reset_5h}${RESET}")
+fi
+
+week_str=""
+[ -n "$rl_7d_pct" ] && week_str=$(printf "🌐 $(pct_color "$rl_7d_pct")${rl_7d_pct}%%${RESET}")
 
 repo_root=$(cd "$current_dir" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null || echo "$current_dir")
 dir_display=$(basename "$repo_root")
 
 if [ -n "$effort" ]; then
-  printf "🤖 %s | 💪 %s | 🧠 %s | ⏱️ %s\n📁 %s | 🌳 %s | 🌿 %s" "$model" "$effort" "$usage_str" "$rate_limit_str" "$dir_display" "$worktree_str" "$git_str"
+  printf "🤖 %s | 💪 %s | 🧠 %s | ⏱️ %s | %s\n📁 %s | 🌳 %s | 🌿 %s" "$model" "$effort" "$usage_str" "$rate_limit_str" "$week_str" "$dir_display" "$worktree_str" "$git_str"
 else
-  printf "🤖 %s | 🧠 %s | ⏱️ %s\n📁 %s | 🌳 %s | 🌿 %s" "$model" "$usage_str" "$rate_limit_str" "$dir_display" "$worktree_str" "$git_str"
+  printf "🤖 %s | 🧠 %s | ⏱️ %s | %s\n📁 %s | 🌳 %s | 🌿 %s" "$model" "$usage_str" "$rate_limit_str" "$week_str" "$dir_display" "$worktree_str" "$git_str"
 fi
