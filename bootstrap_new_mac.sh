@@ -16,7 +16,6 @@ BREW_CASKS=(
   claude
   codex
   cursor
-  dockdoor
   fantastical
   font-meslo-lg-nerd-font
   ghostty
