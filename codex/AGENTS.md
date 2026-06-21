@@ -50,11 +50,11 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 
 ## Decision Logging
 
-- When making or changing a consequential project decision, update `docs/decisions/`.
-- Consequential decisions include provider, vendor, or API choices; architecture or module boundaries; data model or schema choices; auth or security approach; testing or CI policy; deployment or runtime assumptions; and anything that would be annoying to reverse later.
-- For each decision, create a new ADR if none exists or update the existing ADR if the decision changes.
+- Log only ADR, architecture, or design decisions in `docs/decisions/`.
+- ADR-worthy decisions include provider, vendor, or API choices; architecture or module boundaries; data model or schema choices; auth or security approach; testing or CI policy; and deployment or runtime assumptions.
+- For each ADR-worthy decision, create a new ADR if none exists or update the existing ADR if the decision changes.
 - ADRs should include status, context, decision, rationale, consequences, and revisit triggers.
-- Do not create ADRs for tiny bug fixes, formatting changes, or obvious implementation details.
+- Do not create ADRs for tiny bug fixes, formatting changes, routine implementation details, or other non-architecture/non-design decisions.
 
 ## Communication
 
