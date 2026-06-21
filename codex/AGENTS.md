@@ -32,6 +32,7 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 - Never revert or overwrite changes that were not made for the current task unless explicitly requested.
 - If unexpected changes affect the task, inspect them and work with them.
 - Before committing, check `git status` and include only relevant changes.
+- Decide whether and when to commit or push changes based on the state of the work; prefer committing and pushing durable, reviewed repo changes, and avoid commits or pushes for exploratory, partial, or user-local work unless explicitly requested.
 
 ## Testing and Verification
 
@@ -66,6 +67,7 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 - When Linear tasks are implemented, move them to `Ready for Review` first; move them to `Completed` only after a Linear comment explicitly notes that the work was reviewed and signed off.
 - If a closed Linear issue receives additional required fixes, review findings, or follow-up comments, reopen it and move it back to the backlog.
 - Write project documentation to Confluence unless the user explicitly asks for another destination.
+- Confluence project documentation should focus on high-level design, a plain-English overview, and how to operate the tool; avoid dumping low-level implementation details unless they are needed for operation or support.
 - When writing documentation in Confluence, set an appropriate emoji icon for the page and do not repeat the page title as the first heading or first line of the body; Confluence already renders the page title separately.
 
 ## Boundaries
