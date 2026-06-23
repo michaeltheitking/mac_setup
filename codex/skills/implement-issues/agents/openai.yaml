@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Issues"
+  short_description: "Implement Linear issues end to end"
+  default_prompt: "Use $implement-issues to implement the open Linear issues for this project."

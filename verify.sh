@@ -58,6 +58,22 @@ check_symlink "$HOME/.claude/statusline-command.sh" "$DOTFILES_DIR/claude/status
 check_symlink "$HOME/.config/ghostty/config"       "$DOTFILES_DIR/ghostty/config.ghostty"
 check_symlink "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty" "$DOTFILES_DIR/ghostty/config.ghostty"
 
+section "Managed skills"
+skills_found=0
+for skill in "$DOTFILES_DIR"/claude/skills/*/; do
+  [ -d "$skill" ] || continue
+  skills_found=1
+  name="$(basename "$skill")"
+  check_symlink "$HOME/.claude/skills/$name" "$DOTFILES_DIR/claude/skills/$name"
+done
+for skill in "$DOTFILES_DIR"/codex/skills/*/; do
+  [ -d "$skill" ] || continue
+  skills_found=1
+  name="$(basename "$skill")"
+  check_symlink "$HOME/.codex/skills/$name" "$DOTFILES_DIR/codex/skills/$name"
+done
+[ "$skills_found" = 1 ] || tag_warn "no skills found under $(short "$DOTFILES_DIR")/{claude,codex}/skills"
+
 section "Required tools"
 check_cmd git   "version control"
 check_cmd gh    "GitHub auth / SSH key registration"

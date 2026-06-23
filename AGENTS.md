@@ -16,10 +16,12 @@ When setup behavior changes, update both this repo and that Confluence page.
 ## Repo Layout
 
 - `bootstrap_new_mac.sh` - fresh-Mac bootstrap script for Xcode CLT, Homebrew, CLI tools, casks, Claude Code, Git, SSH, GitHub auth, and dotfile setup.
-- `setup.sh` - symlinks `.zshrc`, `.p10k.zsh`, global agent instructions, Claude Code config, and Ghostty config into place, and generates per-machine Claude local settings.
+- `setup.sh` - symlinks `.zshrc`, `.p10k.zsh`, global agent instructions, Claude Code config, Claude/Codex skills, and Ghostty config into place, and generates per-machine Claude local settings.
 - `.zshrc` - zsh shell config. Sources Powerlevel10k and zsh-autosuggestions only when installed.
 - `.p10k.zsh` - Powerlevel10k prompt config.
 - `codex/AGENTS.md` - global agent instructions, symlinked to both `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md` so Codex and Claude Code stay in sync.
+- `claude/skills/` - global Claude Code skills, each symlinked per-skill into `~/.claude/skills/`. Add a new `claude/skills/<name>/SKILL.md` and re-run `setup.sh` to link it.
+- `codex/skills/` - global Codex skills, each symlinked per-skill into `~/.codex/skills/`. Linked per-skill (not the whole directory) so Codex's managed `~/.codex/skills/.system` is left untouched.
 - `claude/settings.json` - Claude Code settings symlinked to `~/.claude/settings.json`.
 - `claude/statusline-command.sh` - Claude Code status line command symlinked to `~/.claude/statusline-command.sh`.
 - `claude/install-local-hooks.sh` - generates the per-machine `~/.claude/settings.local.json` (Bartender hooks + permissions); not symlinked or committed.

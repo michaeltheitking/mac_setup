@@ -33,6 +33,7 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 - If unexpected changes affect the task, inspect them and work with them.
 - Before committing, check `git status` and include only relevant changes.
 - Decide whether and when to commit or push changes based on the state of the work; prefer committing and pushing durable, reviewed repo changes, and avoid commits or pushes for exploratory, partial, or user-local work unless explicitly requested.
+- Before committing or pushing, ensure code has been reviewed, linted, formatted/prettified with the project tools, simplified where practical, commented where helpful, and validated with the relevant tests or checks.
 
 ## Testing and Verification
 

@@ -13,6 +13,19 @@ ln -sf "$HOME/dotfiles/claude/settings.json" "$HOME/.claude/settings.json"
 ln -sf "$HOME/dotfiles/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
 # Share one set of global agent instructions between Codex and Claude Code.
 ln -sf "$HOME/dotfiles/codex/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+
+# Global agent skills, shared across machines. Linked per-skill (driven by what's
+# in the repo) so Codex's managed ~/.codex/skills/.system stays untouched.
+mkdir -p "$HOME/.claude/skills" "$HOME/.codex/skills"
+for skill in "$HOME"/dotfiles/claude/skills/*/; do
+  [ -d "$skill" ] || continue
+  ln -sfn "${skill%/}" "$HOME/.claude/skills/$(basename "$skill")"
+done
+for skill in "$HOME"/dotfiles/codex/skills/*/; do
+  [ -d "$skill" ] || continue
+  ln -sfn "${skill%/}" "$HOME/.codex/skills/$(basename "$skill")"
+done
+
 # Per-machine Claude settings (Bartender hooks + permissions); not symlinked.
 "$HOME/dotfiles/claude/install-local-hooks.sh"
 git config --global core.excludesfile "$HOME/.gitignore_global"
