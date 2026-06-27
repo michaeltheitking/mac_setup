@@ -65,6 +65,7 @@ add-zsh-hook precmd _set_terminal_title
 # -----------------------------------------------------------------------------
 alias claudeauto="claude --permission-mode auto"
 alias brewall='brew update && brew upgrade && brew cleanup'
+alias devbox='ssh -t devbox "tmux new -As main"'
 
 # -----------------------------------------------------------------------------
 # Functions
