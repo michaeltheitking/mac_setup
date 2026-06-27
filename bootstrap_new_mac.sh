@@ -41,6 +41,7 @@ BREW_FORMULAS=(
   gh
   node
   jq
+  tmux
   powerlevel10k
   zsh-autosuggestions
   fastfetch
