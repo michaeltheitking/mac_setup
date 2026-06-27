@@ -1,6 +1,6 @@
 ---
 name: implement-issues
-description: End-to-end Linear issue implementation workflow. Use when Codex is asked to look at, triage, fix, implement, or take open/new Linear issues for the current project/repository, including requests like "new issue, take a look", "implement the Linear issues", "fix open project issues", or "work through the backlog". Reads the relevant Linear project, implements issue requirements in the local codebase, verifies tests/lint/typecheck/format, updates Linear with a signed summary, and moves finished work to Ready for Review.
+description: End-to-end Linear issue implementation workflow. Use when Codex is asked to look at, triage, fix, implement, or take open/new Linear issues for the current project/repository, including requests like "new issue, take a look", "implement the Linear issues", "fix open project issues", or "work through the backlog". Reads all open Linear issues for the relevant project, implements every actionable issue in the local codebase, verifies tests/lint/typecheck/format, updates Linear with signed summaries, and moves finished work to Ready for Review.
 ---
 
 # Implement Issues
@@ -13,11 +13,11 @@ description: End-to-end Linear issue implementation workflow. Use when Codex is 
    - Identify the relevant Linear team/project from repo guidance, issue references, branch names, or user context. If ambiguous, inspect available Linear projects/teams and choose the project matching the repository.
 
 2. Read Linear before deciding:
-   - Use Linear tools to list recent/open issues for the relevant project.
-   - For each candidate issue, read the full issue body, labels, priority, comments, relations, and current status.
-   - Prefer newest or highest-priority actionable issues when the user says "new issue" or gives no issue ID.
+   - Use Linear tools to list all open issues for the relevant project, paginating if needed.
+   - For each open issue, read the full issue body, labels, priority, comments, relations, and current status.
+   - Build an implementation queue from all open actionable issues, ordered by explicit user issue IDs first, then blocker/urgent/high-priority issues, then newest issues.
    - Do not reopen or change closed issues unless the issue has new required fixes or the user explicitly asks.
-   - Move the issue to `In Progress` before implementation when it is not already started.
+   - Move each issue to `In Progress` before implementation when it is not already started.
 
 3. Implement the issue, not a drive-by refactor:
    - Translate acceptance criteria and stated goals into code/docs/tests.
@@ -42,23 +42,24 @@ description: End-to-end Linear issue implementation workflow. Use when Codex is 
    - If a tool is unavailable, install only through the project’s declared environment/dependency path or report exactly what could not be verified.
 
 6. Update Linear when implementation is genuinely ready:
-   - Add a concise implementation comment to the issue.
+   - Add a concise implementation comment to each completed issue.
    - Start the comment with `Codex update:`.
    - Include changed behavior, key files/components, and exact verification commands/results.
    - Do not include secrets, tokens, raw private payloads, unrelated sensitive data, or live-trading approvals.
    - End the comment with `--codex`.
-   - Move the issue to `Ready for Review`, not `Done`/`Completed`, unless an explicit review sign-off comment already authorizes completion.
+   - Move each completed issue to `Ready for Review`, not `Done`/`Completed`, unless an explicit review sign-off comment already authorizes completion.
 
 ## Selection Rules
 
-- If the user names an issue ID, implement that issue.
-- If the user says "new issue", pick the newest open issue in the relevant project unless another open issue is clearly more urgent and blocking.
-- If multiple open issues are requested, implement them one at a time unless they are tightly coupled. Avoid bundling unrelated changes into one diff.
+- If the user names one or more issue IDs, prioritize those issues first, then continue through the remaining open actionable issues unless the user explicitly limits scope to only the named issues.
+- If the user says "new issue", "open issues", "implement issues", "fix project issues", or gives no issue ID, review all open issues in the relevant project and implement every actionable one.
+- Implement open issues one at a time unless they are tightly coupled. Avoid bundling unrelated changes into one diff.
 - If an issue is too broad for one pass, implement a coherent initial slice that satisfies explicit acceptance criteria where possible, then leave a signed Linear comment describing what remains.
-- If an issue cannot be implemented because requirements conflict, data/tool access is missing, or the local repo cannot support it, leave a signed Linear comment with the blocker and do not move it to Ready for Review.
+- If an issue cannot be implemented because requirements conflict, data/tool access is missing, or the local repo cannot support it, leave a signed Linear comment with the blocker, do not move it to Ready for Review, and continue with the next open actionable issue.
+- Stop before implementation only when there are no open actionable issues, the Linear project/team cannot be identified, or continuing would require destructive or externally expensive action not authorized by the user.
 
 ## Git And Delivery
 
 - Do not stage, commit, push, or create a PR unless the user asks or repo guidance requires it for the workflow.
-- Before final response, report current git status, verification results, Linear status change, and any remaining risks.
+- Before final response, report current git status, verification results, Linear status changes for each reviewed issue, and any remaining risks or blocked issues.
 - Keep unrelated existing worktree changes unstaged and mention them separately when relevant.
