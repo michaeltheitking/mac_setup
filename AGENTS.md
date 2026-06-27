@@ -16,8 +16,9 @@ When setup behavior changes, update both this repo and that Confluence page.
 ## Repo Layout
 
 - `bootstrap_new_mac.sh` - fresh-Mac bootstrap script for Xcode CLT, Homebrew, CLI tools, casks, Claude Code, Git, SSH, GitHub auth, and dotfile setup.
-- `setup.sh` - symlinks `.zshrc`, `.p10k.zsh`, global agent instructions, Claude Code config, Claude/Codex skills, and Ghostty config into place, and generates per-machine Claude local settings.
+- `setup.sh` - symlinks `.zshrc`, `.tmux.conf`, `.p10k.zsh`, global agent instructions, Claude Code config, Claude/Codex skills, and Ghostty config into place, and generates per-machine Claude local settings.
 - `.zshrc` - zsh shell config. Sources Powerlevel10k and zsh-autosuggestions only when installed.
+- `.tmux.conf` - tmux terminal config. Uses `tmux-256color` and enables RGB color support for `xterm-256color`.
 - `.p10k.zsh` - Powerlevel10k prompt config.
 - `codex/AGENTS.md` - global agent instructions, symlinked to both `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md` so Codex and Claude Code stay in sync.
 - `claude/skills/` - global Claude Code skills, each symlinked per-skill into `~/.claude/skills/`. Add a new `claude/skills/<name>/SKILL.md` and re-run `setup.sh` to link it.

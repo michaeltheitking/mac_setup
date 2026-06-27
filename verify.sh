@@ -50,6 +50,7 @@ check_cmd() { # <binary> <why>
 section "Managed symlinks"
 check_symlink "$HOME/.zshrc"                       "$DOTFILES_DIR/.zshrc"
 check_symlink "$HOME/.gitignore_global"            "$DOTFILES_DIR/.gitignore_global"
+check_symlink "$HOME/.tmux.conf"                   "$DOTFILES_DIR/.tmux.conf"
 check_symlink "$HOME/.p10k.zsh"                    "$DOTFILES_DIR/.p10k.zsh" optional
 check_symlink "$HOME/.codex/AGENTS.md"             "$DOTFILES_DIR/codex/AGENTS.md"
 check_symlink "$HOME/.claude/CLAUDE.md"            "$DOTFILES_DIR/codex/AGENTS.md"
@@ -79,6 +80,7 @@ check_cmd git   "version control"
 check_cmd gh    "GitHub auth / SSH key registration"
 check_cmd node  "npm-based Claude Code install"
 check_cmd jq    "Claude Code status line command"
+check_cmd tmux  "terminal multiplexing"
 check_cmd claude "Claude Code"
 check_cmd brew  "Homebrew package management"
 

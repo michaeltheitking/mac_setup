@@ -8,6 +8,7 @@ mkdir -p "$HOME/.claude"
 
 ln -sf "$HOME/dotfiles/.zshrc" "$HOME/.zshrc"
 ln -sf "$HOME/dotfiles/.gitignore_global" "$HOME/.gitignore_global"
+ln -sf "$HOME/dotfiles/.tmux.conf" "$HOME/.tmux.conf"
 ln -sf "$HOME/dotfiles/codex/AGENTS.md" "$HOME/.codex/AGENTS.md"
 ln -sf "$HOME/dotfiles/claude/settings.json" "$HOME/.claude/settings.json"
 ln -sf "$HOME/dotfiles/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
