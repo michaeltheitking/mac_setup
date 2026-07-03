@@ -40,6 +40,7 @@ BREW_FORMULAS=(
   gh
   node
   jq
+  pngpaste
   tmux
   powerlevel10k
   zsh-autosuggestions
