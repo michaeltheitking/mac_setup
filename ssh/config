@@ -10,9 +10,6 @@ Host devbox
     UseKeychain yes
     IdentityFile ~/.ssh/id_ed25519
     SetEnv TERM=xterm-256color
-    ServerAliveInterval 30
-    ServerAliveCountMax 3
-    TCPKeepAlive no
 
 Host devbox-magicdns
     HostName michaels-mac-mini.tail367472.ts.net
@@ -30,8 +27,10 @@ Host devbox-local
     IdentityFile ~/.ssh/id_ed25519
     SetEnv TERM=xterm-256color
 
-# Global defaults — keep last so specific hosts above win per-option
+# Shared keepalive policy for all hosts — dead link is torn down in
+# 15 x 3 = 45s. ServerAlive (encrypted) is the mechanism; TCPKeepAlive
+# stays off (coarse and spoofable).
 Host *
-  ServerAliveInterval 60
+  ServerAliveInterval 15
   ServerAliveCountMax 3
-  TCPKeepAlive yes
+  TCPKeepAlive no
