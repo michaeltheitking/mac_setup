@@ -42,9 +42,11 @@ check_symlink() { # <link> <expected_target> [optional]
   fi
 }
 
-check_cmd() { # <binary> <why>
-  if command -v "$1" >/dev/null 2>&1; then tag_ok "$1 ($2)"
-  else tag_fail "$1 not found — needed for: $2"; fi
+check_cmd() { # <binary> <why> [optional]
+  local bin="$1" why="$2" optional="${3:-}"
+  if command -v "$bin" >/dev/null 2>&1; then tag_ok "$bin ($why)"
+  elif [ "$optional" = "optional" ]; then tag_warn "$bin missing (optional) — needed for: $why"
+  else tag_fail "$bin not found — needed for: $why"; fi
 }
 
 section "Managed symlinks"
@@ -85,6 +87,7 @@ check_cmd jq    "Claude Code status line command"
 check_cmd tmux  "terminal multiplexing"
 check_cmd claude "Claude Code"
 check_cmd brew  "Homebrew package management"
+check_cmd pngpaste "clip() clipboard-image helper" optional
 
 section "SSH config hygiene"
 SSH_CONFIG="$DOTFILES_DIR/ssh/config"
