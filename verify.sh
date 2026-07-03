@@ -51,6 +51,7 @@ section "Managed symlinks"
 check_symlink "$HOME/.zshrc"                       "$DOTFILES_DIR/.zshrc"
 check_symlink "$HOME/.gitignore_global"            "$DOTFILES_DIR/.gitignore_global"
 check_symlink "$HOME/.tmux.conf"                   "$DOTFILES_DIR/.tmux.conf"
+check_symlink "$HOME/.ssh/config"                  "$DOTFILES_DIR/ssh/config"
 check_symlink "$HOME/.p10k.zsh"                    "$DOTFILES_DIR/.p10k.zsh" optional
 check_symlink "$HOME/.codex/AGENTS.md"             "$DOTFILES_DIR/codex/AGENTS.md"
 check_symlink "$HOME/.claude/CLAUDE.md"            "$DOTFILES_DIR/codex/AGENTS.md"
@@ -78,11 +79,24 @@ done
 section "Required tools"
 check_cmd git   "version control"
 check_cmd gh    "GitHub auth / SSH key registration"
+check_cmd ssh   "SSH config validation / remote Git"
 check_cmd node  "npm-based Claude Code install"
 check_cmd jq    "Claude Code status line command"
 check_cmd tmux  "terminal multiplexing"
 check_cmd claude "Claude Code"
 check_cmd brew  "Homebrew package management"
+
+section "SSH config hygiene"
+SSH_CONFIG="$DOTFILES_DIR/ssh/config"
+if [ -f "$SSH_CONFIG" ]; then
+  if ssh -G -F "$SSH_CONFIG" github.com >/dev/null 2>&1; then
+    tag_ok "ssh/config parses for github.com"
+  else
+    tag_fail "ssh/config does not parse for github.com"
+  fi
+else
+  tag_fail "ssh/config not found at $(short "$SSH_CONFIG")"
+fi
 
 section "Claude settings hygiene"
 SETTINGS="$DOTFILES_DIR/claude/settings.json"

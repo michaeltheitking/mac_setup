@@ -6,7 +6,6 @@ GIT_NAME="michael"
 GIT_EMAIL="mk@michael-king.com"
 DOTFILES_DIR="$HOME/dotfiles"
 SSH_KEY_PATH="$HOME/.ssh/id_ed25519_github"
-SSH_CONFIG_PATH="$HOME/.ssh/config"
 ASTROPAD_WORKBENCH_URL="https://downloads.astropad.com/workbench/mac/latest"
 
 BREW_CASKS=(
@@ -206,19 +205,6 @@ fi
 
 log "Starting ssh-agent"
 eval "$(ssh-agent -s)"
-
-touch "$SSH_CONFIG_PATH"
-chmod 600 "$SSH_CONFIG_PATH"
-
-if ! grep -q "Host github.com" "$SSH_CONFIG_PATH"; then
-  cat >> "$SSH_CONFIG_PATH" <<EOF
-
-Host github.com
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentityFile $SSH_KEY_PATH
-EOF
-fi
 
 log "Adding SSH key to agent and Keychain"
 ssh-add --apple-use-keychain "$SSH_KEY_PATH"
