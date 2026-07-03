@@ -65,7 +65,8 @@ add-zsh-hook precmd _set_terminal_title
 # -----------------------------------------------------------------------------
 alias claudeauto="claude --permission-mode auto"
 alias brewall='brew update && brew upgrade && brew cleanup'
-alias devbox='ssh -t devbox "tmux new -As main"'
+alias devbox='ssh -t devbox /opt/homebrew/bin/tmux new -As main'
+alias devclaude='ssh -t devbox /opt/homebrew/bin/tmux new -As claude'
 
 # -----------------------------------------------------------------------------
 # Functions
@@ -99,6 +100,25 @@ awssync() {
 
 dbox() {
   cd ~/Dropbox/website
+}
+
+clip() {
+  local remote="michael@michaels-mini"
+  local dir="/tmp/claude-images"
+  local file="clip-$(date +%Y%m%d-%H%M%S).png"
+  local local_file="/tmp/$file"
+
+  pngpaste "$local_file" || {
+    echo "No image found in local clipboard"
+    return 1
+  }
+
+  ssh "$remote" "mkdir -p $dir"
+  scp "$local_file" "$remote:$dir/$file" >/dev/null
+
+  local remote_path="$dir/$file"
+  printf "%s" "$remote_path" | pbcopy
+  echo "Copied remote image path: $remote_path"
 }
 
 # -----------------------------------------------------------------------------
