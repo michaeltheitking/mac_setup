@@ -1,4 +1,5 @@
 {
+  "model": "claude-fable-5",
   "statusLine": {
     "type": "command",
     "command": "sh ~/.claude/statusline-command.sh",
@@ -21,9 +22,9 @@
       }
     }
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
+  "tui": "fullscreen",
   "theme": "dark",
   "remoteControlAtStartup": true,
-  "agentPushNotifEnabled": true,
-  "tui": "fullscreen"
+  "agentPushNotifEnabled": true
 }

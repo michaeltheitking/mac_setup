@@ -94,6 +94,9 @@ Read the real diff.
 - **Completeness** — walk each DoD bullet and confirm it is met, or explicitly
   superseded by a later decision comment. Flag anything *sidestepped* rather than
   solved (e.g., a test made green by disabling a feature instead of covering it).
+- If the issue body contains checkboxes for acceptance criteria, DoD, or review
+  tasks, treat checked boxes as part of the Linear record. Only check off boxes
+  you personally reviewed and consider done.
 - Be adversarial but fair. Surface residual gaps and coverage holes — they become
   follow-up issues, not silent omissions.
 - Distinguish **bug reports** (issues describing a problem) from **fixes** (issues
@@ -123,6 +126,10 @@ state (**Done**):
 - The comment must explicitly state it was **reviewed and approved / signed off**
   (that is the gate that justifies the move), summarize what you verified (with the
   commands and results), and list any non-blocking residuals.
+- Before moving the issue to Done, update the issue body so every reviewed-and-done
+  checkbox is explicitly checked off. Do not check boxes for criteria that were
+  skipped, superseded, or moved to follow-up work unless the Linear record also
+  states that disposition.
 - If the approved fix is still uncommitted, commit it first so "Done" is coherent
   and durable. Commit/push per the repo's conventions.
 

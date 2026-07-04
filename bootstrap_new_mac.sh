@@ -41,6 +41,8 @@ BREW_FORMULAS=(
   node
   jq
   pngpaste
+  ruff
+  prettier
   tmux
   powerlevel10k
   zsh-autosuggestions
