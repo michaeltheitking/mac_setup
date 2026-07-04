@@ -26,6 +26,14 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 - Use `apply_patch` for manual source edits.
 - Do not use destructive commands such as `git reset --hard`, `git checkout --`, or broad deletes unless explicitly requested.
 
+## Lint and Format
+
+- Globally installed (Homebrew): `ruff` for Python and `prettier` for JS/TS/JSON/CSS/Markdown/YAML.
+- Prefer a project's own configured lint/format tools when they exist; fall back to the global tools when the project configures none.
+- For Python fallback: run `ruff check` (lint, includes flake8-simplify rules) and `ruff format` on the files you changed before committing.
+- For web/docs fallback: run `prettier --write` on the files you changed before committing.
+- When falling back to global tools, lint/format only the files touched by the current task — do not reformat the whole repository or commit tool config into the project unless asked.
+
 ## Git Safety
 
 - Treat the worktree as shared with the user.
