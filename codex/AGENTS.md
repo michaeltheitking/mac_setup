@@ -1,6 +1,6 @@
-# Global Codex Instructions
+# Global Assistant Instructions
 
-These instructions apply across all projects. Project-specific `AGENTS.md` files may add or override guidance for a particular repository.
+These instructions apply across all projects and coding tools (Claude Code, Codex, etc.). Project-specific instruction files (`CLAUDE.md`, `AGENTS.md`) may add or override guidance for a particular repository.
 
 ## Working Style
 
@@ -23,7 +23,7 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 
 - Use `rg` or `rg --files` for searching when available.
 - Use structured tools or parsers for structured data instead of ad hoc string manipulation when practical.
-- Use `apply_patch` for manual source edits.
+- Use the harness's dedicated edit/patch tools for source changes, not shell `echo`/heredoc rewrites.
 - Do not use destructive commands such as `git reset --hard`, `git checkout --`, or broad deletes unless explicitly requested.
 
 ## Lint and Format
@@ -40,8 +40,8 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 - Never revert or overwrite changes that were not made for the current task unless explicitly requested.
 - If unexpected changes affect the task, inspect them and work with them.
 - Before committing, check `git status` and include only relevant changes.
-- Decide whether and when to commit or push changes based on the state of the work; prefer committing and pushing durable, reviewed repo changes, and avoid commits or pushes for exploratory, partial, or user-local work unless explicitly requested.
-- Before committing or pushing, ensure code has been reviewed, linted, formatted/prettified with the project tools, simplified where practical, commented where helpful, and validated with the relevant tests or checks.
+- Commit/push durable, reviewed repo changes; avoid commits or pushes for exploratory, partial, or user-local work unless explicitly requested.
+- Before committing or pushing, ensure code is: reviewed, linted, formatted with project tools, simplified where practical, commented where helpful, and validated with the relevant tests.
 
 ## Testing and Verification
 
@@ -72,12 +72,19 @@ These instructions apply across all projects. Project-specific `AGENTS.md` files
 - Final responses should summarize what changed, what was verified, and any remaining risks.
 - Use clickable file references when pointing to local files.
 - Avoid unnecessary praise, filler, or restating the obvious.
+
+## Project Tracking & Documentation
+
+When a project uses Linear:
+
 - Log code review findings in Linear at the appropriate project or issue level.
-- When Linear tasks are implemented, move them to `Ready for Review` first; move them to `Completed` only after a Linear comment explicitly notes that the work was reviewed and signed off.
-- If a closed Linear issue receives additional required fixes, review findings, or follow-up comments, reopen it and move it back to the backlog.
-- Write project documentation to Confluence unless the user explicitly asks for another destination.
-- Confluence project documentation should focus on high-level design, a plain-English overview, and how to operate the tool; avoid dumping low-level implementation details unless they are needed for operation or support.
-- When writing documentation in Confluence, set an appropriate emoji icon for the page and do not repeat the page title as the first heading or first line of the body; Confluence already renders the page title separately.
+- Move implemented tasks to `Ready for Review` first; move to `Completed` only after a Linear comment explicitly notes the work was reviewed and signed off.
+- If a closed issue gets new required fixes or follow-up comments, reopen it and move it back to the backlog.
+
+When a project uses Confluence for documentation (the default unless the user names another destination):
+
+- Focus on high-level design, a plain-English overview, and how to operate the tool; avoid low-level implementation detail unless needed for operation or support.
+- Set an appropriate emoji page icon, and don't repeat the page title as the first heading or line — Confluence renders it separately.
 
 ## Boundaries
 
