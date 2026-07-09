@@ -1,5 +1,8 @@
 {
   "model": "claude-fable-5",
+  "permissions": {
+    "defaultMode": "auto"
+  },
   "statusLine": {
     "type": "command",
     "command": "sh ~/.claude/statusline-command.sh",
