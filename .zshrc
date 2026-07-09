@@ -103,7 +103,7 @@ dbox() {
 }
 
 clip() {
-  local remote="michael@michaels-mini"
+  local remote="michael@michaels-mac-mini"
   local dir="/tmp/claude-images"
   local file="clip-$(date +%Y%m%d-%H%M%S).png"
   local local_file="/tmp/$file"
