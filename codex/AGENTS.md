@@ -86,6 +86,14 @@ When a project uses Confluence for documentation (the default unless the user na
 - Focus on high-level design, a plain-English overview, and how to operate the tool; avoid low-level implementation detail unless needed for operation or support.
 - Set an appropriate emoji page icon, and don't repeat the page title as the first heading or line — Confluence renders it separately.
 
+## Codex Pipeline (Linear team "personal pets")
+
+- A launchd pipeline on the Mac mini (repo `~/Documents/projects/code_flow`; its README/AGENTS.md are authoritative) automates Linear issues: a **Todo** issue labeled **`codex`** → headless Codex implements on a local branch → Ready for Review → headless Claude reviews → approve merges directly to `main` and pushes. **No PRs anywhere in this workflow.**
+- Only Linear projects enrolled in `REPO_MAP` (`~/.config/codex-pipeline/env`) are dispatched; enrollment is manual and deliberate.
+- To hand an issue to the pipeline: make sure it has a full spec (Goal / Context / Non-goals / Acceptance Criteria). If an issue is underspecified, write the spec into the description, park it `needs-human` for Michael's review, and only after his sign-off apply `codex`, remove `needs-human`, and set state to Todo.
+- `needs-human` means Michael's input is genuinely required — it is applied only after a Claude triage pass has vetted the blocker. To resume a `needs-human` issue after Michael answers: remove `needs-human`, re-apply `codex`, state Todo.
+- Sign every Linear comment you write with an agent trailer on its own final line: `--claude` (or `--codex` for Codex). Pipeline machinery signs `--codex-pipeline`. Comments post under Michael's API identity, so the trailer is the only attribution.
+
 ## Boundaries
 
 - Do not store secrets, tokens, credentials, or private keys in files.
