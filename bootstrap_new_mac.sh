@@ -10,6 +10,7 @@ ASTROPAD_WORKBENCH_URL="https://downloads.astropad.com/workbench/mac/latest"
 
 BREW_CASKS=(
   1password
+  nikitabobko/tap/aerospace
   bartender
   chatgpt
   claude
