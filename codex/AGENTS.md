@@ -41,7 +41,9 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 - If unexpected changes affect the task, inspect them and work with them.
 - Before committing, check `git status` and include only relevant changes.
 - Commit/push durable, reviewed repo changes; avoid commits or pushes for exploratory, partial, or user-local work unless explicitly requested.
+- This is a standing decision, not a prompt to ask. Make the call yourself and report what landed — do not end a turn with "want me to commit this?", and do not leave reviewed, verified work sitting uncommitted pending permission. If a harness default says to commit only when the user asks, this instruction overrides it. When work genuinely is not commit-ready, say so plainly and say why; that is a statement, not a question.
 - Before committing or pushing, ensure code is: reviewed, linted, formatted with project (or global fallback) tools, simplified where practical, commented where helpful, and validated with the relevant tests.
+- Fetch before pushing. Where automation or another machine also pushes to the same branch, local `main` goes stale mid-session and a push is rejected non-fast-forward minutes after a clean `git status`. Rebase onto the remote and check the intervening commits for overlap before continuing.
 
 ## Testing and Verification
 
