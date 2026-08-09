@@ -70,6 +70,7 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 
 ## Communication
 
+- Use ASD-STE100 Simplified Technical English in all user-facing communication with Michael.
 - Keep progress updates short and concrete.
 - Final responses should summarize what changed, what was verified, and any remaining risks.
 - Use clickable file references when pointing to local files.
