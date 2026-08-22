@@ -16,6 +16,7 @@ BREW_CASKS=(
   codex
   cursor
   fantastical
+  font-jetbrains-mono-nerd-font
   font-meslo-lg-nerd-font
   ghostty
   grandperspective

@@ -1,9 +1,9 @@
-theme = tokyonight
+theme = Catppuccin Mocha
 
 # typography
 # Nerd Font variant: supplies the glyphs LazyVim and powerlevel10k render.
-# "S" is the narrow-line-gap cut p10k recommends.
-font-family=MesloLGS Nerd Font Mono
+# "Mono" cut keeps every glyph on the same advance width so cells stay aligned.
+font-family=JetBrainsMono Nerd Font Mono
 font-size=14
 font-thicken=true
 font-thicken-strength=1
