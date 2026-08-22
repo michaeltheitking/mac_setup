@@ -70,7 +70,12 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 
 ## Communication
 
-- Use ASD-STE100 Simplified Technical English in all user-facing communication with Michael.
+- Use ASD-STE100 Simplified Technical English in all user-facing communication with Michael. Check your text against these five rules before you send it; they cover the most frequent failures:
+  - Use the active voice.
+  - Use simple tenses. Do not use the perfect tenses.
+  - Write sentences of 20 words or less.
+  - Keep one topic in each sentence.
+  - Do not use idioms.
 - Keep progress updates short and concrete.
 - Final responses should summarize what changed, what was verified, and any remaining risks.
 - Use clickable file references when pointing to local files.

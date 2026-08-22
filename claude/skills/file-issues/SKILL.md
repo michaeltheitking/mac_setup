@@ -23,7 +23,7 @@ one-liners and avoid duplicates.
 
 ## Step 0 — Resolve the Linear team and project for this repo
 
-Determine *which* Linear project the issue belongs in before creating anything.
+Determine _which_ Linear project the issue belongs in before creating anything.
 
 1. **Prefer an explicit pointer.** Check the repo's `CLAUDE.md` / `AGENTS.md` /
    `README` for a recorded Linear team and project. Use it if present.
@@ -40,7 +40,7 @@ Determine *which* Linear project the issue belongs in before creating anything.
 
 Capture the issue from the user's request plus the repo context. Investigate
 enough to fill each section meaningfully — read the relevant files, check git
-history, follow links. Ask the user only for genuinely missing *decisions* (scope
+history, follow links. Ask the user only for genuinely missing _decisions_ (scope
 calls, priority, target outcome), not for things you can determine yourself.
 
 Use this exact body template, and replace every prompt with real content:
@@ -66,10 +66,11 @@ Yes / No and whatever other details you think may be important
 ```
 
 Section guidance:
+
 - **Goal** — the outcome, not the implementation. One or two sentences.
 - **Context** — concrete `file:line` references, commit SHAs, linked issues, the
   constraint or prior decision that motivates this. Enough to start cold.
-- **Non-goals** — the scope fence. What this deliberately does *not* touch. This is
+- **Non-goals** — the scope fence. What this deliberately does _not_ touch. This is
   what keeps the work from sprawling; don't skip it.
 - **Acceptance Criteria** — objectively checkable boxes. Tailor them to the work;
   the example lines (tests updated / no unrelated refactors) are sensible defaults,
@@ -94,21 +95,55 @@ one. Filing a duplicate is worse than not filing.
 - **Labels** — reuse the project's existing labels (`list_issue_labels`); match
   type (Bug/Feature/Improvement) and any status labels the project uses. Only
   create a new label (`create_issue_label`) when a clearly-needed one is missing —
-  confirm with the user first. Note: `save_issue`'s `labels` field *replaces* the
+  confirm with the user first. Note: `save_issue`'s `labels` field _replaces_ the
   set, so pass the full intended list.
 - **Links** — connect the issue: `relatedTo`, `blockedBy` / `blocks`, or
   `parentId` for sub-issues. Reference the source (a review finding, a commit, an
   ADR) in Context.
-- **State** — leave it in the team's initial/backlog state. Don't start or assign
-  it unless the user asks.
+- **State** — leave it in the team's initial/backlog state unless Step 3b says to
+  dispatch it. Never assign an issue to a person unless the user asks.
+
+## Step 3b — Dispatch to the automation pipeline, when there is one
+
+Some Linear projects are enrolled in an automated implementation pipeline. Where
+that applies, filing an issue and _queueing_ it are separate decisions.
+
+Leave requests to file, open, log, or add an issue to the backlog in Backlog.
+Do not add the dispatch label. Dispatch only when the user explicitly asks to
+queue or implement the issue, or to hand it to automation.
+
+For an explicit dispatch request, first check the pipeline's allowlist (for the
+codex pipeline: `REPO_MAP` in `~/.config/codex-pipeline/env`). If the project is
+not listed, leave the issue in Backlog because the pipeline cannot process it.
+
+For an enrolled project, complete a Claude triage against the full issue spec.
+Then use the issue's own **Design Required?** section:
+
+- **Design Required: No** — fully specified and mechanical. Set state to `Todo`
+  and add the dispatch label (`codex`). It will be picked up automatically.
+- **Design Required: Yes because Michael must decide** — leave it in Backlog,
+  add `needs-human`, and keep the `codex` label off. Explain the exact blocker
+  in the issue description or a signed comment. After Michael approves the
+  design, remove `needs-human`, add `codex`, and set the state to `Todo`.
+
+**Do not dispatch, regardless of Design Required**, when the issue changes the
+pipeline's own control flow — the dispatcher or reviewer entry points. That is
+self-modification of the machinery mid-flight; prefer hand implementation. See
+the project's `AGENTS.md`.
+
+Remember `save_issue`'s `labels` field _replaces_ the set: pass the existing
+labels plus the dispatch label, not the dispatch label alone.
 
 ## Step 4 — Create and report
 
 - Create with `save_issue(team=..., project=..., title=..., description=...,
-  priority=..., labels=[...], ...)`.
+priority=..., labels=[...], ...)`.
 - **End every issue description (and any comment) you author with `--claude`** on
   its own final line, so the authorship is always explicit.
 - Report back the created issue identifier and URL. If you filed several, list them.
+- Say explicitly which issues you dispatched and which you left in Backlog, with
+  the reason for each hold. A silently-parked issue is the failure mode this
+  reporting exists to prevent.
 
 ## Filing several at once
 

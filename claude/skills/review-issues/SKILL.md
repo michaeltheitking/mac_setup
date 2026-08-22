@@ -23,13 +23,13 @@ which Linear project the work belongs to, pull the reviewable issues, verify the
 actual code and the Linear record against each issue's definition-of-done, write a
 signed review comment, and close out only the ones that genuinely pass.
 
-The point is an *honest* gate. Do not rubber-stamp. Implementation comments can
+The point is an _honest_ gate. Do not rubber-stamp. Implementation comments can
 understate breakage — verify with your own eyes and your own command runs, not the
 author's summary.
 
 ## Step 0 — Resolve the Linear team and project for this repo
 
-Before reviewing anything, determine *which* Linear project these issues live in.
+Before reviewing anything, determine _which_ Linear project these issues live in.
 Do not assume; the right project depends on the repo you're in.
 
 1. **Prefer an explicit pointer.** Check the repo's `CLAUDE.md` / `AGENTS.md` /
@@ -70,7 +70,7 @@ For every issue under review:
 - `get_issue(id)` — read the title, full description, and especially the
   **Definition of Done / acceptance criteria**. It also returns `gitBranchName`
   and `stateHistory`.
-- `list_comments(issueId=...)` — read the implementation notes and the *entire*
+- `list_comments(issueId=...)` — read the implementation notes and the _entire_
   comment history. Comments frequently **revise scope** (a decision comment may
   retire or change part of the original DoD). Review against the current agreed
   scope, not just the original description.
@@ -92,7 +92,7 @@ Read the real diff.
   the change handles it. Watch for false-positive risk (a guard that also rejects
   legitimate inputs).
 - **Completeness** — walk each DoD bullet and confirm it is met, or explicitly
-  superseded by a later decision comment. Flag anything *sidestepped* rather than
+  superseded by a later decision comment. Flag anything _sidestepped_ rather than
   solved (e.g., a test made green by disabling a feature instead of covering it).
 - If the issue body contains checkboxes for acceptance criteria, DoD, or review
   tasks, treat checked boxes as part of the Linear record. Only check off boxes
@@ -126,6 +126,15 @@ state (**Done**):
 - The comment must explicitly state it was **reviewed and approved / signed off**
   (that is the gate that justifies the move), summarize what you verified (with the
   commands and results), and list any non-blocking residuals.
+- **Residuals keep the issue open — and send it back to Backlog.** If the
+  sign-off notes any non-blocking residuals that live in this issue's scope, do
+  NOT move it to Done — post the sign-off, move the issue to the **backlog
+  state**, and say so in the comment ("approved with residuals — moving back to
+  backlog until they're resolved"). Move to Done only when the issue has no
+  residuals, or every residual has been either resolved or explicitly moved to
+  its own follow-up issue (linked via `relatedTo`), leaving nothing outstanding
+  in this issue's scope. Pure data observations (facts about the user's data,
+  not the code) don't count as residuals.
 - Before moving the issue to Done, update the issue body so every reviewed-and-done
   checkbox is explicitly checked off. Do not check boxes for criteria that were
   skipped, superseded, or moved to follow-up work unless the Linear record also
@@ -136,14 +145,23 @@ state (**Done**):
 **If it fails** — do NOT move to Done:
 
 - Post a comment with specific, actionable findings.
-- Leave it in the in-review state. If it was already Done, reopen it and move it
-  back to the backlog.
+- Move it back to the backlog state (it needs more work, same as
+  residual-held issues). If it was already Done, reopen it and move it back to
+  the backlog.
 
 ## Step 7 — Handle residuals
 
-File **new** issues for follow-ups (coverage gaps, hardening, deferred scope)
-rather than muddying the reviewed issue or reopening a legitimately-done one. Apply
-clarifying labels and link related issues with `relatedTo`.
+A residual either keeps its issue open or graduates to its own follow-up issue —
+never both, never neither:
+
+- **Keep open**: if the residual belongs to the reviewed issue's scope, move the
+  issue back to the backlog state (see Step 6) until it's addressed.
+- **Graduate**: if it's genuinely separate scope (coverage gaps, hardening,
+  deferred extensions), file a **new** issue for it, link with `relatedTo`, note
+  the disposition in the sign-off comment — then the reviewed issue may close.
+
+Don't muddy a reviewed issue with out-of-scope follow-ups, and don't reopen a
+legitimately-done one. Apply clarifying labels as needed.
 
 ## Sign-off comment template
 
@@ -178,7 +196,7 @@ with the specific findings and end with the disposition (kept in review / reopen
   `AGENTS.md`). Don't use a review comment to approve risky or irreversible actions
   the project gates, or to weaken its safety/security controls.
 - Never post secrets, tokens, credentials, or sensitive data into Linear.
-- The terminal state requires *your* explicit sign-off comment. Moving an issue to
+- The terminal state requires _your_ explicit sign-off comment. Moving an issue to
   Done without one breaks the review gate.
 
 ## Gotchas
