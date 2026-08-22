@@ -21,6 +21,7 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `.tmux.conf` - tmux terminal config. Uses `tmux-256color` and enables RGB color support for `xterm-256color`.
 - `ssh/config` - SSH client config symlinked to `~/.ssh/config`; includes GitHub keychain settings and global keepalives.
 - `.p10k.zsh` - Powerlevel10k prompt config.
+- `.gitignore_global` - global Git ignore rules, symlinked to `~/.gitignore_global` and wired up through `core.excludesfile`.
 - `codex/AGENTS.md` - global agent instructions, symlinked to both `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md` so Codex and Claude Code stay in sync.
 - `claude/skills/` - global Claude Code skills, each symlinked per-skill into `~/.claude/skills/`. Add a new `claude/skills/<name>/SKILL.md` and re-run `setup.sh` to link it.
 - `codex/skills/` - global Codex skills, each symlinked per-skill into `~/.codex/skills/`. Linked per-skill (not the whole directory) so Codex's managed `~/.codex/skills/.system` is left untouched.
@@ -29,6 +30,13 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `claude/install-local-hooks.sh` - generates the per-machine `~/.claude/settings.local.json` (Bartender hooks + permissions); not symlinked or committed.
 - `verify.sh` - read-only health check for symlink integrity, required tools, and Claude settings hygiene. Run anytime; `bootstrap_new_mac.sh` runs it last.
 - `ghostty/config.ghostty` - Ghostty terminal config.
+- `docs/decisions/` - architecture decision records for choices that outlive a single change (see Decision Records).
+
+## Decision Records
+
+Setup choices that a future reader would otherwise have to reverse-engineer belong in `docs/decisions/` as a numbered ADR (`NNNN-slug.md`) with status, context, decision, rationale, consequences, and revisit triggers. Examples already recorded: why the Neovim config stays machine-local, and why there is one SSH key per machine rather than one per destination.
+
+Skip an ADR for routine package additions, formatting, or one-off fixes. When a recorded decision changes, update its ADR instead of adding a second one.
 
 ## Bootstrap Script Conventions
 

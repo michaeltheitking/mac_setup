@@ -1,8 +1,8 @@
 {
-  "model": "claude-fable-5",
   "permissions": {
     "defaultMode": "auto"
   },
+  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
     "command": "sh ~/.claude/statusline-command.sh",
@@ -28,6 +28,8 @@
   "effortLevel": "high",
   "tui": "fullscreen",
   "theme": "dark",
+  "switchModelsOnFlag": false,
   "remoteControlAtStartup": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "inputNeededNotifEnabled": true
 }
