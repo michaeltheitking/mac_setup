@@ -47,6 +47,7 @@ BREW_FORMULAS=(
   powerlevel10k
   zsh-autosuggestions
   fastfetch
+  btop
 )
 
 CLAUDE_MARKETPLACES=(
