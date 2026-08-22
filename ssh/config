@@ -1,6 +1,9 @@
 # One key per machine, not one per destination — see
 # docs/decisions/0002-single-ssh-key-per-machine.md
 Host github.com
+  HostName ssh.github.com
+  Port 443
+  User git
   AddKeysToAgent yes
   UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519

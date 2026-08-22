@@ -92,8 +92,15 @@ check_cmd pngpaste "clip() clipboard-image helper" optional
 section "SSH config hygiene"
 SSH_CONFIG="$DOTFILES_DIR/ssh/config"
 if [ -f "$SSH_CONFIG" ]; then
-  if ssh -G -F "$SSH_CONFIG" github.com >/dev/null 2>&1; then
+  if github_ssh_config="$(ssh -G -F "$SSH_CONFIG" github.com 2>/dev/null)"; then
     tag_ok "ssh/config parses for github.com"
+    if printf '%s\n' "$github_ssh_config" | grep -qx 'hostname ssh.github.com' &&
+       printf '%s\n' "$github_ssh_config" | grep -qx 'port 443' &&
+       printf '%s\n' "$github_ssh_config" | grep -qx 'user git'; then
+      tag_ok "github.com uses ssh.github.com on port 443"
+    else
+      tag_fail "github.com does not use ssh.github.com on port 443 as user git"
+    fi
   else
     tag_fail "ssh/config does not parse for github.com"
   fi
