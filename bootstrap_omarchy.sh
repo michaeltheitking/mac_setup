@@ -16,7 +16,7 @@ OMARCHY_PACKAGES=(
 )
 
 CLAUDE_MARKETPLACES=(
-  "EveryInc/compound-engineering-plugin"
+  "compound-engineering-plugin|EveryInc/compound-engineering-plugin"
 )
 
 CLAUDE_PLUGINS=(
@@ -33,6 +33,30 @@ log() {
   printf "\n==> %s\n" "$1"
 }
 
+claude_marketplace_installed() {
+  local marketplace_name="$1"
+
+  claude plugin marketplace list --json \
+    | jq -e --arg name "$marketplace_name" \
+      'any(.[]; .name == $name)' >/dev/null
+}
+
+claude_plugin_installed() {
+  local plugin_id="$1"
+
+  claude plugin list --json \
+    | jq -e --arg id "$plugin_id" \
+      'any(.[]; .id == $id)' >/dev/null
+}
+
+github_has_ssh_key() {
+  local public_key
+
+  public_key="$(awk '{ print $1 " " $2 }' "${SSH_KEY_PATH}.pub")"
+  gh api user/keys --paginate --jq '.[].key' | grep -Fxq "$public_key"
+}
+
+main() {
 if [ "$(uname -s)" != "Linux" ] \
   || ! command -v omarchy >/dev/null 2>&1 \
   || ! command -v pacman >/dev/null 2>&1; then
@@ -79,8 +103,7 @@ fi
 
 log "Adding SSH key to GitHub if needed"
 KEY_TITLE="$(hostname)-$(date +%Y)"
-PUBKEY_CONTENT="$(cat "${SSH_KEY_PATH}.pub")"
-if gh ssh-key list | grep -Fq "$PUBKEY_CONTENT"; then
+if github_has_ssh_key; then
   echo "SSH key already registered with GitHub."
 else
   gh ssh-key add "${SSH_KEY_PATH}.pub" --title "$KEY_TITLE"
@@ -97,13 +120,31 @@ fi
 
 log "Installing Claude Code plugins"
 if command -v claude >/dev/null 2>&1; then
-  for market in "${CLAUDE_MARKETPLACES[@]}"; do
-    claude plugin marketplace add "$market" 2>/dev/null \
-      || echo "Marketplace already added or unavailable: $market"
+  for marketplace in "${CLAUDE_MARKETPLACES[@]}"; do
+    marketplace_name="${marketplace%%|*}"
+    marketplace_source="${marketplace#*|}"
+    if claude_marketplace_installed "$marketplace_name"; then
+      echo "Marketplace already installed: $marketplace_name"
+      continue
+    fi
+
+    claude plugin marketplace add "$marketplace_source"
+    if ! claude_marketplace_installed "$marketplace_name"; then
+      echo "Marketplace installation did not register: $marketplace_name" >&2
+      exit 1
+    fi
   done
   for plugin in "${CLAUDE_PLUGINS[@]}"; do
-    claude plugin install "$plugin" 2>/dev/null \
-      || echo "Could not install plugin: $plugin"
+    if claude_plugin_installed "$plugin"; then
+      echo "Plugin already installed: $plugin"
+      continue
+    fi
+
+    claude plugin install "$plugin"
+    if ! claude_plugin_installed "$plugin"; then
+      echo "Plugin installation did not register: $plugin" >&2
+      exit 1
+    fi
   done
 else
   echo "Skipping plugins. Run claude once to install its Omarchy launcher."
@@ -119,3 +160,8 @@ log "Finished"
 echo
 echo "Your Omarchy system is bootstrapped."
 echo "Omarchy still manages Bash, Tmux, Ghostty, Hyprland, and desktop settings."
+}
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  main "$@"
+fi

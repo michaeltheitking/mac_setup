@@ -5,6 +5,8 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEST_ROOT="$(mktemp -d)"
 trap 'rm -rf "$TEST_ROOT"' EXIT
 
+unset DOTFILES_PLATFORM DOTFILES_TEST_PLATFORM
+
 fail() {
   echo "FAIL: $*" >&2
   exit 1
@@ -64,6 +66,14 @@ assert_absent "$omarchy_home/.config/ghostty/config" \
 assert_absent "$omarchy_home/.claude/settings.local.json" \
   "Omarchy setup created macOS-only Claude hooks"
 
+stale_link_home="$TEST_ROOT/stale-link-home"
+mkdir -p "$stale_link_home/.ssh"
+ln -s "$TEST_ROOT/missing-ssh-config" "$stale_link_home/.ssh/config"
+HOME="$stale_link_home" DOTFILES_DIR="$REPO_DIR" DOTFILES_PLATFORM=omarchy \
+  DOTFILES_TEST_PLATFORM=omarchy \
+  "$REPO_DIR/setup.sh" >/dev/null
+assert_link "$stale_link_home/.ssh/config" "$REPO_DIR/ssh/config.omarchy"
+
 wrong_platform_home="$TEST_ROOT/wrong-platform-home"
 mkdir -p "$wrong_platform_home"
 if HOME="$wrong_platform_home" DOTFILES_DIR="$REPO_DIR" \
@@ -107,12 +117,30 @@ fi
 assert_absent "$parent_conflict_home/.gitignore_global" \
   "setup made partial changes before reporting a parent conflict"
 
-if [ "$(uname -s)" = "Darwin" ]; then
-  auto_home="$TEST_ROOT/auto-home"
-  mkdir -p "$auto_home"
-  HOME="$auto_home" DOTFILES_DIR="$REPO_DIR" "$REPO_DIR/setup.sh" >/dev/null
-  assert_link "$auto_home/.zshrc" "$REPO_DIR/.zshrc"
+auto_omarchy_bin="$TEST_ROOT/auto-omarchy-bin"
+auto_omarchy_home="$TEST_ROOT/auto-omarchy-home"
+mkdir -p "$auto_omarchy_bin" "$auto_omarchy_home"
+printf '#!/bin/sh\nprintf "Linux\\n"\n' > "$auto_omarchy_bin/uname"
+printf '#!/bin/sh\nexit 0\n' > "$auto_omarchy_bin/omarchy"
+chmod +x "$auto_omarchy_bin/uname" "$auto_omarchy_bin/omarchy"
+HOME="$auto_omarchy_home" PATH="$auto_omarchy_bin:$PATH" \
+  DOTFILES_DIR="$REPO_DIR" "$REPO_DIR/setup.sh" >/dev/null
+assert_link "$auto_omarchy_home/.ssh/config" "$REPO_DIR/ssh/config.omarchy"
+assert_absent "$auto_omarchy_home/.zshrc" \
+  "automatic Omarchy detection selected the macOS setup"
+
+unsupported_bin="$TEST_ROOT/unsupported-bin"
+unsupported_home="$TEST_ROOT/unsupported-home"
+mkdir -p "$unsupported_bin" "$unsupported_home"
+ln -s "$(command -v bash)" "$unsupported_bin/bash"
+printf '#!/bin/sh\nprintf "Linux\\n"\n' > "$unsupported_bin/uname"
+chmod +x "$unsupported_bin/uname"
+if HOME="$unsupported_home" PATH="$unsupported_bin" DOTFILES_DIR="$REPO_DIR" \
+  "$REPO_DIR/setup.sh" >/dev/null 2>&1; then
+  fail "automatic platform detection accepted unsupported Linux"
 fi
+assert_absent "$unsupported_home/.gitignore_global" \
+  "unsupported Linux detection made changes"
 
 fake_bin="$TEST_ROOT/fake-bin"
 mkdir -p "$fake_bin"
@@ -125,5 +153,50 @@ if ! HOME="$omarchy_home" PATH="$fake_bin:$PATH" DOTFILES_DIR="$REPO_DIR" \
   cat "$verify_log" >&2
   fail "Omarchy verification failed"
 fi
+
+(
+  # Loading the bootstrap exposes its read-only installed-state helpers.
+  source "$REPO_DIR/bootstrap_omarchy.sh"
+
+  claude() {
+    case "$*" in
+      "plugin marketplace list --json")
+        printf '[{"name":"compound-engineering-plugin"}]\n'
+        ;;
+      "plugin list --json")
+        printf '[{"id":"context7@claude-plugins-official"}]\n'
+        ;;
+      *)
+        return 2
+        ;;
+    esac
+  }
+
+  claude_marketplace_installed "compound-engineering-plugin" \
+    || fail "Claude marketplace exact match was not found"
+  if claude_marketplace_installed "compound-engineering"; then
+    fail "Claude marketplace helper accepted a partial match"
+  fi
+  claude_plugin_installed "context7@claude-plugins-official" \
+    || fail "Claude plugin exact match was not found"
+  if claude_plugin_installed "context7"; then
+    fail "Claude plugin helper accepted a partial match"
+  fi
+
+  SSH_KEY_PATH="$TEST_ROOT/github-key"
+  printf 'ssh-ed25519 AAAAtestkey local-comment\n' > "${SSH_KEY_PATH}.pub"
+  gh() {
+    [ "$*" = "api user/keys --paginate --jq .[].key" ] || return 2
+    printf '%s\n' \
+      'ssh-ed25519 AAAAotherkey' \
+      'ssh-ed25519 AAAAtestkey'
+  }
+
+  github_has_ssh_key || fail "GitHub SSH key exact match was not found"
+  printf 'ssh-ed25519 AAAAtest local-comment\n' > "${SSH_KEY_PATH}.pub"
+  if github_has_ssh_key; then
+    fail "GitHub SSH key helper accepted a partial match"
+  fi
+)
 
 echo "Setup tests passed."

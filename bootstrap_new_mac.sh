@@ -9,7 +9,7 @@ fi
 GITHUB_USERNAME="michaeltheitking"
 GIT_NAME="michael"
 GIT_EMAIL="mk@michael-king.com"
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 SSH_KEY_PATH="$HOME/.ssh/id_ed25519"
 ASTROPAD_WORKBENCH_URL="https://downloads.astropad.com/workbench/mac/latest"
 
