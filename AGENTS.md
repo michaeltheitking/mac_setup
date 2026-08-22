@@ -4,23 +4,28 @@ Guidance for coding agents working in this dotfiles repo.
 
 ## Project Purpose
 
-This repository backs up and restores Michael's personal Mac setup. It is expected to live at `~/dotfiles` and is mirrored to `github.com/michaeltheitking/mac_setup`.
+This repository backs up and restores Michael's personal macOS and Omarchy setup. It is expected to live at `~/dotfiles` and is mirrored to `github.com/michaeltheitking/mac_setup`.
 
 The matching Confluence runbook is:
 
-- `Mac Dotfiles Runbook`
-- `https://michael-kingdocs.atlassian.net/wiki/spaces/~5570583e46f7b02769468785802b45c5e986a5/pages/61341700/Mac+Dotfiles+Runbook`
+- `Cross-Platform Dotfiles Runbook`
+- `https://michael-kingdocs.atlassian.net/wiki/spaces/~5570583e46f7b02769468785802b45c5e986a5/pages/61341700/Cross-Platform+Dotfiles+Runbook`
 
 When setup behavior changes, update both this repo and that Confluence page.
 
 ## Repo Layout
 
 - `bootstrap_new_mac.sh` - fresh-Mac bootstrap script for Xcode CLT, Homebrew, CLI tools, casks, Claude Code, Git, SSH, GitHub auth, and dotfile setup.
-- `setup.sh` - symlinks `.zshrc`, `.tmux.conf`, `.p10k.zsh`, SSH config, global agent instructions, Claude Code config, Claude/Codex skills, and Ghostty config into place, and generates per-machine Claude local settings.
+- `bootstrap_omarchy.sh` - Omarchy bootstrap script for personal Arch packages, Git, SSH, GitHub auth, plugins, setup, and verification.
+- `setup.sh` - detects macOS or Omarchy and dispatches to the matching platform setup.
+- `setup_common.sh` - conflict-safe linking helpers and shared Git, Codex, and Claude setup.
+- `setup_macos.sh` - links macOS shell, Tmux, SSH, Claude hook, and Ghostty files.
+- `setup_omarchy.sh` - links portable files and the Linux SSH config while preserving Omarchy-owned configuration.
 - `.zshrc` - zsh shell config. Sources Powerlevel10k and zsh-autosuggestions only when installed.
 - `.tmux.conf` - tmux terminal config. Uses `tmux-256color` and enables RGB color support for `xterm-256color`.
 - `ssh/config` - SSH client config symlinked to `~/.ssh/config`; routes GitHub SSH through `ssh.github.com:443` and includes global keepalives.
 - `ssh/github-known-hosts` - pinned GitHub Ed25519 host key used by the `github.com` host block on every managed Mac.
+- `ssh/config.omarchy` - Linux SSH client config without Apple Keychain options.
 - `.p10k.zsh` - Powerlevel10k prompt config.
 - `.gitignore_global` - global Git ignore rules, symlinked to `~/.gitignore_global` and wired up through `core.excludesfile`.
 - `codex/AGENTS.md` - global agent instructions, symlinked to both `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md` so Codex and Claude Code stay in sync.
@@ -32,6 +37,7 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `verify.sh` - read-only health check for symlink integrity, required tools, and Claude settings hygiene. Run anytime; `bootstrap_new_mac.sh` runs it last.
 - `scripts/check-github-host-key.sh` - validates the managed GitHub Ed25519 host key against its pinned fingerprint.
 - `scripts/github-ssh-auth.sh` - runs the bounded GitHub SSH client-authentication health check.
+- `tests/test_setup.sh` - isolated setup tests for both platforms and link-conflict handling.
 - `ghostty/config.ghostty` - Ghostty terminal config.
 - `docs/decisions/` - architecture decision records for choices that outlive a single change (see Decision Records).
 
@@ -53,6 +59,13 @@ Skip an ADR for routine package additions, formatting, or one-off fixes. When a 
 - iStat Menus settings should be restored through the app's own import UI, not by copying raw plist files unless explicitly requested.
 - Keep GitHub host-key enrollment non-interactive. Verify key changes against GitHub's published fingerprints before updating `ssh/github-known-hosts`.
 
+For Omarchy:
+
+- Use `omarchy pkg add` for missing personal packages.
+- Do not run `pacman -Sy` or a full system update from the bootstrap script.
+- Keep Bash, Starship, Tmux, Ghostty, Hyprland, and desktop settings under Omarchy control.
+- Use Omarchy's lazy Claude and Codex launchers instead of npm installs.
+
 ## Shell Config Conventions
 
 - Do not hardcode `/opt/homebrew` in `.zshrc`; use `brew --prefix` so Apple Silicon and Intel Macs both work.
@@ -71,10 +84,10 @@ zsh -n .zshrc
 For `setup.sh` or `verify.sh` changes, also run:
 
 ```sh
-bash -n setup.sh
-bash -n verify.sh
+bash -n bootstrap_omarchy.sh setup.sh setup_common.sh setup_macos.sh setup_omarchy.sh verify.sh
 bash -n scripts/check-github-host-key.sh
 bash -n scripts/github-ssh-auth.sh
+bash tests/test_setup.sh
 bash tests/test-github-ssh.sh
 ```
 

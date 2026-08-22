@@ -1,0 +1,33 @@
+Host github.com
+  HostName ssh.github.com
+  Port 443
+  User git
+  AddKeysToAgent yes
+  IdentityFile ~/.ssh/id_ed25519_github
+
+Host devbox
+    HostName 100.75.124.33
+    User michael
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/id_ed25519
+    SetEnv TERM=xterm-256color
+
+Host devbox-magicdns
+    HostName michaels-mac-mini.tail367472.ts.net
+    User michael
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/id_ed25519
+    SetEnv TERM=xterm-256color
+
+Host devbox-local
+    HostName michaels-mini
+    User michael
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/id_ed25519
+    SetEnv TERM=xterm-256color
+
+# Tear down an unresponsive encrypted connection after 45 seconds.
+Host *
+  ServerAliveInterval 15
+  ServerAliveCountMax 3
+  TCPKeepAlive no

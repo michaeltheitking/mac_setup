@@ -18,6 +18,31 @@ GITHUB_HOST_KEY_FILE="$DOTFILES_DIR/ssh/github-known-hosts"
 fails=0
 warns=0
 
+detect_platform() {
+  if [ -n "${DOTFILES_PLATFORM:-}" ]; then
+    printf '%s\n' "$DOTFILES_PLATFORM"
+    return
+  fi
+
+  case "$(uname -s)" in
+    Darwin) printf 'macos\n' ;;
+    Linux)
+      if command -v omarchy >/dev/null 2>&1; then
+        printf 'omarchy\n'
+      else
+        printf 'unsupported\n'
+      fi
+      ;;
+    *) printf 'unsupported\n' ;;
+  esac
+}
+
+PLATFORM="$(detect_platform)"
+if [ "$PLATFORM" != "macos" ] && [ "$PLATFORM" != "omarchy" ]; then
+  echo "Unsupported platform. This repository supports macOS and Omarchy." >&2
+  exit 1
+fi
+
 tag_ok()   { printf "  \033[32mOK\033[0m    %s\n" "$1"; }
 tag_warn() { printf "  \033[33mWARN\033[0m  %s\n" "$1"; warns=$((warns+1)); }
 tag_fail() { printf "  \033[31mFAIL\033[0m  %s\n" "$1"; fails=$((fails+1)); }
@@ -51,17 +76,22 @@ check_cmd() { # <binary> <why> [optional]
 }
 
 section "Managed symlinks"
-check_symlink "$HOME/.zshrc"                       "$DOTFILES_DIR/.zshrc"
 check_symlink "$HOME/.gitignore_global"            "$DOTFILES_DIR/.gitignore_global"
-check_symlink "$HOME/.tmux.conf"                   "$DOTFILES_DIR/.tmux.conf"
-check_symlink "$HOME/.ssh/config"                  "$DOTFILES_DIR/ssh/config"
-check_symlink "$HOME/.p10k.zsh"                    "$DOTFILES_DIR/.p10k.zsh" optional
 check_symlink "$HOME/.codex/AGENTS.md"             "$DOTFILES_DIR/codex/AGENTS.md"
 check_symlink "$HOME/.claude/CLAUDE.md"            "$DOTFILES_DIR/codex/AGENTS.md"
 check_symlink "$HOME/.claude/settings.json"        "$DOTFILES_DIR/claude/settings.json"
 check_symlink "$HOME/.claude/statusline-command.sh" "$DOTFILES_DIR/claude/statusline-command.sh"
-check_symlink "$HOME/.config/ghostty/config"       "$DOTFILES_DIR/ghostty/config.ghostty"
-check_symlink "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty" "$DOTFILES_DIR/ghostty/config.ghostty"
+
+if [ "$PLATFORM" = "macos" ]; then
+  check_symlink "$HOME/.zshrc"                     "$DOTFILES_DIR/.zshrc"
+  check_symlink "$HOME/.tmux.conf"                 "$DOTFILES_DIR/.tmux.conf"
+  check_symlink "$HOME/.ssh/config"                "$DOTFILES_DIR/ssh/config"
+  check_symlink "$HOME/.p10k.zsh"                  "$DOTFILES_DIR/.p10k.zsh" optional
+  check_symlink "$HOME/.config/ghostty/config"     "$DOTFILES_DIR/ghostty/config.ghostty"
+  check_symlink "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty" "$DOTFILES_DIR/ghostty/config.ghostty"
+else
+  check_symlink "$HOME/.ssh/config"                "$DOTFILES_DIR/ssh/config.omarchy"
+fi
 
 section "Managed skills"
 skills_found=0
@@ -83,15 +113,28 @@ section "Required tools"
 check_cmd git   "version control"
 check_cmd gh    "GitHub auth / SSH key registration"
 check_cmd ssh   "SSH config validation / remote Git"
-check_cmd node  "npm-based Claude Code install"
 check_cmd jq    "Claude Code status line command"
 check_cmd tmux  "terminal multiplexing"
 check_cmd claude "Claude Code"
-check_cmd brew  "Homebrew package management"
-check_cmd pngpaste "clip() clipboard-image helper" optional
+check_cmd ruff  "Python linting and formatting"
+check_cmd prettier "web and documentation formatting"
+
+if [ "$PLATFORM" = "macos" ]; then
+  check_cmd node  "npm-based Claude Code install"
+  check_cmd brew  "Homebrew package management"
+  check_cmd pngpaste "clip() clipboard-image helper" optional
+else
+  check_cmd omarchy "Omarchy system management"
+  check_cmd pacman "Arch package management"
+  check_cmd wl-copy "Wayland clipboard access"
+fi
 
 section "SSH config hygiene"
-SSH_CONFIG="$DOTFILES_DIR/ssh/config"
+if [ "$PLATFORM" = "macos" ]; then
+  SSH_CONFIG="$DOTFILES_DIR/ssh/config"
+else
+  SSH_CONFIG="$DOTFILES_DIR/ssh/config.omarchy"
+fi
 if [ -f "$SSH_CONFIG" ]; then
   if github_ssh_config="$(ssh -G -F "$SSH_CONFIG" github.com 2>/dev/null)"; then
     tag_ok "ssh/config parses for github.com"
@@ -149,10 +192,14 @@ else
   tag_fail "claude/settings.json not found at $(short "$SETTINGS")"
 fi
 
-if [ -f "$HOME/.claude/settings.local.json" ]; then
-  tag_ok "~/.claude/settings.local.json present (per-machine hooks/permissions)"
+if [ "$PLATFORM" = "macos" ]; then
+  if [ -f "$HOME/.claude/settings.local.json" ]; then
+    tag_ok "~/.claude/settings.local.json present (per-machine hooks/permissions)"
+  else
+    tag_warn "~/.claude/settings.local.json missing — run claude/install-local-hooks.sh (Bartender hooks/permissions won't load)"
+  fi
 else
-  tag_warn "~/.claude/settings.local.json missing — run claude/install-local-hooks.sh (Bartender hooks/permissions won't load)"
+  tag_ok "macOS-only Claude hooks skipped on Omarchy"
 fi
 
 section "Intentionally unmanaged"
