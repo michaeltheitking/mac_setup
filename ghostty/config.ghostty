@@ -1,6 +1,9 @@
 theme = tokyonight
 
 # typography
+# Nerd Font variant: supplies the glyphs LazyVim and powerlevel10k render.
+# "S" is the narrow-line-gap cut p10k recommends.
+font-family=MesloLGS Nerd Font Mono
 font-size=14
 font-thicken=true
 font-thicken-strength=1
