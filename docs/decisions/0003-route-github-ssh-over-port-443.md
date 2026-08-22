@@ -21,8 +21,10 @@ The `github.com` SSH host entry uses `ssh.github.com` on TCP port 443 as user
 `git`. It keeps the per-machine key from decision 0002.
 
 `verify.sh` checks the effective hostname, port, and user through `ssh -G`. The
-GitHub host block uses the repository's pinned Ed25519 key through
-`UserKnownHostsFile`. `verify.sh` checks the route and the pinned fingerprint.
+GitHub host block uses a managed `~/.ssh/github-known-hosts` link through
+`UserKnownHostsFile`. It disables the global trust file for this host. This
+prevents another system record from bypassing the managed pin. `verify.sh`
+checks the route and the pinned fingerprint.
 It also tests GitHub client authentication with a bounded, noninteractive probe.
 The bootstrap validates the exact host-key record before its first SSH request.
 
@@ -39,7 +41,7 @@ does not depend on one GitHub address or a broad IDS exception.
 - Git operations for `github.com` connect to `ssh.github.com:443`.
 - GitHub still authenticates with `~/.ssh/id_ed25519`.
 - HTTPS-only networks can permit GitHub SSH without opening outbound port 22.
-- Host verification uses `ssh/github-known-hosts` from the managed repository.
+- Host verification uses `~/.ssh/github-known-hosts`, linked from the repository.
 - Fresh Macs clone this repository through HTTPS before the SSH remote is set.
 - GitHub pushes do not need an interactive first-use host-key prompt.
 - Health checks fail when the client key cannot authenticate with GitHub.

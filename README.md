@@ -26,6 +26,7 @@ Both platforms share:
 - Claude settings and status line
 - Per-skill Codex and Claude links
 - Git `core.excludesfile`
+- One per-machine SSH key and pinned GitHub host trust
 
 macOS also manages:
 

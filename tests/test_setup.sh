@@ -42,6 +42,8 @@ HOME="$mac_home" DOTFILES_DIR="$REPO_DIR" DOTFILES_PLATFORM=macos \
 assert_link "$mac_home/.tmux.conf" "$REPO_DIR/.tmux.conf"
 assert_link "$mac_home/.zshrc" "$REPO_DIR/.zshrc"
 assert_link "$mac_home/.ssh/config" "$REPO_DIR/ssh/config"
+assert_link "$mac_home/.ssh/github-known-hosts" \
+  "$REPO_DIR/ssh/github-known-hosts"
 assert_link "$mac_home/.config/ghostty/config" "$REPO_DIR/ghostty/config.ghostty"
 [ -f "$mac_home/.claude/settings.local.json" ] \
   || fail "macOS local Claude settings were not created"
@@ -57,6 +59,8 @@ HOME="$omarchy_home" DOTFILES_DIR="$REPO_DIR" DOTFILES_PLATFORM=omarchy \
 
 assert_link "$omarchy_home/.codex/AGENTS.md" "$REPO_DIR/codex/AGENTS.md"
 assert_link "$omarchy_home/.ssh/config" "$REPO_DIR/ssh/config.omarchy"
+assert_link "$omarchy_home/.ssh/github-known-hosts" \
+  "$REPO_DIR/ssh/github-known-hosts"
 assert_absent "$omarchy_home/.tmux.conf" \
   "Omarchy setup replaced the Tmux configuration"
 assert_absent "$omarchy_home/.zshrc" \
@@ -147,6 +151,20 @@ mkdir -p "$fake_bin"
 for command_name in omarchy pacman wl-copy; do
   ln -s /usr/bin/true "$fake_bin/$command_name"
 done
+printf '%s\n' \
+  '#!/bin/sh' \
+  'case " $* " in' \
+  '  *" -G "*)' \
+  '    printf "hostname ssh.github.com\nport 443\nuser git\nuserknownhostsfile %s/.ssh/github-known-hosts\nglobalknownhostsfile /dev/null\n" "$HOME"' \
+  '    exit 0' \
+  '    ;;' \
+  '  *" -T "*)' \
+  '    echo "Hi test! You have successfully authenticated, but GitHub does not provide shell access."' \
+  '    exit 1' \
+  '    ;;' \
+  'esac' \
+  'exit 2' > "$fake_bin/ssh"
+chmod +x "$fake_bin/ssh"
 verify_log="$TEST_ROOT/verify.log"
 if ! HOME="$omarchy_home" PATH="$fake_bin:$PATH" DOTFILES_DIR="$REPO_DIR" \
   DOTFILES_PLATFORM=omarchy "$REPO_DIR/verify.sh" > "$verify_log"; then

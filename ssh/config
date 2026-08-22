@@ -4,7 +4,8 @@ Host github.com
   HostName ssh.github.com
   Port 443
   User git
-  UserKnownHostsFile %d/dotfiles/ssh/github-known-hosts
+  UserKnownHostsFile %d/.ssh/github-known-hosts
+  GlobalKnownHostsFile /dev/null
   AddKeysToAgent yes
   UseKeychain yes
   IdentityFile ~/.ssh/id_ed25519

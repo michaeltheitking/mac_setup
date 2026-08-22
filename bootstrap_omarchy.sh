@@ -5,7 +5,7 @@ GITHUB_USERNAME="michaeltheitking"
 GIT_NAME="michael"
 GIT_EMAIL="mk@michael-king.com"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-SSH_KEY_PATH="$HOME/.ssh/id_ed25519_github"
+SSH_KEY_PATH="$HOME/.ssh/id_ed25519"
 
 # Omarchy already provides Git, jq, Tmux, Fastfetch, wl-clipboard, and the
 # Claude/Codex lazy launchers. Add only personal tools missing from its base.
@@ -66,6 +66,7 @@ fi
 
 log "Running Omarchy dotfiles setup"
 DOTFILES_PLATFORM=omarchy "$DOTFILES_DIR/setup.sh"
+"$DOTFILES_DIR/scripts/check-github-host-key.sh" "$DOTFILES_DIR/ssh/github-known-hosts"
 
 log "Installing personal command-line packages"
 for package in "${OMARCHY_PACKAGES[@]}"; do
@@ -110,7 +111,7 @@ else
 fi
 
 log "Testing GitHub SSH"
-ssh -T git@github.com || true
+"$DOTFILES_DIR/scripts/github-ssh-auth.sh"
 
 log "Switching dotfiles repo remote to SSH"
 if [ -d "$DOTFILES_DIR/.git" ]; then

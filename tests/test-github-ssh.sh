@@ -71,26 +71,32 @@ if github_ssh_authenticate >/dev/null 2>&1; then
 fi
 unset -f ssh
 
-github_ssh_config="$(ssh -G -F "$REPO_DIR/ssh/config" github.com 2>/dev/null)"
-if ! awk -v known_hosts="$HOME/dotfiles/ssh/github-known-hosts" '
-  $0 == "hostname ssh.github.com" { hostname = 1 }
-  $0 == "port 443" { port = 1 }
-  $0 == "user git" { user = 1 }
-  $0 == "userknownhostsfile " known_hosts { hosts = 1 }
-  END { exit !(hostname && port && user && hosts) }
-' <<< "$github_ssh_config"; then
-  echo "ssh/config must pin the complete GitHub SSH route and host-key file."
-  exit 1
-fi
+for ssh_config in "$REPO_DIR/ssh/config" "$REPO_DIR/ssh/config.omarchy"; do
+  github_ssh_config="$(ssh -G -F "$ssh_config" github.com 2>/dev/null)"
+  if ! awk -v known_hosts="$HOME/.ssh/github-known-hosts" '
+    $0 == "hostname ssh.github.com" { hostname = 1 }
+    $0 == "port 443" { port = 1 }
+    $0 == "user git" { user = 1 }
+    $0 == "identityfile ~/.ssh/id_ed25519" { identity = 1 }
+    $0 == "userknownhostsfile " known_hosts { hosts = 1 }
+    $0 == "globalknownhostsfile /dev/null" { global_hosts = 1 }
+    END { exit !(hostname && port && user && identity && hosts && global_hosts) }
+  ' <<< "$github_ssh_config"; then
+    echo "$ssh_config must pin the complete GitHub SSH route, key, and trust file."
+    exit 1
+  fi
+done
 
-if ! awk '
-  $0 == "\"$DOTFILES_DIR/setup.sh\"" && !setup { setup = NR }
-  index($0, "scripts/check-github-host-key.sh") && !trust { trust = NR }
-  index($0, "scripts/github-ssh-auth.sh") && !auth { auth = NR }
-  END { exit !(setup && trust && auth && setup < trust && trust < auth) }
-' "$REPO_DIR/bootstrap_new_mac.sh"; then
-  echo "bootstrap_new_mac.sh must validate managed SSH trust before GitHub authentication."
-  exit 1
-fi
+for bootstrap_script in bootstrap_new_mac.sh bootstrap_omarchy.sh; do
+  if ! awk '
+    index($0, "$DOTFILES_DIR/setup.sh") && !setup { setup = NR }
+    index($0, "scripts/check-github-host-key.sh") && !trust { trust = NR }
+    index($0, "scripts/github-ssh-auth.sh") && !auth { auth = NR }
+    END { exit !(setup && trust && auth && setup < trust && trust < auth) }
+  ' "$REPO_DIR/$bootstrap_script"; then
+    echo "$bootstrap_script must validate managed SSH trust before GitHub authentication."
+    exit 1
+  fi
+done
 
 echo "GitHub SSH policy is valid."

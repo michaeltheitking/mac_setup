@@ -1,9 +1,13 @@
+# One key per machine, not one per destination — see
+# docs/decisions/0002-single-ssh-key-per-machine.md
 Host github.com
   HostName ssh.github.com
   Port 443
   User git
+  UserKnownHostsFile %d/.ssh/github-known-hosts
+  GlobalKnownHostsFile /dev/null
   AddKeysToAgent yes
-  IdentityFile ~/.ssh/id_ed25519_github
+  IdentityFile ~/.ssh/id_ed25519
 
 Host devbox
     HostName 100.75.124.33
@@ -26,7 +30,9 @@ Host devbox-local
     IdentityFile ~/.ssh/id_ed25519
     SetEnv TERM=xterm-256color
 
-# Tear down an unresponsive encrypted connection after 45 seconds.
+# Shared keepalive policy for all hosts — dead link is torn down in
+# 15 x 3 = 45s. ServerAlive (encrypted) is the mechanism; TCPKeepAlive
+# stays off (coarse and spoofable).
 Host *
   ServerAliveInterval 15
   ServerAliveCountMax 3

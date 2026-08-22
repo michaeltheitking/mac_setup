@@ -81,6 +81,7 @@ check_symlink "$HOME/.codex/AGENTS.md"             "$DOTFILES_DIR/codex/AGENTS.m
 check_symlink "$HOME/.claude/CLAUDE.md"            "$DOTFILES_DIR/codex/AGENTS.md"
 check_symlink "$HOME/.claude/settings.json"        "$DOTFILES_DIR/claude/settings.json"
 check_symlink "$HOME/.claude/statusline-command.sh" "$DOTFILES_DIR/claude/statusline-command.sh"
+check_symlink "$HOME/.ssh/github-known-hosts"      "$GITHUB_HOST_KEY_FILE"
 
 if [ "$PLATFORM" = "macos" ]; then
   check_symlink "$HOME/.zshrc"                     "$DOTFILES_DIR/.zshrc"
@@ -138,16 +139,17 @@ fi
 if [ -f "$SSH_CONFIG" ]; then
   if github_ssh_config="$(ssh -G -F "$SSH_CONFIG" github.com 2>/dev/null)"; then
     tag_ok "ssh/config parses for github.com"
-    if awk -v known_hosts="$HOME/dotfiles/ssh/github-known-hosts" '
+    if awk -v known_hosts="$HOME/.ssh/github-known-hosts" '
       $0 == "hostname ssh.github.com" { hostname = 1 }
       $0 == "port 443" { port = 1 }
       $0 == "user git" { user = 1 }
       $0 == "userknownhostsfile " known_hosts { hosts = 1 }
-      END { exit !(hostname && port && user && hosts) }
+      $0 == "globalknownhostsfile /dev/null" { global_hosts = 1 }
+      END { exit !(hostname && port && user && hosts && global_hosts) }
     ' <<< "$github_ssh_config"; then
       tag_ok "github.com uses ssh.github.com on port 443"
     else
-      tag_fail "github.com does not use ssh.github.com on port 443 as user git"
+      tag_fail "github.com route or managed host trust is incorrect"
     fi
   else
     tag_fail "ssh/config does not parse for github.com"

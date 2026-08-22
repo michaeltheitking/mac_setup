@@ -24,7 +24,7 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `.zshrc` - zsh shell config. Sources Powerlevel10k and zsh-autosuggestions only when installed.
 - `.tmux.conf` - tmux terminal config. Uses `tmux-256color` and enables RGB color support for `xterm-256color`.
 - `ssh/config` - SSH client config symlinked to `~/.ssh/config`; routes GitHub SSH through `ssh.github.com:443` and includes global keepalives.
-- `ssh/github-known-hosts` - pinned GitHub Ed25519 host key used by the `github.com` host block on every managed Mac.
+- `ssh/github-known-hosts` - pinned GitHub Ed25519 host key linked into `~/.ssh` on both supported platforms.
 - `ssh/config.omarchy` - Linux SSH client config without Apple Keychain options.
 - `.p10k.zsh` - Powerlevel10k prompt config.
 - `.gitignore_global` - global Git ignore rules, symlinked to `~/.gitignore_global` and wired up through `core.excludesfile`.
@@ -97,7 +97,7 @@ For SSH config changes, confirm the effective GitHub route:
 ssh -G -F ssh/config github.com | grep -qx 'hostname ssh.github.com'
 ssh -G -F ssh/config github.com | grep -qx 'port 443'
 ssh -G -F ssh/config github.com | grep -qx 'user git'
-ssh -G -F ssh/config github.com | grep -Fqx "userknownhostsfile $HOME/dotfiles/ssh/github-known-hosts"
+ssh -G -F ssh/config github.com | grep -Fqx "userknownhostsfile $HOME/.ssh/github-known-hosts"
 ```
 
 If Homebrew package names are uncertain, verify with:

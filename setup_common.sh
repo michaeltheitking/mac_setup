@@ -95,6 +95,7 @@ preflight_common() {
   preflight_path "$HOME/.claude/settings.json"
   preflight_path "$HOME/.claude/statusline-command.sh"
   preflight_path "$HOME/.claude/CLAUDE.md"
+  preflight_path "$HOME/.ssh/github-known-hosts"
 
   for skill in "$DOTFILES_DIR"/claude/skills/*/; do
     [ -d "$skill" ] || continue
@@ -107,7 +108,8 @@ preflight_common() {
 }
 
 setup_common() {
-  mkdir -p "$HOME/.codex" "$HOME/.claude"
+  mkdir -p "$HOME/.codex" "$HOME/.claude" "$HOME/.ssh"
+  chmod 700 "$HOME/.ssh"
 
   link_path "$DOTFILES_DIR/.gitignore_global" "$HOME/.gitignore_global"
   link_path "$DOTFILES_DIR/codex/AGENTS.md" "$HOME/.codex/AGENTS.md"
@@ -115,6 +117,8 @@ setup_common() {
   link_path "$DOTFILES_DIR/claude/statusline-command.sh" \
     "$HOME/.claude/statusline-command.sh"
   link_path "$DOTFILES_DIR/codex/AGENTS.md" "$HOME/.claude/CLAUDE.md"
+  link_path "$DOTFILES_DIR/ssh/github-known-hosts" \
+    "$HOME/.ssh/github-known-hosts"
   link_skills
 
   git config --global core.excludesfile "$HOME/.gitignore_global"
