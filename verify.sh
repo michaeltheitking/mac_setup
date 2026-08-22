@@ -14,6 +14,7 @@
 set -uo pipefail
 
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+GITHUB_HOST_KEY_FILE="$DOTFILES_DIR/ssh/github-known-hosts"
 fails=0
 warns=0
 
@@ -94,9 +95,13 @@ SSH_CONFIG="$DOTFILES_DIR/ssh/config"
 if [ -f "$SSH_CONFIG" ]; then
   if github_ssh_config="$(ssh -G -F "$SSH_CONFIG" github.com 2>/dev/null)"; then
     tag_ok "ssh/config parses for github.com"
-    if printf '%s\n' "$github_ssh_config" | grep -qx 'hostname ssh.github.com' &&
-       printf '%s\n' "$github_ssh_config" | grep -qx 'port 443' &&
-       printf '%s\n' "$github_ssh_config" | grep -qx 'user git'; then
+    if awk -v known_hosts="$HOME/dotfiles/ssh/github-known-hosts" '
+      $0 == "hostname ssh.github.com" { hostname = 1 }
+      $0 == "port 443" { port = 1 }
+      $0 == "user git" { user = 1 }
+      $0 == "userknownhostsfile " known_hosts { hosts = 1 }
+      END { exit !(hostname && port && user && hosts) }
+    ' <<< "$github_ssh_config"; then
       tag_ok "github.com uses ssh.github.com on port 443"
     else
       tag_fail "github.com does not use ssh.github.com on port 443 as user git"
@@ -106,6 +111,18 @@ if [ -f "$SSH_CONFIG" ]; then
   fi
 else
   tag_fail "ssh/config not found at $(short "$SSH_CONFIG")"
+fi
+
+if "$DOTFILES_DIR/scripts/check-github-host-key.sh" "$GITHUB_HOST_KEY_FILE" >/dev/null 2>&1; then
+  tag_ok "GitHub Ed25519 host key matches the pinned fingerprint"
+else
+  tag_fail "GitHub Ed25519 host key is missing or does not match the pinned fingerprint"
+fi
+
+if "$DOTFILES_DIR/scripts/github-ssh-auth.sh" >/dev/null 2>&1; then
+  tag_ok "GitHub SSH client authentication works"
+else
+  tag_fail "GitHub SSH client authentication failed"
 fi
 
 section "Claude settings hygiene"

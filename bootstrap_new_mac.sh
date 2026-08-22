@@ -201,6 +201,11 @@ log "Preparing SSH"
 mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 
+log "Running dotfiles setup"
+chmod +x "$DOTFILES_DIR/setup.sh"
+"$DOTFILES_DIR/setup.sh"
+"$DOTFILES_DIR/scripts/check-github-host-key.sh" "$DOTFILES_DIR/ssh/github-known-hosts"
+
 if [ ! -f "$SSH_KEY_PATH" ]; then
   log "Generating SSH key"
   ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$SSH_KEY_PATH"
@@ -230,17 +235,13 @@ else
 fi
 
 log "Testing GitHub SSH"
-ssh -T git@github.com || true
+"$DOTFILES_DIR/scripts/github-ssh-auth.sh"
 
 log "Switching dotfiles repo remote to SSH"
 if [ -d "$DOTFILES_DIR/.git" ]; then
   cd "$DOTFILES_DIR"
   git remote set-url origin "git@github.com:${GITHUB_USERNAME}/mac_setup.git" || true
 fi
-
-log "Running dotfiles setup"
-chmod +x "$DOTFILES_DIR/setup.sh"
-"$DOTFILES_DIR/setup.sh"
 
 log "Installing Claude Code plugins"
 if have_cmd claude; then

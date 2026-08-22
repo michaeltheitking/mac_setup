@@ -21,7 +21,10 @@ The `github.com` SSH host entry uses `ssh.github.com` on TCP port 443 as user
 `git`. It keeps the per-machine key from decision 0002.
 
 `verify.sh` checks the effective hostname, port, and user through `ssh -G`. The
-check fails when any value changes.
+GitHub host block uses the repository's pinned Ed25519 key through
+`UserKnownHostsFile`. `verify.sh` checks the route and the pinned fingerprint.
+It also tests GitHub client authentication with a bounded, noninteractive probe.
+The bootstrap validates the exact host-key record before its first SSH request.
 
 ## Rationale
 
@@ -36,8 +39,12 @@ does not depend on one GitHub address or a broad IDS exception.
 - Git operations for `github.com` connect to `ssh.github.com:443`.
 - GitHub still authenticates with `~/.ssh/id_ed25519`.
 - HTTPS-only networks can permit GitHub SSH without opening outbound port 22.
-- Host verification stores the key under `[ssh.github.com]:443`.
-- A first connection on a new Mac must verify GitHub's published host key.
+- Host verification uses `ssh/github-known-hosts` from the managed repository.
+- Fresh Macs clone this repository through HTTPS before the SSH remote is set.
+- GitHub pushes do not need an interactive first-use host-key prompt.
+- Health checks fail when the client key cannot authenticate with GitHub.
+- A GitHub host-key rotation blocks SSH until the pinned key is verified and
+  updated from GitHub's published fingerprints.
 - The temporary fixed-IP UniFi suppression can be removed after every Mac uses
   this configuration.
 

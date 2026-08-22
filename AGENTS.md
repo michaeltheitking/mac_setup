@@ -20,6 +20,7 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `.zshrc` - zsh shell config. Sources Powerlevel10k and zsh-autosuggestions only when installed.
 - `.tmux.conf` - tmux terminal config. Uses `tmux-256color` and enables RGB color support for `xterm-256color`.
 - `ssh/config` - SSH client config symlinked to `~/.ssh/config`; routes GitHub SSH through `ssh.github.com:443` and includes global keepalives.
+- `ssh/github-known-hosts` - pinned GitHub Ed25519 host key used by the `github.com` host block on every managed Mac.
 - `.p10k.zsh` - Powerlevel10k prompt config.
 - `.gitignore_global` - global Git ignore rules, symlinked to `~/.gitignore_global` and wired up through `core.excludesfile`.
 - `codex/AGENTS.md` - global agent instructions, symlinked to both `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md` so Codex and Claude Code stay in sync.
@@ -29,6 +30,8 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `claude/statusline-command.sh` - Claude Code status line command symlinked to `~/.claude/statusline-command.sh`.
 - `claude/install-local-hooks.sh` - generates the per-machine `~/.claude/settings.local.json` (Bartender hooks + permissions); not symlinked or committed.
 - `verify.sh` - read-only health check for symlink integrity, required tools, and Claude settings hygiene. Run anytime; `bootstrap_new_mac.sh` runs it last.
+- `scripts/check-github-host-key.sh` - validates the managed GitHub Ed25519 host key against its pinned fingerprint.
+- `scripts/github-ssh-auth.sh` - runs the bounded GitHub SSH client-authentication health check.
 - `ghostty/config.ghostty` - Ghostty terminal config.
 - `docs/decisions/` - architecture decision records for choices that outlive a single change (see Decision Records).
 
@@ -48,6 +51,7 @@ Skip an ADR for routine package additions, formatting, or one-off fixes. When a 
 - Keep Claude Code installed via `npm install -g @anthropic-ai/claude-code`; `node` must remain in `BREW_FORMULAS`.
 - Keep the final output reminder to restore iStat Menus settings from the exported file in the Documents folder.
 - iStat Menus settings should be restored through the app's own import UI, not by copying raw plist files unless explicitly requested.
+- Keep GitHub host-key enrollment non-interactive. Verify key changes against GitHub's published fingerprints before updating `ssh/github-known-hosts`.
 
 ## Shell Config Conventions
 
@@ -69,6 +73,9 @@ For `setup.sh` or `verify.sh` changes, also run:
 ```sh
 bash -n setup.sh
 bash -n verify.sh
+bash -n scripts/check-github-host-key.sh
+bash -n scripts/github-ssh-auth.sh
+bash tests/test-github-ssh.sh
 ```
 
 For SSH config changes, confirm the effective GitHub route:
@@ -77,6 +84,7 @@ For SSH config changes, confirm the effective GitHub route:
 ssh -G -F ssh/config github.com | grep -qx 'hostname ssh.github.com'
 ssh -G -F ssh/config github.com | grep -qx 'port 443'
 ssh -G -F ssh/config github.com | grep -qx 'user git'
+ssh -G -F ssh/config github.com | grep -Fqx "userknownhostsfile $HOME/dotfiles/ssh/github-known-hosts"
 ```
 
 If Homebrew package names are uncertain, verify with:
