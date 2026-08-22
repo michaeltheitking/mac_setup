@@ -5,7 +5,7 @@ GITHUB_USERNAME="michaeltheitking"
 GIT_NAME="michael"
 GIT_EMAIL="mk@michael-king.com"
 DOTFILES_DIR="$HOME/dotfiles"
-SSH_KEY_PATH="$HOME/.ssh/id_ed25519_github"
+SSH_KEY_PATH="$HOME/.ssh/id_ed25519"
 ASTROPAD_WORKBENCH_URL="https://downloads.astropad.com/workbench/mac/latest"
 
 BREW_CASKS=(
@@ -201,10 +201,10 @@ mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 
 if [ ! -f "$SSH_KEY_PATH" ]; then
-  log "Generating GitHub SSH key"
+  log "Generating SSH key"
   ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$SSH_KEY_PATH"
 else
-  log "GitHub SSH key already exists"
+  log "SSH key already exists"
 fi
 
 log "Starting ssh-agent"
