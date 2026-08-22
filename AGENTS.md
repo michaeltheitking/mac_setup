@@ -19,7 +19,7 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `setup.sh` - symlinks `.zshrc`, `.tmux.conf`, `.p10k.zsh`, SSH config, global agent instructions, Claude Code config, Claude/Codex skills, and Ghostty config into place, and generates per-machine Claude local settings.
 - `.zshrc` - zsh shell config. Sources Powerlevel10k and zsh-autosuggestions only when installed.
 - `.tmux.conf` - tmux terminal config. Uses `tmux-256color` and enables RGB color support for `xterm-256color`.
-- `ssh/config` - SSH client config symlinked to `~/.ssh/config`; includes GitHub keychain settings and global keepalives.
+- `ssh/config` - SSH client config symlinked to `~/.ssh/config`; routes GitHub SSH through `ssh.github.com:443` and includes global keepalives.
 - `.p10k.zsh` - Powerlevel10k prompt config.
 - `.gitignore_global` - global Git ignore rules, symlinked to `~/.gitignore_global` and wired up through `core.excludesfile`.
 - `codex/AGENTS.md` - global agent instructions, symlinked to both `~/.codex/AGENTS.md` and `~/.claude/CLAUDE.md` so Codex and Claude Code stay in sync.
@@ -34,7 +34,7 @@ When setup behavior changes, update both this repo and that Confluence page.
 
 ## Decision Records
 
-Setup choices that a future reader would otherwise have to reverse-engineer belong in `docs/decisions/` as a numbered ADR (`NNNN-slug.md`) with status, context, decision, rationale, consequences, and revisit triggers. Examples already recorded: why the Neovim config stays machine-local, and why there is one SSH key per machine rather than one per destination.
+Setup choices that a future reader would otherwise have to reverse-engineer belong in `docs/decisions/` as a numbered ADR (`NNNN-slug.md`) with status, context, decision, rationale, consequences, and revisit triggers. Examples already recorded: why the Neovim config stays machine-local, why there is one SSH key per machine, and why GitHub SSH uses port 443.
 
 Skip an ADR for routine package additions, formatting, or one-off fixes. When a recorded decision changes, update its ADR instead of adding a second one.
 
@@ -64,10 +64,19 @@ bash -n bootstrap_new_mac.sh
 zsh -n .zshrc
 ```
 
-For `setup.sh` changes, also run:
+For `setup.sh` or `verify.sh` changes, also run:
 
 ```sh
 bash -n setup.sh
+bash -n verify.sh
+```
+
+For SSH config changes, confirm the effective GitHub route:
+
+```sh
+ssh -G -F ssh/config github.com | grep -qx 'hostname ssh.github.com'
+ssh -G -F ssh/config github.com | grep -qx 'port 443'
+ssh -G -F ssh/config github.com | grep -qx 'user git'
 ```
 
 If Homebrew package names are uncertain, verify with:
