@@ -19,6 +19,12 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 - Do not infer an approval requirement from a skill guideline when the user already authorizes the action.
 - If a skill blocks requested work, name and link to the exact file and quote the relevant instruction. Explain whether the restriction is explicit or inferred.
 
+## Instruction Maintenance
+
+- Keep instruction files focused on durable operating rules. Move historical records and detailed reference material into linked documents.
+- Check applicable project instructions for conflicts with global guidance. Resolve conflicts using instruction precedence.
+- Keep common behavior in global instructions. Keep project commands, runtime details, and exceptions in project instructions or linked documentation.
+
 ## Code Changes
 
 - Preserve existing conventions, names, formatting, and architecture unless there is a clear reason to change them.
@@ -46,6 +52,7 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 ## Git Safety
 
 - Treat the worktree as shared with the user.
+- Before editing, confirm the repository, branch, worktree, and existing changes.
 - Never revert or overwrite changes that were not made for the current task unless explicitly requested.
 - If unexpected changes affect the task, inspect them and work with them.
 - Before committing, check `git status` and include only relevant changes.
@@ -54,14 +61,29 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 - Before committing or pushing, ensure code is: reviewed, linted, formatted with project (or global fallback) tools, simplified where practical, commented where helpful, and validated with the relevant tests.
 - Fetch before pushing. Where automation or another machine also pushes to the same branch, local `main` goes stale mid-session and a push is rejected non-fast-forward minutes after a clean `git status`. Rebase onto the remote and check the intervening commits for overlap before continuing.
 
+## Setup and Worktrees
+
+- Discover and reuse existing project commands and declared runtime versions. Do not require identical command names across projects.
+- Keep setup safe to repeat. Isolate writable test data, outputs, and running services between worktrees.
+- Preserve uncommitted work during cleanup. Stop only processes started for the current task.
+
+## Debugging and Access
+
+- Use existing diagnostic commands, logs, and authenticated access before requesting new tools or permissions.
+- Distinguish environment restrictions, missing authentication, dependency failures, and application defects.
+- Report the specific blocked operation. Continue checks that do not depend on it.
+- Do not expose credentials or sensitive data in logs or verification artifacts.
+
 ## Testing and Verification
 
-- Run the narrowest relevant tests first.
+- Match verification to the changed behavior and its risk. Use existing project checks and run the narrowest relevant tests first.
 - Broaden testing when changes touch shared behavior, public APIs, user-facing flows, or cross-module contracts.
 - Complete required checks. After they pass, repeat or broaden testing only for new changes, failures, or unresolved risks.
 - Add tests that verify meaningful behavior. Avoid tests that only repeat the implementation.
-- If tests cannot be run, state exactly what was not verified and why.
-- For frontend changes, verify the app visually when practical.
+- Use isolated fixtures for automated checks. Follow project authorization rules for live systems.
+- For user-facing changes, verify the affected workflow through its observable result when practical. Include visual checks for frontend changes.
+- Distinguish local verification, pushed changes, deployment, and observed operating results.
+- Report checks performed, results, and material gaps. If a check cannot run, state what remains unverified and why. Never treat an unavailable check as a pass.
 
 ## Frontend Preferences
 
