@@ -127,3 +127,9 @@ git diff --check
 
 Final Omarchy validation requires an Omarchy machine. Run both the bootstrap
 and setup twice. The second run must preserve configuration and installed state.
+
+## Project context
+
+Start with [the documentation index](docs/README.md).
+It links current state, structure, operations, decisions, and handoff guidance.
+Keep these records aligned with reviewed changes.

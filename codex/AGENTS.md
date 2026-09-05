@@ -26,6 +26,55 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 - Keep common behavior in global instructions. Keep project commands, runtime details, and exceptions in project instructions or linked documentation.
 - After instruction changes, check loading paths, links, overrides, and size limits for each affected agent.
 
+## Shared Project Structure and Context
+
+Apply this structure when creating a project or adding durable project documentation.
+Use the same roles across projects; preserve established application layouts and deployment paths.
+
+- `AGENTS.md`: concise project rules, scope, commands, safety boundaries, and required context reads.
+- `CLAUDE.md`: import `@AGENTS.md` or use a relative symlink to it. Preserve necessary Claude-only rules.
+- `README.md`: purpose, setup, quick start, and links to project documentation.
+- `docs/README.md`: document index and reading order.
+- `docs/current-state.md`: last verified state, evidence dates, known gaps, and links to active work.
+- `docs/structure.md`: directory ownership, naming, source/generated/private boundaries, and documented exceptions.
+- `docs/operations.md`: setup, validation, runtime ownership, recovery, and platform-specific prerequisites.
+- `docs/decisions/`: numbered architecture and design decisions, with an index or README.
+- `docs/handoffs/`: dated notes for unfinished work that must continue in another session or device.
+- Use `docs/plans/`, `docs/reference/`, and `docs/history/` when needed. Do not create empty categories.
+
+For new projects, default to `src/` for implementation, `tests/` for checks, `scripts/` for entry points, and `config/` for templates.
+Use `assets/` for reusable assets, `inputs/` for source material, and `outputs/` for generated results when needed.
+Keep root files limited to entry documents and framework/tool requirements. Document stack-specific exceptions in `docs/structure.md`.
+Define tracking rules before adding private inputs or generated state; do not create unused directories.
+
+Before substantive project work, inspect Git state and read the project instructions, README, documentation index, and current state.
+Then read only relevant operations, decisions, references, and the active issue or handoff.
+For a narrow lookup, use the project's documented fast path instead of reading unrelated context.
+Historical notes and agent memory do not override current instructions, accepted decisions, or verified evidence.
+
+Keep rules in instruction files and facts in context documents. Keep task progress in the existing issue or a handoff.
+Record newly verified facts with date, source, uncertainty, and any superseded claim.
+Update affected operating instructions in the same change as the behavior they describe.
+Record durable decisions with status, context, decision, rationale, consequences, and revisit triggers.
+For unfinished work, record goal, branch and commit, changes, checks, blockers, next action, and data requirements.
+Do not copy transcripts, credentials, or private raw records into shared context.
+Mark completed handoffs as completed or superseded; do not leave them looking active.
+
+Track reviewed, non-sensitive context with its code so a fresh clone contains the required operating knowledge.
+If privacy or publication policy excludes context, document the exception in the tracked README.
+Provide safe clone-start instructions there and identify missing local context without disclosing its contents.
+Never relax privacy guards or publish internal material merely to match this layout.
+Use repo-relative links and configurable paths; document required platform differences.
+Keep authentication, live databases, caches, and tool-managed conversation state local.
+Do not synchronize entire Codex or Claude home directories as project context.
+
+Each device uses its own checkout. Fetch before integration; preserve local changes and use the relevant task branch.
+Push reviewed commits and context together under the project's workflow. Do not use automatic pulls that overwrite active work.
+Keep production jobs on their declared runtime host; cloning a project does not authorize starting another service.
+Validate instruction loading, links, tracking rules, and agent instruction size limits after changing this structure.
+For new projects, create the core documents with real known facts and explicit unknowns before claiming setup is complete.
+For existing projects, index and reuse useful documents rather than relocating source files or duplicating competing context.
+
 ## Code Changes
 
 - Preserve existing conventions, names, formatting, and architecture unless there is a clear reason to change them.
