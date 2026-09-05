@@ -28,6 +28,12 @@ Omarchy keeps ownership of Bash, Starship, Tmux, Ghostty, Hyprland, and desktop
 configuration. Its bootstrap uses `omarchy pkg add` only for missing personal
 packages.
 
+As of 2026-09-05, `omarchy/config/` stores selected, reviewed personal configuration copies.
+Paths mirror `~/.config/`. Capture and restore remain explicit, manual operations.
+Bootstrap and setup do not apply these files or link entire desktop configuration directories.
+Keep backups in ignored `omarchy/local/`; keep private data outside tracked files.
+See the [capture and restore workflow](../../omarchy/README.md).
+
 The setup scripts refuse to replace existing regular files or directories.
 
 ## Rationale
@@ -46,6 +52,7 @@ link helper provides conflict protection and keeps platform logic visible.
 - New platform-specific files must go into the correct setup script.
 - Verification must select checks for the active platform.
 - Final Omarchy validation requires a real Omarchy system.
+- Saved desktop files require review against current live settings before restoration.
 
 ## Revisit Triggers
 

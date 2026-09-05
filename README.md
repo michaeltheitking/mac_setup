@@ -39,6 +39,10 @@ Omarchy also manages the Linux SSH configuration. Omarchy retains control of
 Bash, Starship, Tmux, Ghostty, Hyprland, and desktop settings. This boundary
 keeps Omarchy updates and theme synchronization intact.
 
+Save selected personal Omarchy settings in [`omarchy/config/`](omarchy/config/).
+Follow the [capture and restore workflow](omarchy/README.md) before adding or applying files.
+Desktop configuration restoration remains manual; setup does not apply this directory.
+
 macOS setup removes retired Bartender hooks from existing local Claude settings.
 It preserves other hooks and permissions. It does not create local settings.
 Bartender remains installed for menu bar management.
