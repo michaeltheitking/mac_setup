@@ -31,6 +31,7 @@ BREW_CASKS=(
   microsoft-office
   notion
   nvidia-geforce-now
+  openlogi
   protonvpn
   raindropio
   raycast

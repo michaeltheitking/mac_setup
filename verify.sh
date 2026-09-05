@@ -194,16 +194,6 @@ else
   tag_fail "claude/settings.json not found at $(short "$SETTINGS")"
 fi
 
-if [ "$PLATFORM" = "macos" ]; then
-  if [ -f "$HOME/.claude/settings.local.json" ]; then
-    tag_ok "~/.claude/settings.local.json present (per-machine hooks/permissions)"
-  else
-    tag_warn "~/.claude/settings.local.json missing — run claude/install-local-hooks.sh (Bartender hooks/permissions won't load)"
-  fi
-else
-  tag_ok "macOS-only Claude hooks skipped on Omarchy"
-fi
-
 section "Intentionally unmanaged"
 if [ -L "$HOME/.codex/config.toml" ]; then
   tag_warn "~/.codex/config.toml is a symlink — it should be a plain per-machine file (Codex rewrites it); remove the link"

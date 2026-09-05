@@ -45,8 +45,26 @@ assert_link "$mac_home/.ssh/config" "$REPO_DIR/ssh/config"
 assert_link "$mac_home/.ssh/github-known-hosts" \
   "$REPO_DIR/ssh/github-known-hosts"
 assert_link "$mac_home/.config/ghostty/config" "$REPO_DIR/ghostty/config.ghostty"
-[ -f "$mac_home/.claude/settings.local.json" ] \
-  || fail "macOS local Claude settings were not created"
+assert_absent "$mac_home/.claude/settings.local.json" \
+  "macOS setup created unnecessary local Claude settings"
+
+# Retire the old integration without changing other hooks or permissions.
+printf '%s\n' '{"permissions":{"allow":["Bash(example)"]},"hooks":{"Stop":[{"hooks":[{"type":"command","command":"old # notchbar-agents-claude-hook"},{"type":"command","command":"keep"}]}],"SessionStart":[{"hooks":[{"type":"command","command":"/Users/test/Library/Application Support/Bartender/NotchBar/AgentStatus/hooks/claude-event-hook.sh Idle"}]}]}}' \
+  > "$mac_home/.claude/settings.local.json"
+HOME="$mac_home" bash "$REPO_DIR/claude/remove-bartender-hooks.sh" >/dev/null
+jq -e '. == {"permissions":{"allow":["Bash(example)"]},"hooks":{"Stop":[{"hooks":[{"type":"command","command":"keep"}]}]}}' \
+  "$mac_home/.claude/settings.local.json" >/dev/null \
+  || fail "Bartender removal changed unrelated settings"
+cp "$mac_home/.claude/settings.local.json" "$TEST_ROOT/clean-settings.json"
+HOME="$mac_home" bash "$REPO_DIR/claude/remove-bartender-hooks.sh" >/dev/null
+cmp -s "$mac_home/.claude/settings.local.json" "$TEST_ROOT/clean-settings.json" \
+  || fail "repeated Bartender removal changed clean settings"
+
+printf '%s\n' '{"permissions":{},"hooks":{"Stop":[{"hooks":[{"type":"command","command":"old # notchbar-agents-claude-hook"}]}]}}' \
+  > "$mac_home/.claude/settings.local.json"
+HOME="$mac_home" bash "$REPO_DIR/claude/remove-bartender-hooks.sh" >/dev/null
+jq -e '. == {"permissions":{}}' "$mac_home/.claude/settings.local.json" >/dev/null \
+  || fail "Bartender removal left an empty hooks block"
 
 omarchy_home="$TEST_ROOT/omarchy-home"
 mkdir -p "$omarchy_home"

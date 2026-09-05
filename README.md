@@ -33,17 +33,60 @@ macOS also manages:
 - Zsh and Powerlevel10k
 - Tmux
 - Apple Keychain-aware SSH configuration
-- Bartender Claude hooks
 - Ghostty configuration
 
 Omarchy also manages the Linux SSH configuration. Omarchy retains control of
 Bash, Starship, Tmux, Ghostty, Hyprland, and desktop settings. This boundary
 keeps Omarchy updates and theme synchronization intact.
 
+macOS setup removes retired Bartender hooks from existing local Claude settings.
+It preserves other hooks and permissions. It does not create local settings.
+Bartender remains installed for menu bar management.
+
 ## Package Management
 
 macOS uses Homebrew formulas and casks. Omarchy uses `omarchy pkg add`, which
 handles Arch repositories and the AUR.
+
+### macOS install inventory
+
+The bootstrap installs these Homebrew casks:
+
+```text
+1password, nikitabobko/tap/aerospace, bartender, chatgpt, claude, codex,
+cursor, fantastical, font-jetbrains-mono-nerd-font, font-meslo-lg-nerd-font,
+ghostty, grandperspective, istat-menus, linear, microsoft-office, notion,
+nvidia-geforce-now, openlogi, protonvpn, raindropio, raycast, spotify,
+tailscale-app, todoist-app, vlc, wispr-flow, zed
+```
+
+It installs these Homebrew formulas:
+
+```text
+git, gh, node, jq, pngpaste, ruff, prettier, tmux, powerlevel10k,
+zsh-autosuggestions, fastfetch, btop
+```
+
+Other install steps provide Xcode Command Line Tools, Homebrew,
+`@anthropic-ai/claude-code` through npm, and Astropad Workbench through its official DMG.
+Existing tools and applications are skipped. Dropbox and Zoom are not installed.
+
+Both bootstrap scripts install these Claude plugins:
+
+```text
+claude-md-management@claude-plugins-official
+compound-engineering@compound-engineering-plugin
+context7@claude-plugins-official
+skill-creator@claude-plugins-official
+superpowers@claude-plugins-official
+atlassian@claude-plugins-official
+linear@claude-plugins-official
+```
+
+The additional marketplace is `EveryInc/compound-engineering-plugin`.
+Plugin account authentication remains manual. macOS plugin installation is best-effort.
+
+### Omarchy install inventory
 
 The Omarchy bootstrap adds only these personal packages:
 

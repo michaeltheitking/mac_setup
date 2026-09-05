@@ -19,7 +19,7 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `bootstrap_omarchy.sh` - Omarchy bootstrap script for personal Arch packages, Git, SSH, GitHub auth, plugins, setup, and verification.
 - `setup.sh` - detects macOS or Omarchy and dispatches to the matching platform setup.
 - `setup_common.sh` - conflict-safe linking helpers and shared Git, Codex, and Claude setup.
-- `setup_macos.sh` - links macOS shell, Tmux, SSH, Claude hook, and Ghostty files.
+- `setup_macos.sh` - links macOS shell, Tmux, SSH, and Ghostty files; removes retired Bartender hooks.
 - `setup_omarchy.sh` - links portable files and the Linux SSH config while preserving Omarchy-owned configuration.
 - `.zshrc` - zsh shell config. Sources Powerlevel10k and zsh-autosuggestions only when installed.
 - `.tmux.conf` - tmux terminal config. Uses `tmux-256color` and enables RGB color support for `xterm-256color`.
@@ -33,7 +33,7 @@ When setup behavior changes, update both this repo and that Confluence page.
 - `codex/skills/` - global Codex skills, each symlinked per-skill into `~/.codex/skills/`. Linked per-skill (not the whole directory) so Codex's managed `~/.codex/skills/.system` is left untouched.
 - `claude/settings.json` - Claude Code settings symlinked to `~/.claude/settings.json`.
 - `claude/statusline-command.sh` - Claude Code status line command symlinked to `~/.claude/statusline-command.sh`.
-- `claude/install-local-hooks.sh` - generates the per-machine `~/.claude/settings.local.json` (Bartender hooks + permissions); not symlinked or committed.
+- `claude/remove-bartender-hooks.sh` - removes retired Bartender hooks from local Claude settings; preserves other hooks and permissions.
 - `verify.sh` - read-only health check for symlink integrity, required tools, and Claude settings hygiene. Run anytime; `bootstrap_new_mac.sh` runs it last.
 - `scripts/check-github-host-key.sh` - validates the managed GitHub Ed25519 host key against its pinned fingerprint.
 - `scripts/github-ssh-auth.sh` - runs the bounded GitHub SSH client-authentication health check.

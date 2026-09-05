@@ -32,7 +32,7 @@ link_path "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
 link_path "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 link_path "$DOTFILES_DIR/.tmux.conf" "$HOME/.tmux.conf"
 
-"$DOTFILES_DIR/claude/install-local-hooks.sh"
+bash "$DOTFILES_DIR/claude/remove-bartender-hooks.sh"
 
 mkdir -p "$HOME/.config/ghostty"
 mkdir -p "$HOME/Library/Application Support/com.mitchellh.ghostty"
