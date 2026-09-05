@@ -6,9 +6,18 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 
 - Be direct, pragmatic, and concise.
 - When the request is implementation-oriented, make the change instead of stopping at advice.
+- Carry authorized work through implementation, verification, and any required delivery. Make reasonable assumptions for routine, reversible choices.
+- Do not request approval again when the user's request or standing instructions already authorize the action.
+- Ask when missing information materially affects scope, correctness, cost, or an irreversible action. Continue independent, authorized work while waiting.
 - Read the relevant code before deciding on an approach.
 - Prefer small, focused edits that match the existing project structure.
 - Explain important tradeoffs and assumptions when they affect the result.
+
+## Skill Instructions
+
+- Explicit user instructions take precedence over skill guidelines, subject to system and developer requirements.
+- Do not infer an approval requirement from a skill guideline when the user already authorizes the action.
+- If a skill blocks requested work, name and link to the exact file and quote the relevant instruction. Explain whether the restriction is explicit or inferred.
 
 ## Code Changes
 
@@ -49,6 +58,8 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 
 - Run the narrowest relevant tests first.
 - Broaden testing when changes touch shared behavior, public APIs, user-facing flows, or cross-module contracts.
+- Complete required checks. After they pass, repeat or broaden testing only for new changes, failures, or unresolved risks.
+- Add tests that verify meaningful behavior. Avoid tests that only repeat the implementation.
 - If tests cannot be run, state exactly what was not verified and why.
 - For frontend changes, verify the app visually when practical.
 
@@ -77,7 +88,7 @@ These instructions apply across all projects and coding tools (Claude Code, Code
   - Keep one topic in each sentence.
   - Do not use idioms.
 - Keep progress updates short and concrete.
-- Final responses should summarize what changed, what was verified, and any remaining risks.
+- Lead with the answer or result. For implementation tasks, summarize changes, verification, and material remaining risks.
 - Use clickable file references when pointing to local files.
 - Avoid unnecessary praise, filler, or restating the obvious.
 
@@ -98,12 +109,15 @@ When a project uses Confluence for documentation (the default unless the user na
 
 - A launchd pipeline on the Mac mini (repo `~/Documents/projects/code_flow`; its README/AGENTS.md are authoritative) automates Linear issues: a **Todo** issue labeled **`codex`** → headless Codex implements on a local branch → Ready for Review → headless Claude reviews → approve merges directly to `main` and pushes. **No PRs anywhere in this workflow.**
 - Only Linear projects enrolled in `REPO_MAP` (`~/.config/codex-pipeline/env`) are dispatched; enrollment is manual and deliberate.
-- To hand an issue to the pipeline: make sure it has a full spec (Goal / Context / Non-goals / Acceptance Criteria). If an issue is underspecified, write the spec into the description, park it `needs-human` for Michael's review, and only after his sign-off apply `codex`, remove `needs-human`, and set state to Todo.
-- `needs-human` means Michael's input is genuinely required — it is applied only after a Claude triage pass has vetted the blocker. To resume a `needs-human` issue after Michael answers: remove `needs-human`, re-apply `codex`, state Todo.
+- To hand an issue to the pipeline, ensure it has a full spec (Goal / Context / Non-goals / Acceptance Criteria).
+- For an underspecified issue, draft the spec and obtain Claude triage of any unresolved questions. Apply `needs-human` only when triage confirms Michael's input is required. Obtain his sign-off before dispatching an issue that requires his input.
+- If Claude triage is unavailable, leave the issue's labels and state unchanged and do not dispatch it. Report the unavailable triage and unresolved questions to Michael, then continue independent work.
+- To resume a `needs-human` issue after Michael answers, update its spec, remove `needs-human`, re-apply `codex`, and set Todo.
 - Sign every Linear comment you write with an agent trailer on its own final line: `--claude` (or `--codex` for Codex). Pipeline machinery signs `--codex-pipeline`. Comments post under Michael's API identity, so the trailer is the only attribution.
 
 ## Boundaries
 
 - Do not store secrets, tokens, credentials, or private keys in files.
-- Ask before taking actions that are destructive, expensive, or require external services when the user has not clearly requested them.
+- Ask before destructive, expensive, or external write actions that the user's request or standing instructions do not authorize.
+- Use relevant read-only external services when needed for the requested task. Prepare a concrete, reviewable result before requesting approval for a later action.
 - Prefer local context over web search unless current information, external docs, or user instructions require browsing.
