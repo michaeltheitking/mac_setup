@@ -24,6 +24,7 @@ These instructions apply across all projects and coding tools (Claude Code, Code
 - Keep instruction files focused on durable operating rules. Move historical records and detailed reference material into linked documents.
 - Check applicable project instructions for conflicts with global guidance. Resolve conflicts using instruction precedence.
 - Keep common behavior in global instructions. Keep project commands, runtime details, and exceptions in project instructions or linked documentation.
+- After instruction changes, check loading paths, links, overrides, and size limits for each affected agent.
 
 ## Code Changes
 
