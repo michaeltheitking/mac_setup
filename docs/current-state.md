@@ -19,6 +19,11 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-09-25: Added the reviewed [iStat Menus 7 export](../istat-menus/README.md) from the local Documents file.
+  The source file modification date is 2026-05-23. License and device fields are excluded.
+  Plist validation and comparison confirm that all other settings match the source.
+  Import of the sanitized copy remains unverified; current app settings were not changed.
+
 - Native Omarchy behavior and the other Macs were not verified during this documentation baseline.
 - Check current code, relevant issues, and live evidence before reusing historical claims.
 - Record active task details in the existing issue or a [handoff](handoffs/README.md).

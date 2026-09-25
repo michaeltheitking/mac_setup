@@ -280,5 +280,7 @@ log "Finished"
 echo
 echo "Your Mac is bootstrapped."
 echo "Reminder: restore iStat Menus settings from the exported file in your Documents folder."
+echo "A copy without license or device fields is available at: $DOTFILES_DIR/istat-menus/settings.ismp7"
+echo "Import it through iStat Menus; activate the app separately if required."
 echo "Repo remote is now:"
 git -C "$DOTFILES_DIR" remote -v || true

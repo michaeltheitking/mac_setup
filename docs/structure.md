@@ -27,3 +27,4 @@ Document data requirements without embedding private values. Do not synchronize 
 - `ssh/`: Managed SSH configuration and pinned host keys.
 - `scripts/`: Command entry points and maintenance helpers.
 - `ghostty/`: Managed terminal configuration.
+- `istat-menus/`: Reviewed macOS preferences export and manual restore instructions; excludes license and device fields.

@@ -47,6 +47,9 @@ macOS setup removes retired Bartender hooks from existing local Claude settings.
 It preserves other hooks and permissions. It does not create local settings.
 Bartender remains installed for menu bar management.
 
+The reviewed iStat Menus 7 export is stored in [`istat-menus/`](istat-menus/README.md).
+Import it manually through the app. License and device fields are excluded from the repository copy.
+
 ## Package Management
 
 macOS uses Homebrew formulas and casks. Omarchy uses `omarchy pkg add`, which
