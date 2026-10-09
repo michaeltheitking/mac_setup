@@ -49,7 +49,8 @@ Use [manual settings backup and restore](docs/manual-settings.md) for settings o
 - `claude/remove-bartender-hooks.sh` - removes retired Bartender hooks from local Claude settings; preserves other hooks and permissions.
 - `verify.sh` - read-only health check for symlink integrity, required tools, and Claude settings hygiene. Run anytime; `bootstrap_new_mac.sh` runs it last.
 - `scripts/check-github-host-key.sh` - validates the managed GitHub Ed25519 host key against its pinned fingerprint.
-- `scripts/github-ssh-auth.sh` - runs the bounded GitHub SSH client-authentication health check.
+- `scripts/github-auth.sh` - shared HTTPS setup and read-only account, storage, and authenticated Git checks.
+- `scripts/github-ssh-auth.sh` - optional bounded GitHub SSH client-authentication health check.
 - `tests/test_setup.sh` - isolated setup tests for both platforms and link-conflict handling.
 - `ghostty/config.ghostty` - Ghostty terminal config.
 - `docs/decisions/` - architecture decision records for choices that outlive a single change (see Decision Records).
@@ -72,7 +73,10 @@ Skip an ADR for routine package additions, formatting, or one-off fixes. When a 
 - Keep Claude Code installed via `npm install -g @anthropic-ai/claude-code`; `node` must remain in `BREW_FORMULAS`.
 - Keep the final output reminder to restore iStat Menus settings from the exported file in the Documents folder.
 - iStat Menus settings should be restored through the app's own import UI, not by copying raw plist files unless explicitly requested.
-- Keep GitHub host-key enrollment non-interactive. Verify key changes against GitHub's published fingerprints before updating `ssh/github-known-hosts`.
+- Use `scripts/github-auth.sh setup` in both bootstraps. Keep HTTPS as the future-machine default.
+- Require native credential storage for bootstrap. Do not print tokens or enable `--insecure-storage`.
+- Keep existing device credentials, keys, and repository remotes unchanged unless migration is requested.
+- Keep optional GitHub SSH host-key enrollment non-interactive. Verify published fingerprints before changing `ssh/github-known-hosts`.
 
 For Omarchy:
 
@@ -102,8 +106,10 @@ For `setup.sh` or `verify.sh` changes, also run:
 bash -n bootstrap_omarchy.sh setup.sh setup_common.sh setup_macos.sh setup_omarchy.sh verify.sh
 bash -n scripts/check-github-host-key.sh
 bash -n scripts/github-ssh-auth.sh
+bash -n scripts/github-auth.sh
 bash tests/test_setup.sh
 bash tests/test-github-ssh.sh
+bash tests/test-github-auth.sh
 ```
 
 For SSH config changes, confirm the effective GitHub route:

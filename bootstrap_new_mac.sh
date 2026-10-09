@@ -6,11 +6,9 @@ if [ "$(uname -s)" != "Darwin" ]; then
   exit 1
 fi
 
-GITHUB_USERNAME="michaeltheitking"
 GIT_NAME="michael"
 GIT_EMAIL="mk@michael-king.com"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-SSH_KEY_PATH="$HOME/.ssh/id_ed25519"
 ASTROPAD_WORKBENCH_URL="https://downloads.astropad.com/workbench/mac/latest"
 
 BREW_CASKS=(
@@ -212,44 +210,9 @@ chmod 700 "$HOME/.ssh"
 log "Running dotfiles setup"
 chmod +x "$DOTFILES_DIR/setup.sh"
 "$DOTFILES_DIR/setup.sh"
-"$DOTFILES_DIR/scripts/check-github-host-key.sh" "$DOTFILES_DIR/ssh/github-known-hosts"
 
-if [ ! -f "$SSH_KEY_PATH" ]; then
-  log "Generating SSH key"
-  ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$SSH_KEY_PATH"
-else
-  log "SSH key already exists"
-fi
-
-log "Starting ssh-agent"
-eval "$(ssh-agent -s)"
-
-log "Adding SSH key to agent and Keychain"
-ssh-add --apple-use-keychain "$SSH_KEY_PATH"
-
-log "Authenticating GitHub CLI"
-if ! gh auth status >/dev/null 2>&1; then
-  gh auth login --hostname github.com --git-protocol ssh --web
-fi
-
-log "Adding SSH key to GitHub if needed"
-KEY_TITLE="$(scutil --get ComputerName 2>/dev/null || hostname)-$(date +%Y)"
-
-PUBKEY_CONTENT="$(cat "${SSH_KEY_PATH}.pub")"
-if gh ssh-key list | grep -Fq "$PUBKEY_CONTENT"; then
-  echo "SSH key already registered with GitHub."
-else
-  gh ssh-key add "${SSH_KEY_PATH}.pub" --title "$KEY_TITLE"
-fi
-
-log "Testing GitHub SSH"
-"$DOTFILES_DIR/scripts/github-ssh-auth.sh"
-
-log "Switching dotfiles repo remote to SSH"
-if [ -d "$DOTFILES_DIR/.git" ]; then
-  cd "$DOTFILES_DIR"
-  git remote set-url origin "git@github.com:${GITHUB_USERNAME}/mac_setup.git" || true
-fi
+log "Configuring GitHub HTTPS authentication"
+bash "$DOTFILES_DIR/scripts/github-auth.sh" setup
 
 log "Installing Claude Code plugins"
 if have_cmd claude; then

@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-GITHUB_USERNAME="michaeltheitking"
 GIT_NAME="michael"
 GIT_EMAIL="mk@michael-king.com"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-SSH_KEY_PATH="$HOME/.ssh/id_ed25519"
 
 # Omarchy already provides Git, jq, Tmux, Fastfetch, wl-clipboard, and the
 # Claude/Codex lazy launchers. Add only personal tools missing from its base.
@@ -49,13 +47,6 @@ claude_plugin_installed() {
       'any(.[]; .id == $id)' >/dev/null
 }
 
-github_has_ssh_key() {
-  local public_key
-
-  public_key="$(awk '{ print $1 " " $2 }' "${SSH_KEY_PATH}.pub")"
-  gh api user/keys --paginate --jq '.[].key' | grep -Fxq "$public_key"
-}
-
 main() {
 if [ "$(uname -s)" != "Linux" ] \
   || ! command -v omarchy >/dev/null 2>&1 \
@@ -66,7 +57,6 @@ fi
 
 log "Running Omarchy dotfiles setup"
 DOTFILES_PLATFORM=omarchy "$DOTFILES_DIR/setup.sh"
-"$DOTFILES_DIR/scripts/check-github-host-key.sh" "$DOTFILES_DIR/ssh/github-known-hosts"
 
 log "Installing personal command-line packages"
 for package in "${OMARCHY_PACKAGES[@]}"; do
@@ -82,42 +72,8 @@ git config --global user.name "$GIT_NAME"
 git config --global user.email "$GIT_EMAIL"
 git config --global init.defaultBranch main
 
-log "Preparing SSH"
-mkdir -p "$HOME/.ssh"
-chmod 700 "$HOME/.ssh"
-
-if [ ! -f "$SSH_KEY_PATH" ]; then
-  log "Generating GitHub SSH key"
-  ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$SSH_KEY_PATH"
-else
-  echo "GitHub SSH key already exists."
-fi
-
-log "Starting ssh-agent"
-eval "$(ssh-agent -s)"
-ssh-add "$SSH_KEY_PATH"
-
-log "Authenticating GitHub CLI"
-if ! gh auth status >/dev/null 2>&1; then
-  gh auth login --hostname github.com --git-protocol ssh --web
-fi
-
-log "Adding SSH key to GitHub if needed"
-KEY_TITLE="$(hostname)-$(date +%Y)"
-if github_has_ssh_key; then
-  echo "SSH key already registered with GitHub."
-else
-  gh ssh-key add "${SSH_KEY_PATH}.pub" --title "$KEY_TITLE"
-fi
-
-log "Testing GitHub SSH"
-"$DOTFILES_DIR/scripts/github-ssh-auth.sh"
-
-log "Switching dotfiles repo remote to SSH"
-if [ -d "$DOTFILES_DIR/.git" ]; then
-  git -C "$DOTFILES_DIR" remote set-url origin \
-    "git@github.com:${GITHUB_USERNAME}/mac_setup.git" || true
-fi
+log "Configuring GitHub HTTPS authentication"
+bash "$DOTFILES_DIR/scripts/github-auth.sh" setup
 
 log "Installing Claude Code plugins"
 if command -v claude >/dev/null 2>&1; then

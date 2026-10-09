@@ -87,16 +87,4 @@ for ssh_config in "$REPO_DIR/ssh/config" "$REPO_DIR/ssh/config.omarchy"; do
   fi
 done
 
-for bootstrap_script in bootstrap_new_mac.sh bootstrap_omarchy.sh; do
-  if ! awk '
-    index($0, "$DOTFILES_DIR/setup.sh") && !setup { setup = NR }
-    index($0, "scripts/check-github-host-key.sh") && !trust { trust = NR }
-    index($0, "scripts/github-ssh-auth.sh") && !auth { auth = NR }
-    END { exit !(setup && trust && auth && setup < trust && trust < auth) }
-  ' "$REPO_DIR/$bootstrap_script"; then
-    echo "$bootstrap_script must validate managed SSH trust before GitHub authentication."
-    exit 1
-  fi
-done
-
-echo "GitHub SSH policy is valid."
+echo "Optional GitHub SSH policy is valid."

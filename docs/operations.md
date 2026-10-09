@@ -28,8 +28,11 @@ A push does not verify deployment or runtime behavior.
 On macOS, verification requires `pngpaste`, `btop`, `fastfetch`, and the three Microsoft application bundles.
 Office supplies OneDrive; do not install the conflicting standalone OneDrive cask alongside Office.
 Bootstrap exits unsuccessfully when final verification fails. A missing Mac verifier also prevents success.
-Verification reads the active SSH config and checks Git's global ignore-file setting.
-Authentication needs network access. Read the SSH helper's error before treating a network failure as an authentication defect.
+Verification checks Git's global ignore-file setting and the selected GitHub transport.
+HTTPS uses the expected API account, `gh` credential helper, and a private Git read.
+SSH-selected machines retain active-config, trust, and authentication checks.
+Authentication needs network access. Treat transport failures separately from credential failures.
+Use [GitHub setup and recovery](github-authentication.md) on future machines.
 
 Use the existing project checks and review the exact diff.
 Check changed documentation links, instruction loading, and tracking rules.

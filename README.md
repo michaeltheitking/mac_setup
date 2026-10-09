@@ -26,7 +26,8 @@ Both platforms share:
 - Claude settings and status line
 - Per-skill Codex and Claude links
 - Git `core.excludesfile`
-- One per-machine SSH key and pinned GitHub host trust
+- GitHub HTTPS credentials through `gh` during bootstrap
+- Optional GitHub SSH configuration and pinned trust for existing SSH users
 
 macOS also manages:
 
@@ -121,10 +122,13 @@ Run the platform-aware health check:
 ./verify.sh
 ```
 
-The check validates active SSH configuration, pinned GitHub trust, Git ignore wiring, links, and required tools.
+The check validates GitHub authentication, Git ignore wiring, links, and required tools.
 On macOS, `pngpaste`, `btop`, and `fastfetch` are required.
 App-bundle checks confirm installation only; sign-in and settings restoration remain manual.
-GitHub SSH authentication requires network access. A network failure does not establish a key failure.
+GitHub checks require network access. A network failure does not establish a credential failure.
+HTTPS checks confirm the expected API identity, `gh` credential helper, and a private Git read.
+Existing machines that select SSH retain the SSH route, trust, and client-authentication checks.
+Legacy plaintext credential storage produces a warning. New bootstrap requires native credential storage.
 Both bootstrap scripts stop when verification fails. The Mac bootstrap also stops if its verifier is unavailable.
 
 Run repository checks after script changes:
@@ -135,6 +139,7 @@ bash -n bootstrap_new_mac.sh bootstrap_omarchy.sh setup.sh setup_common.sh \
 zsh -n .zshrc
 bash tests/test_setup.sh
 bash tests/test-github-ssh.sh
+bash tests/test-github-auth.sh
 git diff --check
 ```
 
@@ -147,6 +152,14 @@ Follow [the settings guide](docs/manual-settings.md) before replacing a Mac and 
 It covers app exports, private configuration files, account setup, permissions, and restore checks.
 Keep private exports outside this repository. Bootstrap prints the guide path when it finishes.
 Homebrew initialization is added to `.zprofile` even when Homebrew already exists.
+
+## GitHub CLI setup
+
+Both bootstraps configure HTTPS Git through the shared [authentication helper](scripts/github-auth.sh).
+They reuse valid credentials or request browser authorization in an interactive terminal.
+They do not generate GitHub SSH keys, start agents, register keys, or rewrite existing repository remotes.
+Fresh clones retain their HTTPS remote. Existing devices do not need migration.
+See [GitHub setup, checks, and recovery](docs/github-authentication.md) for storage and scheduled-job boundaries.
 
 ## Project context
 

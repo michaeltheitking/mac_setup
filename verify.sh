@@ -81,7 +81,6 @@ check_symlink "$HOME/.codex/AGENTS.md"             "$DOTFILES_DIR/codex/AGENTS.m
 check_symlink "$HOME/.claude/CLAUDE.md"            "$DOTFILES_DIR/codex/AGENTS.md"
 check_symlink "$HOME/.claude/settings.json"        "$DOTFILES_DIR/claude/settings.json"
 check_symlink "$HOME/.claude/statusline-command.sh" "$DOTFILES_DIR/claude/statusline-command.sh"
-check_symlink "$HOME/.ssh/github-known-hosts"      "$GITHUB_HOST_KEY_FILE"
 
 if [ "$PLATFORM" = "macos" ]; then
   check_symlink "$HOME/.zshrc"                     "$DOTFILES_DIR/.zshrc"
@@ -112,8 +111,8 @@ done
 
 section "Required tools"
 check_cmd git   "version control"
-check_cmd gh    "GitHub auth / SSH key registration"
-check_cmd ssh   "SSH config validation / remote Git"
+check_cmd gh    "GitHub API auth / HTTPS Git credentials"
+check_cmd ssh   "remote-machine access / optional GitHub SSH"
 check_cmd jq    "Claude Code status line command"
 check_cmd tmux  "terminal multiplexing"
 check_cmd claude "Claude Code"
@@ -149,40 +148,55 @@ else
   tag_fail "Git core.excludesfile is incorrect — run setup.sh"
 fi
 
-section "SSH config hygiene"
-SSH_CONFIG="$HOME/.ssh/config"
-if [ -f "$SSH_CONFIG" ]; then
-  if github_ssh_config="$(ssh -G -F "$SSH_CONFIG" github.com 2>/dev/null)"; then
-    tag_ok "ssh/config parses for github.com"
-    if awk -v known_hosts="$HOME/.ssh/github-known-hosts" '
-      $0 == "hostname ssh.github.com" { hostname = 1 }
-      $0 == "port 443" { port = 1 }
-      $0 == "user git" { user = 1 }
-      $0 == "userknownhostsfile " known_hosts { hosts = 1 }
-      $0 == "globalknownhostsfile /dev/null" { global_hosts = 1 }
-      END { exit !(hostname && port && user && hosts && global_hosts) }
-    ' <<< "$github_ssh_config"; then
-      tag_ok "github.com uses ssh.github.com on port 443"
+section "GitHub authentication"
+GITHUB_TRANSPORT="${DOTFILES_GITHUB_TRANSPORT:-$(gh config get git_protocol --host github.com 2>/dev/null || printf 'https')}"
+if [ "$GITHUB_TRANSPORT" = https ]; then
+  if github_output="$(bash "$DOTFILES_DIR/scripts/github-auth.sh" check 2>&1)"; then
+    tag_ok "$github_output"
+  else
+    github_status=$?
+    if [ "$github_status" = 2 ]; then tag_warn "$github_output"
+    else tag_fail "$github_output"; fi
+  fi
+elif [ "$GITHUB_TRANSPORT" = ssh ]; then
+  # Preserve the existing SSH checks for machines that still select SSH.
+  check_symlink "$HOME/.ssh/github-known-hosts" "$GITHUB_HOST_KEY_FILE"
+  SSH_CONFIG="$HOME/.ssh/config"
+  if [ -f "$SSH_CONFIG" ]; then
+    if github_ssh_config="$(ssh -G -F "$SSH_CONFIG" github.com 2>/dev/null)"; then
+      tag_ok "ssh/config parses for github.com"
+      if awk -v known_hosts="$HOME/.ssh/github-known-hosts" '
+        $0 == "hostname ssh.github.com" { hostname = 1 }
+        $0 == "port 443" { port = 1 }
+        $0 == "user git" { user = 1 }
+        $0 == "userknownhostsfile " known_hosts { hosts = 1 }
+        $0 == "globalknownhostsfile /dev/null" { global_hosts = 1 }
+        END { exit !(hostname && port && user && hosts && global_hosts) }
+      ' <<< "$github_ssh_config"; then
+        tag_ok "github.com uses ssh.github.com on port 443"
+      else
+        tag_fail "github.com route or managed host trust is incorrect"
+      fi
     else
-      tag_fail "github.com route or managed host trust is incorrect"
+      tag_fail "ssh/config does not parse for github.com"
     fi
   else
-    tag_fail "ssh/config does not parse for github.com"
+    tag_fail "ssh/config not found at $(short "$SSH_CONFIG")"
+  fi
+
+  if "$DOTFILES_DIR/scripts/check-github-host-key.sh" "$HOME/.ssh/github-known-hosts" >/dev/null 2>&1; then
+    tag_ok "Active GitHub Ed25519 host key matches the pinned fingerprint"
+  else
+    tag_fail "Active GitHub Ed25519 host key is missing or does not match the pinned fingerprint"
+  fi
+
+  if github_output="$("$DOTFILES_DIR/scripts/github-ssh-auth.sh" 2>&1)"; then
+    tag_ok "GitHub SSH client authentication works"
+  else
+    tag_fail "$github_output"
   fi
 else
-  tag_fail "ssh/config not found at $(short "$SSH_CONFIG")"
-fi
-
-if "$DOTFILES_DIR/scripts/check-github-host-key.sh" "$HOME/.ssh/github-known-hosts" >/dev/null 2>&1; then
-  tag_ok "Active GitHub Ed25519 host key matches the pinned fingerprint"
-else
-  tag_fail "Active GitHub Ed25519 host key is missing or does not match the pinned fingerprint"
-fi
-
-if "$DOTFILES_DIR/scripts/github-ssh-auth.sh" >/dev/null 2>&1; then
-  tag_ok "GitHub SSH client authentication works"
-else
-  tag_fail "GitHub SSH client authentication failed"
+  tag_fail "Unsupported GitHub transport: $GITHUB_TRANSPORT"
 fi
 
 section "Claude settings hygiene"

@@ -19,6 +19,14 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-10-09, GitHub policy update: Both bootstraps now select HTTPS through a shared CLI authentication helper.
+  They no longer generate or enroll GitHub SSH keys, start agents, or change repository remotes.
+  This supersedes the mandatory SSH health-check claim in the earlier 2026-10-09 entry below.
+  The Mac mini's API identity and private HTTPS Git read pass under existing credentials.
+  The updated health check reports no failures and one legacy credential-storage warning.
+  Existing credentials, keys, remote URLs, and launchd jobs remain unchanged.
+  See [GitHub authentication](github-authentication.md) for setup, evidence, and remaining platform gaps.
+
 - 2026-10-09: The Mac bootstrap includes Edge Beta and Windows App. Microsoft Office supplies OneDrive.
   `pngpaste` 0.2.3 and `btop` 1.4.7 installed locally through Homebrew.
   Verification now requires these tools, `fastfetch`, Microsoft app bundles, and managed Git ignore wiring.

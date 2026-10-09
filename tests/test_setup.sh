@@ -177,18 +177,67 @@ printf '%s\n' \
   '    exit 0' \
   '    ;;' \
   '  *" -T "*)' \
+  '    if [ "${DOTFILES_TEST_SSH_REJECT:-0}" = 1 ]; then echo "Permission denied (publickey)."; exit 255; fi' \
   '    echo "Hi test! You have successfully authenticated, but GitHub does not provide shell access."' \
   '    exit 1' \
   '    ;;' \
   'esac' \
   'exit 2' > "$fake_bin/ssh"
 chmod +x "$fake_bin/ssh"
+cat > "$fake_bin/gh" <<'STUB'
+#!/usr/bin/env bash
+case "$1 $2" in
+  'auth status') printf '{"state":"success","tokenSource":"keyring"}\n' ;;
+  'config get') printf 'https\n' ;;
+  'api --hostname')
+    if [ "$3" != github.com ]; then exit 2; fi
+    case "$4" in
+      user) printf 'michaeltheitking\n' ;;
+      user/repos\?*) printf 'https://github.com/test/private.git\n' ;;
+      *) exit 2 ;;
+    esac
+    ;;
+  *) exit 2 ;;
+esac
+STUB
+cat > "$fake_bin/git" <<'STUB'
+#!/usr/bin/env bash
+if [[ "$*" == *'ls-remote'* ]] && [[ "$*" != *'--get-url'* ]]; then exit 0; fi
+exec "$DOTFILES_TEST_GIT_BIN" "$@"
+STUB
+chmod +x "$fake_bin/gh" "$fake_bin/git"
+export DOTFILES_TEST_GIT_BIN="$(command -v git)"
+for fixture_home in "$mac_home" "$omarchy_home"; do
+  HOME="$fixture_home" git config --global credential.https://github.com.helper '!gh auth git-credential'
+  # HTTPS-only machines need neither a GitHub SSH key nor its trust file.
+  rm "$fixture_home/.ssh/github-known-hosts"
+done
 verify_log="$TEST_ROOT/verify.log"
 if ! HOME="$omarchy_home" PATH="$fake_bin:$PATH" DOTFILES_DIR="$REPO_DIR" \
   DOTFILES_PLATFORM=omarchy "$REPO_DIR/verify.sh" > "$verify_log"; then
   cat "$verify_log" >&2
   fail "Omarchy verification failed"
 fi
+
+# Legacy SSH dispatch still requires pinned trust and accepted client authentication.
+if HOME="$omarchy_home" PATH="$fake_bin:$PATH" DOTFILES_DIR="$REPO_DIR" \
+  DOTFILES_PLATFORM=omarchy DOTFILES_GITHUB_TRANSPORT=ssh "$REPO_DIR/verify.sh" > "$verify_log"; then
+  fail "SSH verification accepted missing pinned trust"
+fi
+grep -Fq 'Active GitHub Ed25519 host key is missing' "$verify_log" \
+  || fail "SSH verification omitted its trust failure"
+ln -s "$REPO_DIR/ssh/github-known-hosts" "$omarchy_home/.ssh/github-known-hosts"
+HOME="$omarchy_home" PATH="$fake_bin:$PATH" DOTFILES_DIR="$REPO_DIR" \
+  DOTFILES_PLATFORM=omarchy DOTFILES_GITHUB_TRANSPORT=ssh "$REPO_DIR/verify.sh" > "$verify_log" \
+  || fail "valid legacy SSH verification failed"
+if HOME="$omarchy_home" PATH="$fake_bin:$PATH" DOTFILES_DIR="$REPO_DIR" \
+  DOTFILES_PLATFORM=omarchy DOTFILES_GITHUB_TRANSPORT=ssh DOTFILES_TEST_SSH_REJECT=1 \
+  "$REPO_DIR/verify.sh" > "$verify_log"; then
+  fail "SSH verification accepted rejected credentials"
+fi
+grep -Fq 'Permission denied (publickey)' "$verify_log" \
+  || fail "SSH verification omitted its authentication diagnosis"
+rm "$omarchy_home/.ssh/github-known-hosts"
 
 # A valid link does not prove that Git uses the managed ignore file.
 HOME="$omarchy_home" git config --global core.excludesfile "$TEST_ROOT/wrong-ignore"
@@ -205,11 +254,12 @@ mkdir -p "$mac_verify_bin" "$mac_home/Applications"
 for app in "Microsoft Edge Beta" "Windows App" "OneDrive"; do
   mkdir -p "$mac_home/Applications/$app.app"
 done
-for command_name in gh tmux claude ruff prettier node brew pngpaste btop fastfetch; do
+for command_name in tmux claude ruff prettier node brew pngpaste btop fastfetch; do
   ln -s /usr/bin/true "$mac_verify_bin/$command_name"
 done
 ln -s "$fake_bin/ssh" "$mac_verify_bin/ssh"
-ln -s "$(command -v git)" "$mac_verify_bin/git"
+ln -s "$fake_bin/gh" "$mac_verify_bin/gh"
+ln -s "$fake_bin/git" "$mac_verify_bin/git"
 ln -s "$(command -v jq)" "$mac_verify_bin/jq"
 if ! HOME="$mac_home" PATH="$mac_verify_bin:/usr/bin:/bin" DOTFILES_DIR="$REPO_DIR" \
   DOTFILES_PLATFORM=macos /bin/bash "$REPO_DIR/verify.sh" > "$verify_log"; then
@@ -312,20 +362,6 @@ grep -q 'docs/manual-settings.md' "$verify_log" \
     fail "Claude plugin helper accepted a partial match"
   fi
 
-  SSH_KEY_PATH="$TEST_ROOT/github-key"
-  printf 'ssh-ed25519 AAAAtestkey local-comment\n' > "${SSH_KEY_PATH}.pub"
-  gh() {
-    [ "$*" = "api user/keys --paginate --jq .[].key" ] || return 2
-    printf '%s\n' \
-      'ssh-ed25519 AAAAotherkey' \
-      'ssh-ed25519 AAAAtestkey'
-  }
-
-  github_has_ssh_key || fail "GitHub SSH key exact match was not found"
-  printf 'ssh-ed25519 AAAAtest local-comment\n' > "${SSH_KEY_PATH}.pub"
-  if github_has_ssh_key; then
-    fail "GitHub SSH key helper accepted a partial match"
-  fi
 )
 
 echo "Setup tests passed."

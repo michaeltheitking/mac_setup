@@ -2,6 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-08-22
+- Revised: 2026-10-09; GitHub bootstrap moves to HTTPS under decision 0003.
 
 ## Context
 
@@ -22,9 +23,10 @@ the split had only `id_ed25519`, so `ssh -T git@github.com` failed outright with
 
 ## Decision
 
-All hosts use a single `~/.ssh/id_ed25519`. `ssh/config` and
-`bootstrap_new_mac.sh`'s `SSH_KEY_PATH` both point at it. Key separation is
-per-machine — one key per device, revoked when that device is lost.
+SSH destinations use a single `~/.ssh/id_ed25519` when a machine needs SSH access.
+Key separation remains per-machine. Revoke the device key when that device is lost.
+New GitHub setup uses HTTPS under [decision 0003](0003-route-github-ssh-over-port-443.md).
+Bootstrap no longer generates, registers, or loads an SSH key for GitHub.
 
 ## Rationale
 
@@ -47,14 +49,10 @@ provides.
 
 ## Consequences
 
-- Losing a device means revoking one key from GitHub, not auditing which of two
-  it held.
-- `bootstrap_new_mac.sh` generates one key and registers it. Its keygen step is
-  idempotent, so machines that already have `id_ed25519` skip it.
-- Any machine still holding an `id_ed25519_github` keeps a now-unreferenced key.
-  It is inert, but should be removed from the GitHub account and the disk.
-- Revoking the shared key costs both GitHub and devbox access at once. That is
-  the accepted tradeoff, and re-running bootstrap restores both.
+- Existing machines retain their keys and registrations. This change performs no key cleanup or device migration.
+- Enroll a per-machine key separately when remote-machine SSH access is required.
+- On legacy machines, revoking a shared key can affect both GitHub SSH and devbox access.
+- New HTTPS GitHub credentials have a separate lifecycle from remote-machine SSH keys.
 
 ## Revisit triggers
 

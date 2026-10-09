@@ -1,57 +1,62 @@
-# 3. Route GitHub SSH over port 443
+# 3. Default to GitHub HTTPS; retain optional SSH over port 443
 
 - Status: Accepted
-- Date: 2026-08-22
+- Original date: 2026-08-22
+- Revised: 2026-10-09
 
 ## Context
 
-GitHub SSH normally uses TCP port 22. UniFi identified normal GitHub SSH pushes
-as `ET SCAN Potential SSH Scan OUTBOUND`. It blocked two connections from a Mac
-to a GitHub address.
+The original decision routed GitHub SSH through `ssh.github.com:443` after UniFi blocked port 22 traffic.
+It used one per-machine key and a managed GitHub host-key pin.
+This policy avoided the earlier port 22 issue but required key, agent, registration, and trust-file setup.
 
-A destination-IP suppression restored access, but GitHub can use different IP
-addresses. A fixed-IP exception is not a durable transport policy.
+On 2026-10-09, all 13 inspected GitHub repository origins on the Mac mini use HTTPS.
+GitHub API identity and a noninteractive private HTTPS Git read pass.
+SSH verification fails because the configured trust file and client key are absent.
+The bootstrap and health-check policy therefore conflict with the machine's working transport.
 
-GitHub also provides SSH at `ssh.github.com` on TCP port 443. This endpoint uses
-the same GitHub account key and Git remote syntax.
+Michael requests simpler setup for future machines. Existing devices remain unchanged until repair is needed.
+His web passkey already exists and remains separate from CLI credential storage.
 
 ## Decision
 
-The `github.com` SSH host entry uses `ssh.github.com` on TCP port 443 as user
-`git`. It keeps the per-machine key from decision 0002.
+Both platform bootstraps use `scripts/github-auth.sh setup` for HTTPS Git through GitHub CLI.
+Reuse valid credentials or request browser authorization in an interactive terminal.
+Verify the expected account before configuring the Git protocol and credential helper.
+Require native credential storage for new bootstrap. Stop and report file-storage fallback.
+Test a private Git read without prompting, in addition to API authentication.
 
-`verify.sh` checks the effective hostname, port, and user through `ssh -G`. The
-GitHub host block uses a managed `~/.ssh/github-known-hosts` link through
-`UserKnownHostsFile`. It disables the global trust file for this host. This
-prevents another system record from bypassing the managed pin. `verify.sh`
-checks the route and the pinned fingerprint.
-It also tests GitHub client authentication with a bounded, noninteractive probe.
-The bootstrap validates the exact host-key record before its first SSH request.
+Do not generate GitHub SSH keys, start agents, register keys, or rewrite existing remotes during bootstrap.
+Existing SSH configuration and pinned trust remain available for devices that select SSH.
+Their route remains `ssh.github.com:443`, with the existing per-machine key and exact pinned host trust.
+HTTPS verification requires no GitHub SSH key or trust file.
+Verification reports legacy file storage without modifying it.
 
 ## Rationale
 
-Port 443 avoids the port 22 traffic pattern that triggered the IDS signature.
-It keeps SSH key authentication and the existing Git remote URLs.
+HTTPS shares the CLI credential with Git and removes GitHub-specific SSH enrollment from future setup.
+It matches the verified Mac mini transport and avoids SSH host-key maintenance for default Git operations.
+Browser authorization still requires initial human consent. Website login uses the existing passkey separately.
 
-The hostname policy follows GitHub's supported SSH-over-HTTPS-port endpoint. It
-does not depend on one GitHub address or a broad IDS exception.
+Keeping optional SSH preserves established devices and remote-machine access.
+Silently weakening SSH host verification or copying credentials between machines is not an acceptable alternative.
 
 ## Consequences
 
-- Git operations for `github.com` connect to `ssh.github.com:443`.
-- GitHub still authenticates with `~/.ssh/id_ed25519`.
-- HTTPS-only networks can permit GitHub SSH without opening outbound port 22.
-- Host verification uses `~/.ssh/github-known-hosts`, linked from the repository.
-- Fresh Macs clone this repository through HTTPS before the SSH remote is set.
-- GitHub pushes do not need an interactive first-use host-key prompt.
-- Health checks fail when the client key cannot authenticate with GitHub.
-- A GitHub host-key rotation blocks SSH until the pinned key is verified and
-  updated from GitHub's published fingerprints.
-- The temporary fixed-IP UniFi suppression can be removed after every Mac uses
-  this configuration.
+- New devices authorize the CLI once and store credentials in the native credential store.
+- Native storage must work in the intended desktop session; unavailable storage stops bootstrap.
+- A vendor fallback can leave a local file-backed credential. Recovery remains explicit and preserves working credentials.
+- Existing devices, SSH keys, remotes, and scheduled jobs receive no automatic migration.
+- SSH-selected machines still require valid pinned trust and an authorized device key.
+- HTTPS checks prove API identity and private Git read access, not every repository's write permission.
+- Scheduled jobs require validation in their actual account and environment.
+- No private repository leaves Git authentication unverified and prevents complete bootstrap.
 
 ## Revisit triggers
 
-- GitHub ends SSH service on `ssh.github.com:443`.
-- The network stops inspecting or blocking normal outbound GitHub SSH on port 22.
-- The repository changes from SSH remotes to HTTPS remotes.
+- GitHub changes CLI authorization or credential-storage behavior.
+- A required native credential store is unavailable on a supported platform.
+- Future automation requires access outside an unlocked desktop session.
+- A destination requires SSH, commit signing, or a separate service identity.
+
+See [setup and recovery](../github-authentication.md) and [SSH key scope](0002-single-ssh-key-per-machine.md).
