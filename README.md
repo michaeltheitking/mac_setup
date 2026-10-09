@@ -62,9 +62,9 @@ The bootstrap installs these Homebrew casks:
 ```text
 1password, nikitabobko/tap/aerospace, bartender, chatgpt, claude, codex,
 cursor, fantastical, font-jetbrains-mono-nerd-font, font-meslo-lg-nerd-font,
-ghostty, grandperspective, istat-menus, linear, microsoft-office, notion,
+ghostty, grandperspective, istat-menus, linear, microsoft-edge@beta, microsoft-office, notion,
 nvidia-geforce-now, openlogi, protonvpn, raindropio, raycast, spotify,
-tailscale-app, todoist-app, vlc, wispr-flow, zed
+tailscale-app, todoist-app, vlc, windows-app, wispr-flow, zed
 ```
 
 It installs these Homebrew formulas:
@@ -77,6 +77,9 @@ zsh-autosuggestions, fastfetch, btop
 Other install steps provide Xcode Command Line Tools, Homebrew,
 `@anthropic-ai/claude-code` through npm, and Astropad Workbench through its official DMG.
 Existing tools and applications are skipped. Dropbox and Zoom are not installed.
+The optional `dbox()` shell helper remains available for a manually installed Dropbox.
+Microsoft Office supplies OneDrive. The standalone `onedrive` cask conflicts with Office and is not installed separately.
+Verification requires the Edge Beta, Windows App, and OneDrive application bundles.
 
 Both bootstrap scripts install these Claude plugins:
 
@@ -118,6 +121,12 @@ Run the platform-aware health check:
 ./verify.sh
 ```
 
+The check validates active SSH configuration, pinned GitHub trust, Git ignore wiring, links, and required tools.
+On macOS, `pngpaste`, `btop`, and `fastfetch` are required.
+App-bundle checks confirm installation only; sign-in and settings restoration remain manual.
+GitHub SSH authentication requires network access. A network failure does not establish a key failure.
+Both bootstrap scripts stop when verification fails. The Mac bootstrap also stops if its verifier is unavailable.
+
 Run repository checks after script changes:
 
 ```sh
@@ -125,11 +134,19 @@ bash -n bootstrap_new_mac.sh bootstrap_omarchy.sh setup.sh setup_common.sh \
   setup_macos.sh setup_omarchy.sh verify.sh tests/test_setup.sh
 zsh -n .zshrc
 bash tests/test_setup.sh
+bash tests/test-github-ssh.sh
 git diff --check
 ```
 
 Final Omarchy validation requires an Omarchy machine. Run both the bootstrap
 and setup twice. The second run must preserve configuration and installed state.
+
+## Manual settings backup and restore
+
+Follow [the settings guide](docs/manual-settings.md) before replacing a Mac and after bootstrap.
+It covers app exports, private configuration files, account setup, permissions, and restore checks.
+Keep private exports outside this repository. Bootstrap prints the guide path when it finishes.
+Homebrew initialization is added to `.zprofile` even when Homebrew already exists.
 
 ## Project context
 

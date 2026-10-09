@@ -190,6 +190,99 @@ if ! HOME="$omarchy_home" PATH="$fake_bin:$PATH" DOTFILES_DIR="$REPO_DIR" \
   fail "Omarchy verification failed"
 fi
 
+# A valid link does not prove that Git uses the managed ignore file.
+HOME="$omarchy_home" git config --global core.excludesfile "$TEST_ROOT/wrong-ignore"
+if HOME="$omarchy_home" PATH="$fake_bin:$PATH" DOTFILES_DIR="$REPO_DIR" \
+  DOTFILES_PLATFORM=omarchy "$REPO_DIR/verify.sh" > "$verify_log"; then
+  fail "verification accepted an incorrect Git excludesfile"
+fi
+grep -q 'core.excludesfile' "$verify_log" \
+  || fail "verification did not identify the Git configuration failure"
+HOME="$omarchy_home" git config --global core.excludesfile "$omarchy_home/.gitignore_global"
+
+mac_verify_bin="$TEST_ROOT/mac-verify-bin"
+mkdir -p "$mac_verify_bin" "$mac_home/Applications"
+for app in "Microsoft Edge Beta" "Windows App" "OneDrive"; do
+  mkdir -p "$mac_home/Applications/$app.app"
+done
+for command_name in gh tmux claude ruff prettier node brew pngpaste btop fastfetch; do
+  ln -s /usr/bin/true "$mac_verify_bin/$command_name"
+done
+ln -s "$fake_bin/ssh" "$mac_verify_bin/ssh"
+ln -s "$(command -v git)" "$mac_verify_bin/git"
+ln -s "$(command -v jq)" "$mac_verify_bin/jq"
+if ! HOME="$mac_home" PATH="$mac_verify_bin:/usr/bin:/bin" DOTFILES_DIR="$REPO_DIR" \
+  DOTFILES_PLATFORM=macos /bin/bash "$REPO_DIR/verify.sh" > "$verify_log"; then
+  cat "$verify_log" >&2
+  fail "Mac verification failed with all required tools"
+fi
+for command_name in pngpaste btop; do
+  rm "$mac_verify_bin/$command_name"
+  if HOME="$mac_home" PATH="$mac_verify_bin:/usr/bin:/bin" DOTFILES_DIR="$REPO_DIR" \
+    DOTFILES_PLATFORM=macos /bin/bash "$REPO_DIR/verify.sh" > "$verify_log"; then
+    fail "Mac verification accepted missing $command_name"
+  fi
+  grep -q "$command_name not found" "$verify_log" \
+    || fail "Mac verification did not identify missing $command_name"
+  ln -s /usr/bin/true "$mac_verify_bin/$command_name"
+done
+
+# Keep existing shell commands intact, including files without a final newline.
+profile_helpers="$TEST_ROOT/profile-helpers.sh"
+sed -n '/^append_line_if_missing() {/,/^}/p' "$REPO_DIR/bootstrap_new_mac.sh" > "$profile_helpers"
+source "$profile_helpers"
+profile_file="$TEST_ROOT/zprofile"
+profile_line='export RESTORE_AFTER=ok'
+for ending in with-newline without-newline empty; do
+  case "$ending" in
+    with-newline) printf 'export RESTORE_BEFORE=ok\n' > "$profile_file" ;;
+    without-newline) printf 'export RESTORE_BEFORE=ok' > "$profile_file" ;;
+    empty) : > "$profile_file" ;;
+  esac
+  append_line_if_missing "$profile_line" "$profile_file"
+  /bin/bash -c 'source "$1"; [[ "$RESTORE_AFTER" == ok ]]' -- "$profile_file" \
+    || fail "profile initialization failed for $ending"
+  if [ "$ending" != empty ]; then
+    /bin/bash -c 'source "$1"; [[ "$RESTORE_BEFORE" == ok ]]' -- "$profile_file" \
+      || fail "profile initialization changed existing commands for $ending"
+  fi
+  cp "$profile_file" "$TEST_ROOT/profile-first-run"
+  append_line_if_missing "$profile_line" "$profile_file"
+  cmp -s "$profile_file" "$TEST_ROOT/profile-first-run" \
+    || fail "profile initialization was not idempotent for $ending"
+done
+
+# Exercise the final bootstrap checkpoint without installing packages or touching accounts.
+checkpoint="$TEST_ROOT/bootstrap-checkpoint.sh"
+sed -n '/^log "Verifying setup"/,$p' "$REPO_DIR/bootstrap_new_mac.sh" > "$checkpoint"
+checkpoint_repo="$TEST_ROOT/checkpoint-repo"
+mkdir -p "$checkpoint_repo"
+printf '#!/bin/sh\nexit 1\n' > "$checkpoint_repo/verify.sh"
+chmod +x "$checkpoint_repo/verify.sh"
+run_bootstrap_checkpoint() (
+  set -euo pipefail
+  DOTFILES_DIR="$checkpoint_repo"
+  log() { printf '%s\n' "$1"; }
+  source "$checkpoint"
+)
+if run_bootstrap_checkpoint > "$verify_log" 2>&1; then
+  fail "Mac bootstrap accepted failed verification"
+fi
+if grep -q 'Your Mac is bootstrapped' "$verify_log"; then
+  fail "Mac bootstrap printed success after failed verification"
+fi
+rm "$checkpoint_repo/verify.sh"
+if run_bootstrap_checkpoint > "$verify_log" 2>&1; then
+  fail "Mac bootstrap accepted a missing verifier"
+fi
+printf '#!/bin/sh\nexit 0\n' > "$checkpoint_repo/verify.sh"
+chmod +x "$checkpoint_repo/verify.sh"
+run_bootstrap_checkpoint > "$verify_log" 2>&1
+grep -q 'Your Mac is bootstrapped' "$verify_log" \
+  || fail "Mac bootstrap did not report successful verification"
+grep -q 'docs/manual-settings.md' "$verify_log" \
+  || fail "Mac bootstrap omitted manual restore instructions"
+
 (
   # Loading the bootstrap exposes its read-only installed-state helpers.
   source "$REPO_DIR/bootstrap_omarchy.sh"

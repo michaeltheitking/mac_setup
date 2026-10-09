@@ -123,19 +123,34 @@ check_cmd prettier "web and documentation formatting"
 if [ "$PLATFORM" = "macos" ]; then
   check_cmd node  "npm-based Claude Code install"
   check_cmd brew  "Homebrew package management"
-  check_cmd pngpaste "clip() clipboard-image helper" optional
+  check_cmd pngpaste "clip() clipboard-image helper"
+  check_cmd btop "system monitoring"
+  check_cmd fastfetch "shell system summary"
+
+  section "Required Microsoft apps"
+  # Office supplies OneDrive; its standalone cask conflicts with microsoft-office.
+  for app in "Microsoft Edge Beta" "Windows App" "OneDrive"; do
+    if [ -d "/Applications/$app.app" ] || [ -d "$HOME/Applications/$app.app" ]; then
+      tag_ok "$app application bundle exists (account setup remains manual)"
+    else
+      tag_fail "$app application bundle missing — run bootstrap; OneDrive comes from Microsoft Office"
+    fi
+  done
 else
   check_cmd omarchy "Omarchy system management"
   check_cmd pacman "Arch package management"
   check_cmd wl-copy "Wayland clipboard access"
 fi
 
-section "SSH config hygiene"
-if [ "$PLATFORM" = "macos" ]; then
-  SSH_CONFIG="$DOTFILES_DIR/ssh/config"
+section "Git configuration"
+if [ "$(git config --global --path core.excludesfile 2>/dev/null)" = "$HOME/.gitignore_global" ]; then
+  tag_ok "Git core.excludesfile uses the managed ignore file"
 else
-  SSH_CONFIG="$DOTFILES_DIR/ssh/config.omarchy"
+  tag_fail "Git core.excludesfile is incorrect — run setup.sh"
 fi
+
+section "SSH config hygiene"
+SSH_CONFIG="$HOME/.ssh/config"
 if [ -f "$SSH_CONFIG" ]; then
   if github_ssh_config="$(ssh -G -F "$SSH_CONFIG" github.com 2>/dev/null)"; then
     tag_ok "ssh/config parses for github.com"
@@ -158,10 +173,10 @@ else
   tag_fail "ssh/config not found at $(short "$SSH_CONFIG")"
 fi
 
-if "$DOTFILES_DIR/scripts/check-github-host-key.sh" "$GITHUB_HOST_KEY_FILE" >/dev/null 2>&1; then
-  tag_ok "GitHub Ed25519 host key matches the pinned fingerprint"
+if "$DOTFILES_DIR/scripts/check-github-host-key.sh" "$HOME/.ssh/github-known-hosts" >/dev/null 2>&1; then
+  tag_ok "Active GitHub Ed25519 host key matches the pinned fingerprint"
 else
-  tag_fail "GitHub Ed25519 host key is missing or does not match the pinned fingerprint"
+  tag_fail "Active GitHub Ed25519 host key is missing or does not match the pinned fingerprint"
 fi
 
 if "$DOTFILES_DIR/scripts/github-ssh-auth.sh" >/dev/null 2>&1; then

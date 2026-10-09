@@ -6,6 +6,7 @@ Read [the overview](../README.md), [project instructions](../AGENTS.md), and [cu
 Use the existing command definitions as authoritative; do not invent a second command interface.
 
 Use the README for bootstrap and setup. Follow AGENTS.md for the checks required by each changed file.
+Use [manual settings backup and restore](manual-settings.md) for application settings that setup does not manage.
 
 ## Work across devices
 
@@ -23,6 +24,12 @@ Review and push only authorized, non-sensitive files under the existing Git poli
 A push does not verify deployment or runtime behavior.
 
 ## Recovery and verification
+
+On macOS, verification requires `pngpaste`, `btop`, `fastfetch`, and the three Microsoft application bundles.
+Office supplies OneDrive; do not install the conflicting standalone OneDrive cask alongside Office.
+Bootstrap exits unsuccessfully when final verification fails. A missing Mac verifier also prevents success.
+Verification reads the active SSH config and checks Git's global ignore-file setting.
+Authentication needs network access. Read the SSH helper's error before treating a network failure as an authentication defect.
 
 Use the existing project checks and review the exact diff.
 Check changed documentation links, instruction loading, and tracking rules.

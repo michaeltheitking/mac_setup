@@ -19,6 +19,16 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-10-09: The Mac bootstrap includes Edge Beta and Windows App. Microsoft Office supplies OneDrive.
+  `pngpaste` 0.2.3 and `btop` 1.4.7 installed locally through Homebrew.
+  Verification now requires these tools, `fastfetch`, Microsoft app bundles, and managed Git ignore wiring.
+  It checks the active SSH config and host key. Bootstrap stops when verification fails or cannot run.
+  Shell syntax checks and both isolated test suites pass.
+  The local read-only check finds a missing `~/.ssh/github-known-hosts` link and failed GitHub SSH authentication.
+  The SSH helper reports `Host key verification failed`. No trust repair or full bootstrap ran.
+  The [manual settings guide](manual-settings.md) documents private exports, account setup, and restore checks.
+  Export and restore workflows remain unverified. Native Omarchy behavior remains unverified.
+
 - 2026-09-25: Added the reviewed [iStat Menus 7 export](../istat-menus/README.md) from the local Documents file.
   The source file modification date is 2026-05-23. License and device fields are excluded.
   Plist validation and comparison confirm that all other settings match the source.

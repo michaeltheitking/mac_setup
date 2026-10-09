@@ -24,6 +24,7 @@ The matching Confluence runbook is:
 - `https://michael-kingdocs.atlassian.net/wiki/spaces/~5570583e46f7b02769468785802b45c5e986a5/pages/61341700/Cross-Platform+Dotfiles+Runbook`
 
 When setup behavior changes, update both this repo and that Confluence page.
+Use [manual settings backup and restore](docs/manual-settings.md) for settings outside the managed links.
 
 ## Repo Layout
 
@@ -66,6 +67,8 @@ Skip an ADR for routine package additions, formatting, or one-off fixes. When a 
 - For non-Homebrew tools, add an explicit idempotent install step.
 - Keep the script safe to re-run. Existing formulae/casks should be skipped.
 - Keep Homebrew casks installed with `brew install --cask --adopt`.
+- Keep OneDrive supplied by `microsoft-office`; its standalone cask conflicts with Office. Verification checks its application bundle.
+- Keep final verification mandatory. Never print bootstrap success after a failed or unavailable verifier.
 - Keep Claude Code installed via `npm install -g @anthropic-ai/claude-code`; `node` must remain in `BREW_FORMULAS`.
 - Keep the final output reminder to restore iStat Menus settings from the exported file in the Documents folder.
 - iStat Menus settings should be restored through the app's own import UI, not by copying raw plist files unless explicitly requested.

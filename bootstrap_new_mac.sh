@@ -28,6 +28,7 @@ BREW_CASKS=(
   grandperspective
   istat-menus
   linear
+  microsoft-edge@beta
   microsoft-office
   notion
   nvidia-geforce-now
@@ -40,6 +41,7 @@ BREW_CASKS=(
   todoist-app
   vlc
   wispr-flow
+  windows-app
   zed
 )
 
@@ -84,7 +86,12 @@ append_line_if_missing() {
   local line="$1"
   local file="$2"
   touch "$file"
-  grep -Fqx "$line" "$file" || printf "%s\n" "$line" >> "$file"
+  grep -Fqx "$line" "$file" && return
+  # Keep an existing final command separate when its newline is missing.
+  if [ -s "$file" ] && [ -n "$(tail -c 1 "$file")" ]; then
+    printf '\n' >> "$file"
+  fi
+  printf "%s\n" "$line" >> "$file"
 }
 
 install_astropad_workbench() {
@@ -149,23 +156,17 @@ fi
 log "Installing Homebrew if needed"
 if ! have_cmd brew; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
 
-  if [ -x /opt/homebrew/bin/brew ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    append_line_if_missing 'eval "$(/opt/homebrew/bin/brew shellenv)"' "$HOME/.zprofile"
-  elif [ -x /usr/local/bin/brew ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
-    append_line_if_missing 'eval "$(/usr/local/bin/brew shellenv)"' "$HOME/.zprofile"
-  else
-    echo "Homebrew installed, but brew was not found in an expected location."
-    exit 1
-  fi
-else
-  if [ -x /opt/homebrew/bin/brew ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  elif [ -x /usr/local/bin/brew ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
-  fi
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+  append_line_if_missing 'eval "$(/opt/homebrew/bin/brew shellenv)"' "$HOME/.zprofile"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+  append_line_if_missing 'eval "$(/usr/local/bin/brew shellenv)"' "$HOME/.zprofile"
+elif ! have_cmd brew; then
+  echo "Homebrew installed, but brew was not found in an expected location."
+  exit 1
 fi
 
 log "Updating Homebrew"
@@ -272,8 +273,9 @@ else
 fi
 
 log "Verifying setup"
-if [ -x "$DOTFILES_DIR/verify.sh" ]; then
-  "$DOTFILES_DIR/verify.sh" || echo "verify.sh reported issues above; review before relying on this machine."
+if [ ! -x "$DOTFILES_DIR/verify.sh" ] || ! "$DOTFILES_DIR/verify.sh"; then
+  echo "Verification failed or verify.sh is unavailable. Bootstrap did not complete." >&2
+  exit 1
 fi
 
 log "Finished"
@@ -282,5 +284,6 @@ echo "Your Mac is bootstrapped."
 echo "Reminder: restore iStat Menus settings from the exported file in your Documents folder."
 echo "A copy without license or device fields is available at: $DOTFILES_DIR/istat-menus/settings.ismp7"
 echo "Import it through iStat Menus; activate the app separately if required."
+echo "Restore other app settings with: $DOTFILES_DIR/docs/manual-settings.md"
 echo "Repo remote is now:"
 git -C "$DOTFILES_DIR" remote -v || true

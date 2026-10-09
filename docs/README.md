@@ -16,6 +16,8 @@ Reviewed, non-sensitive documents belong with the code in Git.
 
 ### Existing reference documents
 
+- [Manual settings backup and restore](manual-settings.md)
+
 - [Project context rollout](project-context-rollout-2026-09-05.md)
 
 - [Shared project context standard](project-context-standard.md)
