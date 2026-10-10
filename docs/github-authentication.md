@@ -6,7 +6,9 @@ Michael's existing web passkey needs no change.
 
 ## Future-machine setup
 
-Clone dotfiles through HTTPS, then run the platform bootstrap.
+Follow the [new-device walkthrough](../README.md#new-device-walkthrough).
+The standalone Mac bootstrap installs and checks developer tools before cloning dotfiles through HTTPS.
+Omarchy supplies Git; clone through HTTPS and run its platform bootstrap.
 Both bootstraps call `bash scripts/github-auth.sh setup` after installing `gh` and linking configuration.
 The helper performs these steps:
 

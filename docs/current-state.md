@@ -19,6 +19,12 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-10-09, new-device walkthrough: README and Confluence now document browser authorization and automatic confirmation.
+  The Mac bootstrap supports a standalone download before the first Git clone.
+  It confirms working developer-tool Git and preserves conflicting clone targets.
+  Isolated fixtures pass installation, stale selection, GUI fallback, failure, reuse, and target-preservation checks.
+  These fixtures do not verify Apple's live installer or a complete fresh-device bootstrap.
+
 - 2026-10-09, GitHub policy update: Both bootstraps now select HTTPS through a shared CLI authentication helper.
   They no longer generate or enroll GitHub SSH keys, start agents, or change repository remotes.
   This supersedes the mandatory SSH health-check claim in the earlier 2026-10-09 entry below.

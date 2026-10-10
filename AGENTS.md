@@ -70,6 +70,8 @@ Skip an ADR for routine package additions, formatting, or one-off fixes. When a 
 - Keep Homebrew casks installed with `brew install --cask --adopt`.
 - Keep OneDrive supplied by `microsoft-office`; its standalone cask conflicts with Office. Verification checks its application bundle.
 - Keep final verification mandatory. Never print bootstrap success after a failed or unavailable verifier.
+- Keep the Mac bootstrap runnable before Git exists. Check developer-tool Git before the first clone.
+- Preserve existing clone targets. Never replace a non-Git directory during bootstrap.
 - Keep Claude Code installed via `npm install -g @anthropic-ai/claude-code`; `node` must remain in `BREW_FORMULAS`.
 - Keep the final output reminder to restore iStat Menus settings from the exported file in the Documents folder.
 - iStat Menus settings should be restored through the app's own import UI, not by copying raw plist files unless explicitly requested.
@@ -98,6 +100,7 @@ Before committing shell script changes, run:
 ```sh
 bash -n bootstrap_new_mac.sh
 zsh -n .zshrc
+bash tests/test-mac-bootstrap.sh
 ```
 
 For `setup.sh` or `verify.sh` changes, also run:

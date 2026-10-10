@@ -6,6 +6,11 @@ if [ "$(uname -s)" != "Darwin" ]; then
   exit 1
 fi
 
+if [ "$EUID" -eq 0 ]; then
+  echo "Run bootstrap as your normal user. Individual installs request sudo when needed." >&2
+  exit 1
+fi
+
 GIT_NAME="michael"
 GIT_EMAIL="mk@michael-king.com"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
@@ -126,17 +131,20 @@ install_astropad_workbench() {
 }
 
 log "Checking Xcode Command Line Tools"
-if ! xcode-select -p >/dev/null 2>&1; then
+if ! xcode-select -p >/dev/null 2>&1 || ! xcrun git --version >/dev/null 2>&1; then
   echo "Installing Xcode Command Line Tools (headless)..."
   CLT_PLACEHOLDER="/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress"
+  trap 'rm -f "$CLT_PLACEHOLDER"' EXIT
   touch "$CLT_PLACEHOLDER"
+  # No matching update is a supported GUI fallback, not a pipefail exit.
   CLT_LABEL=$(softwareupdate -l 2>/dev/null \
     | grep -E "Command Line Tools" \
     | awk -F'Label: ' '/Label: /{print $2}' \
     | sort -V \
-    | tail -n1)
+    | tail -n1) || CLT_LABEL=""
   if [ -n "$CLT_LABEL" ]; then
     sudo softwareupdate -i "$CLT_LABEL" --verbose
+    sudo xcode-select --switch /Library/Developer/CommandLineTools
   else
     echo "Could not find CLT in softwareupdate; falling back to xcode-select --install."
     xcode-select --install || true
@@ -145,10 +153,25 @@ if ! xcode-select -p >/dev/null 2>&1; then
     exit 1
   fi
   rm -f "$CLT_PLACEHOLDER"
-  if ! xcode-select -p >/dev/null 2>&1; then
-    echo "Xcode CLT install did not complete. Rerun this script."
+  trap - EXIT
+fi
+
+if ! xcode-select -p >/dev/null 2>&1 || ! xcrun git --version >/dev/null 2>&1; then
+  echo "Xcode tools do not provide working Git. Repair the developer tools, then rerun." >&2
+  exit 1
+fi
+echo "Xcode tools and Git passed verification."
+
+log "Preparing dotfiles checkout"
+if [ ! -e "$DOTFILES_DIR/.git" ]; then
+  if [ -e "$DOTFILES_DIR" ] || [ -L "$DOTFILES_DIR" ]; then
+    echo "Cannot clone: $DOTFILES_DIR already exists without Git metadata. Preserve it before retrying." >&2
     exit 1
   fi
+  GIT_TERMINAL_PROMPT=0 xcrun git clone --branch main \
+    https://github.com/michaeltheitking/mac_setup.git "$DOTFILES_DIR"
+  # Continue with the checkout's script and helpers after a standalone download.
+  exec /bin/bash "$DOTFILES_DIR/bootstrap_new_mac.sh"
 fi
 
 log "Installing Homebrew if needed"

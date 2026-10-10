@@ -7,6 +7,9 @@ Use the existing command definitions as authoritative; do not invent a second co
 
 Use the README for bootstrap and setup. Follow AGENTS.md for the checks required by each changed file.
 Use [manual settings backup and restore](manual-settings.md) for application settings that setup does not manage.
+Use the [new-device walkthrough](../README.md#new-device-walkthrough) for browser authorization and automatic confirmation.
+The Mac bootstrap supports a standalone download before Git exists.
+It checks working developer-tool Git before cloning and stops when an existing target lacks Git metadata.
 
 ## Work across devices
 
