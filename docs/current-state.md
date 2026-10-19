@@ -19,6 +19,16 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-10-19: Added Sill for Mac through the official `saffsanity/sill/sill` Homebrew cask.
+  The [vendor download page](https://getsill.app/download.html) links the tap;
+  its [cask](https://github.com/Saffsanity/homebrew-sill/blob/main/Casks/sill.rb) declares
+  version 0.5.1, a SHA-256-checked official DMG, Apple silicon, and macOS 14 or later.
+  Read-only Info.plist checks confirm `/Applications/Sill.app` is 0.5.1 build 563 on the mini.
+  Shell syntax checks and `tests/test-mac-bootstrap.sh` pass.
+  No app installation, full bootstrap, permissions changes, or desktop interaction ran.
+  Confluence synchronization remains pending under the task's filesystem/shell-only restriction;
+  see the [handoff](handoffs/2026-10-19-sill-confluence-sync.md).
+
 - 2026-10-09, new-device walkthrough: README and Confluence now document browser authorization and automatic confirmation.
   The Mac bootstrap supports a standalone download before the first Git clone.
   It confirms working developer-tool Git and preserves conflicting clone targets.

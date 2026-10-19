@@ -126,7 +126,7 @@ The bootstrap installs these Homebrew casks:
 1password, nikitabobko/tap/aerospace, bartender, chatgpt, claude, codex,
 cursor, fantastical, font-jetbrains-mono-nerd-font, font-meslo-lg-nerd-font,
 ghostty, grandperspective, istat-menus, linear, microsoft-edge@beta, microsoft-office, notion,
-nvidia-geforce-now, openlogi, protonvpn, raindropio, raycast, spotify,
+nvidia-geforce-now, openlogi, protonvpn, raindropio, raycast, saffsanity/sill/sill, spotify,
 tailscale-app, todoist-app, vlc, windows-app, wispr-flow, zed
 ```
 
@@ -143,6 +143,12 @@ Existing tools and applications are skipped. Dropbox and Zoom are not installed.
 The optional `dbox()` shell helper remains available for a manually installed Dropbox.
 Microsoft Office supplies OneDrive. The standalone `onedrive` cask conflicts with Office and is not installed separately.
 Verification requires the Edge Beta, Windows App, and OneDrive application bundles.
+
+[Sill for Mac](https://getsill.app/download.html) streams Mac windows to an iPhone or iPad.
+Its official `saffsanity/sill/sill` cask installs the vendor's DMG with SHA-256 verification
+and requires Apple silicon with macOS 14 or later. The existing cask loop skips installed
+casks and uses `--adopt` for matching app bundles installed outside Homebrew.
+Permissions and device pairing remain [manual follow-ups](docs/manual-settings.md).
 
 Both bootstrap scripts install these Claude plugins:
 

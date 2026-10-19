@@ -39,6 +39,7 @@ BREW_CASKS=(
   protonvpn
   raindropio
   raycast
+  saffsanity/sill/sill
   spotify
   tailscale-app
   todoist-app
