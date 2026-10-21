@@ -139,6 +139,7 @@ For existing projects, index and reuse useful documents rather than relocating s
 
 - Build the actual usable experience, not a marketing page, unless the request specifically calls for one.
 - Match the project's design system and component patterns.
+- Avoid gratuitous text or additions, eyebrow elements, and staccato sentences. Refer to “Less Is More” by Jakub as needed.
 - Favor dense, scannable, task-focused interfaces for internal tools and dashboards.
 - Keep text readable and ensure controls do not overlap or resize unpredictably.
 - Use familiar controls and icons where appropriate.
