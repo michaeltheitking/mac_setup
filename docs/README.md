@@ -16,6 +16,8 @@ Reviewed, non-sensitive documents belong with the code in Git.
 
 ### Existing reference documents
 
+- [Daily Mac mini app updates](daily-app-updates.md)
+
 - [GitHub CLI authentication](github-authentication.md)
 
 - [Manual settings backup and restore](manual-settings.md)

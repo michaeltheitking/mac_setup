@@ -18,6 +18,8 @@ Each decision includes:
 
 ### Existing decisions
 
+- [0006-opt-in-mini-app-updates.md](0006-opt-in-mini-app-updates.md)
+
 - [0005-shared-project-context-contract.md](0005-shared-project-context-contract.md)
 
 - [0001-neovim-config-is-machine-local.md](0001-neovim-config-is-machine-local.md)

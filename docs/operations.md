@@ -28,6 +28,9 @@ A push does not verify deployment or runtime behavior.
 
 ## Recovery and verification
 
+Use [daily Mini app update operations](daily-app-updates.md) for the optional ChatGPT and Workbench schedule.
+Reinstall its local script copy after source changes. Bootstrap and setup do not enable this job.
+
 On macOS, verification requires `pngpaste`, `btop`, `fastfetch`, and the three Microsoft application bundles.
 Office supplies OneDrive; do not install the conflicting standalone OneDrive cask alongside Office.
 Bootstrap exits unsuccessfully when final verification fails. A missing Mac verifier also prevents success.

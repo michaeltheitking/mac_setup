@@ -19,6 +19,19 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-10-30: Installed the opt-in [daily Mini app updater](daily-app-updates.md).
+  `launchctl print gui/501/com.michael.daily-app-updates` confirms a 04:00 local calendar event.
+  The Mini's timezone resolves to America/Chicago. The installed script matches the repository source.
+  An immediate launchd run exits 0 and reports ChatGPT build 22943 and Workbench build 1029 as current.
+  Both installed bundles pass publisher, Gatekeeper, and CPU checks.
+  Workbench quits and relaunches in both a direct check and a temporary Aqua background job; both checks pass.
+  Its official DMG passes download, mount, copy, and staged-bundle validation without app replacement.
+  Eight isolated tests and Ruff checks pass. Existing bootstrap, setup, SSH, and HTTPS fixture suites pass.
+  Tests cover current-build checks, compatible release selection, failed-launch rollback, and failed-move recovery.
+  No newer app release exists during this check, so a complete live update remains unverified.
+  The first scheduled event, sleep recovery, and ChatGPT restart remain unverified.
+  Confluence runbook version 36 adds operations and preserves all 504 prior text blocks.
+
 - 2026-10-19: Added Sill for Mac through the official `saffsanity/sill/sill` Homebrew cask.
   The [vendor download page](https://getsill.app/download.html) links the tap;
   its [cask](https://github.com/Saffsanity/homebrew-sill/blob/main/Casks/sill.rb) declares

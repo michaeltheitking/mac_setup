@@ -217,6 +217,9 @@ and setup twice. The second run must preserve configuration and installed state.
 
 ## Manual settings backup and restore
 
+The Mini can run [daily ChatGPT and Astropad Workbench updates](docs/daily-app-updates.md).
+Install this optional schedule explicitly on the Mini. Bootstrap does not enable it on other devices.
+
 Follow [the settings guide](docs/manual-settings.md) before replacing a Mac and after bootstrap.
 It covers app exports, private configuration files, account setup, permissions, and restore checks.
 Keep private exports outside this repository. Bootstrap prints the guide path when it finishes.
