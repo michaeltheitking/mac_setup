@@ -169,7 +169,9 @@ For existing projects, index and reuse useful documents rather than relocating s
 
 When a project uses Linear:
 
-- Log code review findings in Linear at the appropriate project or issue level.
+- Track each actionable code or document review finding as a Linear issue in the relevant project.
+- Reuse a matching open issue; otherwise create a separate issue, linked to the implementation issue when applicable.
+- Comments can provide evidence, progress, or sign-off. Never use comments as the only record of actionable work.
 - Move implemented tasks to `Ready for Review` first; move to `Completed` only after a Linear comment explicitly notes the work was reviewed and signed off.
 - If a closed issue gets new required fixes or follow-up comments, reopen it and move it back to the backlog.
 
