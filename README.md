@@ -19,15 +19,9 @@ you intentionally use another location.
 
 ## New-device walkthrough
 
-These steps cover a new Mac or Omarchy computer. Existing devices do not need migration.
-Bootstrap installs the configured applications and tools, not only GitHub access.
-Use a normal desktop terminal as your user. Do not run the entire script with `sudo`.
+### New Mac
 
-1. **Prepare browser access.** Make your existing GitHub passkey available in the browser or its passkey provider.
-   On Omarchy, enable and unlock a Secret Service credential store in your desktop session.
-   macOS uses Keychain. CLI authorization remains separate from browser sign-in.
-
-2. **Start bootstrap.** On a fresh Mac, download and run the bootstrap before Git exists:
+1. **Open Terminal.** Paste this block and press Return. Run it as your normal user.
 
    ```sh
    bootstrap_file="$(mktemp -t dotfiles-bootstrap)" &&
@@ -35,52 +29,26 @@ Use a normal desktop terminal as your user. Do not run the entire script with `s
      /bin/bash "$bootstrap_file"
    ```
 
-   The script installs Xcode Command Line Tools, checks working Git, and clones the public repository into `~/dotfiles`.
-   It then continues from that checkout. Full Xcode is not required.
-   Installation can request your administrator password.
-   If Apple offers no command-line update, finish the installation dialog and run the same command again.
-   The script checks completion automatically. It stops if Git still fails.
-   An existing directory without Git metadata stops the clone; preserve its files before retrying.
-   Bootstrap checks the repository root, required files, and link conflicts before installing packages.
+2. **Follow the prompts.** If macOS opens the Command Line Tools installer, finish it and run the same block again.
+   When GitHub CLI shows a code, authorize it in your browser with the `michaeltheitking` passkey.
 
-   On Omarchy, Git already exists. Clone the public repository and run its bootstrap:
+3. **Restore your settings.** Wait for `Your Mac is bootstrapped.` Then follow the [settings guide](docs/manual-settings.md).
 
-   ```sh
-   git clone https://github.com/michaeltheitking/mac_setup.git ~/dotfiles
-   cd ~/dotfiles
-   ./bootstrap_omarchy.sh
-   ```
+If an app fails to install, review the error and run the same block again.
+For sign-in problems, see [GitHub setup and recovery](docs/github-authentication.md).
 
-   Public download and clone need no GitHub login. If a checkout already exists, inspect it before continuing.
-   From the intended checkout, run `./bootstrap_new_mac.sh` or `./bootstrap_omarchy.sh`.
-   Bootstrap reuses installed packages and preserves existing repository remotes.
+### New Omarchy computer
 
-3. **Authorize GitHub CLI.** When `gh` displays a one-time code, follow its browser instructions.
-   Sign in as `michaeltheitking` with your existing passkey, then authorize GitHub CLI.
-   Bootstrap reuses valid CLI authentication and skips this prompt when possible.
-   Approve native credential-storage prompts or unlock the credential store when required.
-
-4. **Let automatic checks finish.** Bootstrap checks the API account, native credential storage, and a private HTTPS Git read.
-   It configures the Git credential helper and runs the final health check.
-   On macOS, it verifies terminal and GitHub setup before installing desktop apps.
-   A failed app install allows other apps to finish. Review the failures and rerun bootstrap.
-   A failure stops bootstrap before its success message. Private reads prove read access, not repository write permission.
-   If storage falls back to a plaintext file, follow [credential-store recovery](docs/github-authentication.md#credential-storage).
-
-5. **Use GitHub and restore settings.** New HTTPS clones and normal Git commands use the saved CLI credential.
-   Browser access uses your existing passkey. You need no GitHub SSH key or copied token for this setup.
-   Follow [manual settings restoration](docs/manual-settings.md), including the iStat Menus import.
-
-The confirmation commands below are optional diagnostics. Bootstrap already performs these checks:
+Unlock your desktop's Secret Service credential store. Then run these commands in a normal terminal session.
 
 ```sh
-gh api --hostname github.com user --jq .login
-bash ~/dotfiles/scripts/github-auth.sh check
-~/dotfiles/verify.sh
+git clone https://github.com/michaeltheitking/mac_setup.git ~/dotfiles
+cd ~/dotfiles
+./bootstrap_omarchy.sh
 ```
 
-The account must be `michaeltheitking`. The helper must report a successful private HTTPS Git read.
-See [GitHub setup and recovery](docs/github-authentication.md) for failures and scheduled-job checks.
+If the intended checkout already exists, run `./bootstrap_omarchy.sh` from it.
+When GitHub CLI shows a code, authorize it in your browser with the `michaeltheitking` passkey.
 
 ## Configuration Ownership
 

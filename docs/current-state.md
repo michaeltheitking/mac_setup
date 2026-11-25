@@ -28,6 +28,8 @@ Use separate development checkouts. Do not install production schedules merely b
   A full clean-Mac installation, Screens connection, and iStat settings import still need a disposable target.
   Confluence runbook version 37 includes the setup changes and a native table of contents.
   The [completed handoff](handoffs/2026-11-24-mac-runbook-sync.md) records publication and link verification.
+  Confluence version 38 and the [README](../README.md#new-mac) give three steps for a new Mac.
+  The published table of contents opens the New Mac section. The startup command matches the previous version.
 
 - 2026-11-03: Paused ChatGPT in the daily Mini app updater at Michael's request.
   The repository and installed script set its `enabled` flag to `False`; the guard returns
