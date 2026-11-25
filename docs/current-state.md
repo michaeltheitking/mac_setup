@@ -30,6 +30,8 @@ Use separate development checkouts. Do not install production schedules merely b
   The [completed handoff](handoffs/2026-11-24-mac-runbook-sync.md) records publication and link verification.
   Confluence version 38 and the [README](../README.md#new-mac) give three steps for a new Mac.
   The published table of contents opens the New Mac section. The startup command matches the previous version.
+  Confluence version 39 shortens Quick Start, the bootstrap overview, Health Check, GitHub recovery, and manual follow-up.
+  The published Health Check link opens the section with the copyable `./verify.sh` command.
 
 - 2026-11-03: Paused ChatGPT in the daily Mini app updater at Michael's request.
   The repository and installed script set its `enabled` flag to `False`; the guard returns
