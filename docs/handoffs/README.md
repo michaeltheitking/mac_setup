@@ -19,6 +19,6 @@ Uncommitted changes do not transfer through Git; state that limitation explicitl
 Keep credentials, private records, and full transcripts out of handoffs.
 Mark completed or superseded handoffs so later sessions do not resume obsolete work.
 
-## Open handoffs
+## Recent completed handoffs
 
 - [Mac setup runbook update](2026-11-24-mac-runbook-sync.md)
