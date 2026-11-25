@@ -179,6 +179,7 @@ When a project uses Confluence for documentation (the default unless the user na
 
 - Focus on high-level design, a plain-English overview, and how to operate the tool; avoid low-level implementation detail unless needed for operation or support.
 - Set an appropriate emoji page icon, and don't repeat the page title as the first heading or line — Confluence renders it separately.
+- When creating a Confluence page, insert the native Table of Contents (`toc`) macro as the first block in the page body. Verify that it renders after publishing.
 
 ## Codex Pipeline (Linear team "personal pets")
 
