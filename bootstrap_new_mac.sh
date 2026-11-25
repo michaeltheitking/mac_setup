@@ -14,7 +14,7 @@ fi
 GIT_NAME="michael"
 GIT_EMAIL="mk@michael-king.com"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
-ASTROPAD_WORKBENCH_URL="https://downloads.astropad.com/workbench/mac/latest"
+export DOTFILES_DIR
 
 BREW_CASKS=(
   1password
@@ -50,6 +50,7 @@ BREW_CASKS=(
 )
 
 BREW_FORMULAS=(
+  awscli
   git
   gh
   node
@@ -98,39 +99,6 @@ append_line_if_missing() {
   printf "%s\n" "$line" >> "$file"
 }
 
-install_astropad_workbench() {
-  local app_path="/Applications/Astropad Workbench.app"
-  local tmp_dir
-  local dmg_path
-  local mount_dir
-  local mounted_app
-
-  if [ -d "$app_path" ]; then
-    echo "Already installed: Astropad Workbench"
-    return
-  fi
-
-  tmp_dir="$(mktemp -d)"
-  dmg_path="$tmp_dir/astropad-workbench.dmg"
-  mount_dir="$tmp_dir/mount"
-
-  mkdir -p "$mount_dir"
-  curl -fL "$ASTROPAD_WORKBENCH_URL" -o "$dmg_path"
-  hdiutil attach "$dmg_path" -nobrowse -quiet -mountpoint "$mount_dir"
-
-  mounted_app="$(find "$mount_dir" -maxdepth 1 -name "*.app" -type d -print -quit)"
-  if [ -z "$mounted_app" ]; then
-    hdiutil detach "$mount_dir" -quiet || true
-    rm -rf "$tmp_dir"
-    echo "Astropad Workbench download did not contain an app bundle."
-    exit 1
-  fi
-
-  ditto "$mounted_app" "/Applications/$(basename "$mounted_app")"
-  hdiutil detach "$mount_dir" -quiet
-  rm -rf "$tmp_dir"
-}
-
 log "Checking Xcode Command Line Tools"
 if ! xcode-select -p >/dev/null 2>&1 || ! xcrun git --version >/dev/null 2>&1; then
   echo "Installing Xcode Command Line Tools (headless)..."
@@ -175,6 +143,30 @@ if [ ! -e "$DOTFILES_DIR/.git" ]; then
   exec /bin/bash "$DOTFILES_DIR/bootstrap_new_mac.sh"
 fi
 
+required_files=(bootstrap_new_mac.sh setup.sh setup_macos.sh setup_common.sh verify.sh
+  scripts/github-auth.sh scripts/macos-apps.sh claude/remove-bartender-hooks.sh
+  .zshrc .p10k.zsh .tmux.conf .gitignore_global ssh/config ssh/github-known-hosts
+  ghostty/config.ghostty codex/AGENTS.md claude/settings.json claude/statusline-command.sh)
+if [ "$(git -C "$DOTFILES_DIR" rev-parse --show-toplevel)" != "$(cd "$DOTFILES_DIR" && pwd -P)" ] ||
+   ! git -C "$DOTFILES_DIR" ls-files --error-unmatch -- "${required_files[@]}" >/dev/null 2>&1; then
+  echo "Expected the mac_setup repository root at $DOTFILES_DIR. Check DOTFILES_DIR before retrying." >&2
+  exit 1
+fi
+for file in "${required_files[@]}"; do
+  if [ ! -s "$DOTFILES_DIR/$file" ]; then
+    echo "Missing or empty checkout file: $file. Repair the checkout before retrying." >&2
+    exit 1
+  fi
+done
+for file in setup.sh setup_macos.sh verify.sh; do
+  if [ ! -x "$DOTFILES_DIR/$file" ]; then
+    echo "Required script is not executable: $file" >&2
+    exit 1
+  fi
+done
+"$DOTFILES_DIR/setup_macos.sh" --preflight
+source "$DOTFILES_DIR/scripts/macos-apps.sh"
+
 log "Installing Homebrew if needed"
 if ! have_cmd brew; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -210,18 +202,6 @@ else
   npm install -g @anthropic-ai/claude-code
 fi
 
-log "Installing GUI apps"
-for cask in "${BREW_CASKS[@]}"; do
-  if brew list --cask "$cask" >/dev/null 2>&1; then
-    echo "Already installed: $cask"
-  else
-    brew install --cask --adopt "$cask"
-  fi
-done
-
-log "Installing Astropad Workbench"
-install_astropad_workbench
-
 log "Configuring Git identity"
 git config --global user.name "$GIT_NAME"
 git config --global user.email "$GIT_EMAIL"
@@ -232,11 +212,35 @@ mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 
 log "Running dotfiles setup"
-chmod +x "$DOTFILES_DIR/setup.sh"
 "$DOTFILES_DIR/setup.sh"
 
 log "Configuring GitHub HTTPS authentication"
 bash "$DOTFILES_DIR/scripts/github-auth.sh" setup
+
+log "Verifying terminal and GitHub setup"
+"$DOTFILES_DIR/verify.sh" --core
+
+log "Installing GUI apps"
+failed_apps=()
+for cask in "${BREW_CASKS[@]}"; do
+  if brew list --cask "$cask" >/dev/null 2>&1; then
+    echo "Already installed: $cask"
+  elif ! brew install --cask --adopt "$cask"; then
+    failed_apps+=("$cask")
+  fi
+done
+if ! mac_app_present "Screens 5"; then
+  if ! { have_cmd mas || brew install mas; } || ! mas get 1663047912; then
+    echo "Sign in to the Mac App Store and retry Screens 5." >&2
+    failed_apps+=("Screens 5")
+  fi
+fi
+
+app_install_status=0
+if [ "${#failed_apps[@]}" -gt 0 ]; then
+  printf 'App installation failed: %s\n' "${failed_apps[@]}" >&2
+  app_install_status=1
+fi
 
 log "Installing Claude Code plugins"
 if have_cmd claude; then
@@ -262,6 +266,10 @@ fi
 log "Verifying setup"
 if [ ! -x "$DOTFILES_DIR/verify.sh" ] || ! "$DOTFILES_DIR/verify.sh"; then
   echo "Verification failed or verify.sh is unavailable. Bootstrap did not complete." >&2
+  exit 1
+fi
+if [ "$app_install_status" != 0 ]; then
+  echo "Retry bootstrap to finish failed app installations." >&2
   exit 1
 fi
 

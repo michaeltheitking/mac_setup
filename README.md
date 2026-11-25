@@ -41,6 +41,7 @@ Use a normal desktop terminal as your user. Do not run the entire script with `s
    If Apple offers no command-line update, finish the installation dialog and run the same command again.
    The script checks completion automatically. It stops if Git still fails.
    An existing directory without Git metadata stops the clone; preserve its files before retrying.
+   Bootstrap checks the repository root, required files, and link conflicts before installing packages.
 
    On Omarchy, Git already exists. Clone the public repository and run its bootstrap:
 
@@ -61,6 +62,8 @@ Use a normal desktop terminal as your user. Do not run the entire script with `s
 
 4. **Let automatic checks finish.** Bootstrap checks the API account, native credential storage, and a private HTTPS Git read.
    It configures the Git credential helper and runs the final health check.
+   On macOS, it verifies terminal and GitHub setup before installing desktop apps.
+   A failed app install allows other apps to finish. Review the failures and rerun bootstrap.
    A failure stops bootstrap before its success message. Private reads prove read access, not repository write permission.
    If storage falls back to a plaintext file, follow [credential-store recovery](docs/github-authentication.md#credential-storage).
 
@@ -133,20 +136,24 @@ tailscale-app, todoist-app, vlc, windows-app, wispr-flow, zed
 It installs these Homebrew formulas:
 
 ```text
-git, gh, node, jq, pngpaste, ruff, prettier, tmux, powerlevel10k,
+awscli, git, gh, node, jq, pngpaste, ruff, prettier, tmux, powerlevel10k,
 zsh-autosuggestions, fastfetch, btop
 ```
 
 Other install steps provide Xcode Command Line Tools, Homebrew,
-`@anthropic-ai/claude-code` through npm, and Astropad Workbench through its official DMG.
+`@anthropic-ai/claude-code` through npm, and [Screens 5](https://apps.apple.com/us/app/id1663047912) through the Mac App Store.
+If Screens 5 is missing, bootstrap installs the Homebrew formula `mas` as needed and runs `mas get 1663047912`.
+Sign in to the App Store if prompted. Restore an existing Screens purchase inside the app if needed.
 Existing tools and applications are skipped. Dropbox and Zoom are not installed.
 The optional `dbox()` shell helper remains available for a manually installed Dropbox.
 Microsoft Office supplies OneDrive. The standalone `onedrive` cask conflicts with Office and is not installed separately.
-Verification requires the Edge Beta, Windows App, and OneDrive application bundles.
+Full verification checks the AWS and Codex commands and the Edge Beta, Windows App, OneDrive, Linear, and Screens 5 bundles.
+If Homebrew lists an installed cask whose app is missing, reinstall that cask (for example, `brew reinstall --cask linear`).
+Microsoft Office supplies the OneDrive bundle. Run `./verify.sh` after the repair.
 
 [Sill for Mac](https://getsill.app/download.html) streams Mac windows to an iPhone or iPad.
 Its official `saffsanity/sill/sill` cask installs the vendor's DMG with SHA-256 verification
-and requires Apple silicon with macOS 14 or later. The existing cask loop skips installed
+and supports Intel and Apple silicon on macOS 14 or later. The existing cask loop skips installed
 casks and uses `--adopt` for matching app bundles installed outside Homebrew.
 Permissions and device pairing remain [manual follow-ups](docs/manual-settings.md).
 
@@ -209,6 +216,7 @@ bash tests/test_setup.sh
 bash tests/test-github-ssh.sh
 bash tests/test-github-auth.sh
 bash tests/test-mac-bootstrap.sh
+zsh -f tests/test-shell-helpers.zsh
 git diff --check
 ```
 
@@ -217,13 +225,17 @@ and setup twice. The second run must preserve configuration and installed state.
 
 ## Manual settings backup and restore
 
-The Mini can run [daily ChatGPT and Astropad Workbench updates](docs/daily-app-updates.md).
-Install this optional schedule explicitly on the Mini. Bootstrap does not enable it on other devices.
+The [Mini updater](docs/daily-app-updates.md) is inactive. ChatGPT checks are paused.
 
 Follow [the settings guide](docs/manual-settings.md) before replacing a Mac and after bootstrap.
 It covers app exports, private configuration files, account setup, permissions, and restore checks.
 Keep private exports outside this repository. Bootstrap prints the guide path when it finishes.
 Homebrew initialization is added to `.zprofile` even when Homebrew already exists.
+
+Run `awssync` from the root of the personal website checkout after configuring AWS access.
+It syncs the site to S3 with deletions and then invalidates CloudFront.
+For `clip`, enroll the new Mac's public SSH key on the Mini and confirm that `ssh devbox` connects.
+The helper copies the remote path to the clipboard after a successful image transfer.
 
 ## GitHub CLI setup
 

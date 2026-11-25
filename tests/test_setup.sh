@@ -251,10 +251,11 @@ HOME="$omarchy_home" git config --global core.excludesfile "$omarchy_home/.gitig
 
 mac_verify_bin="$TEST_ROOT/mac-verify-bin"
 mkdir -p "$mac_verify_bin" "$mac_home/Applications"
-for app in "Microsoft Edge Beta" "Windows App" "OneDrive"; do
-  mkdir -p "$mac_home/Applications/$app.app"
+for app in "Microsoft Edge Beta" "Windows App" OneDrive Linear "Screens 5"; do
+  mkdir -p "$mac_home/Applications/$app.app/Contents"
+  printf '%s\n' '<plist/>' > "$mac_home/Applications/$app.app/Contents/Info.plist"
 done
-for command_name in tmux claude ruff prettier node brew pngpaste btop fastfetch; do
+for command_name in tmux claude ruff prettier node brew pngpaste btop fastfetch aws codex; do
   ln -s /usr/bin/true "$mac_verify_bin/$command_name"
 done
 ln -s "$fake_bin/ssh" "$mac_verify_bin/ssh"
@@ -312,6 +313,7 @@ chmod +x "$checkpoint_repo/verify.sh"
 run_bootstrap_checkpoint() (
   set -euo pipefail
   DOTFILES_DIR="$checkpoint_repo"
+  app_install_status=0
   log() { printf '%s\n' "$1"; }
   source "$checkpoint"
 )

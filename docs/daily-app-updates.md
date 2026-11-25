@@ -1,6 +1,9 @@
 # Daily Mac mini app updates
 
-The optional user LaunchAgent checks ChatGPT and Astropad Workbench at 04:00 local time daily.
+On 2026-11-24, the Mini retired its 04:00 LaunchAgent and removed its installed updater copy.
+Workbench is no longer an install or update target. ChatGPT remains paused.
+ChatGPT is skipped before reading its bundle, contacting its feed, or requesting a quit, for both `--run` and `--check`.
+To re-enable ChatGPT after review, set its `enabled` flag to `True` in `APPS` and redeploy the installed script.
 The Mini uses America/Chicago. Other Macs do not receive this schedule through bootstrap or setup.
 
 The task reads the official public release feeds. It downloads an installer only when its build exceeds the installed build.
@@ -11,7 +14,7 @@ Current apps stay open without a restart.
 
 ## Install and check
 
-Use the signed-in desktop account without `sudo`:
+Only use these commands if you deliberately restore the schedule. Use the signed-in desktop account without `sudo`:
 
 ```sh
 /usr/bin/python3 ~/dotfiles/scripts/daily-app-updates.py --check
@@ -34,9 +37,9 @@ tail -n 30 ~/Library/Logs/DailyAppUpdates/update.log
 The Mac must remain logged into the desktop account. A locked session can run the job.
 launchd runs a missed calendar event after sleep ends; it does not wake or power on the Mac.
 A logged-out or powered-off Mac does not perform checks.
-An update interrupts Workbench connections and app work during the restart.
+An update can interrupt app work during the restart.
 If an app refuses to quit, the task logs a failure and leaves it installed.
-The task never forces termination. A failed app does not prevent the other app's check.
+The task never forces termination.
 
 ## Logs and recovery
 
@@ -49,12 +52,11 @@ Each successful update retains the previous bundle at:
 
 ```text
 /Applications/.daily-app-updates-previous/ChatGPT.app
-/Applications/.daily-app-updates-previous/Astropad Workbench.app
 ```
 
 The task restores the previous bundle if replacement or launch fails and the new app can quit.
 Power loss or job removal between bundle moves can leave the app path absent. Restore its previous bundle manually.
-Launch verification confirms a running main process. It does not prove sign-in, Workbench connectivity, or app health.
+Launch verification confirms a running main process. Test the intended workflow after recovery.
 Do not restore app data or credentials as part of bundle recovery.
 
 To disable the schedule:
@@ -73,8 +75,7 @@ The next update check installs the current release again if you re-enable the jo
 
 On 2026-10-30, the installed unified ChatGPT app uses bundle ID `com.openai.codex`.
 Its packaged updater code names the [public OpenAI feed](https://persistent.oaistatic.com/codex-app-prod/appcast.xml).
-The Workbench Info.plist names the [Astropad feed](https://downloads.astropad.com/workbench/mac/sparkle.xml).
-The script pins both bundle identifiers and publisher team identifiers.
+The script pins the ChatGPT bundle identifier and publisher team identifier.
 A future publisher or identity change requires review; the script does not accept it automatically.
 
 The script uses Python 3 from the existing Xcode Command Line Tools and built-in macOS commands.

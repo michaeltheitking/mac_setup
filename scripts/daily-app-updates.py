@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Daily, opt-in macOS updates for the Mini's ChatGPT and Astropad Workbench."""
+"""Opt-in macOS updates for ChatGPT on the Mini."""
 
 import argparse
 import fcntl
@@ -26,18 +26,12 @@ SPARKLE = "{http://www.andymatuschak.org/xml-namespaces/sparkle}"
 APPS = (
     {
         "path": Path("/Applications/ChatGPT.app"),
+        "enabled": False,  # Paused at Michael's request on 2026-11-03.
         # The current unified ChatGPT app retains the Codex bundle identifier.
         "id": "com.openai.codex",
         "team": "2DC432GLL2",
         "feed": "https://persistent.oaistatic.com/codex-app-prod/appcast.xml",
         "host": "persistent.oaistatic.com",
-    },
-    {
-        "path": Path("/Applications/Astropad Workbench.app"),
-        "id": "com.astropad.workbench",
-        "team": "8356ZZ8Y5K",
-        "feed": "https://downloads.astropad.com/workbench/mac/sparkle.xml",
-        "host": "downloads.astropad.com",
     },
 )
 
@@ -261,6 +255,9 @@ def install_release(app, release):
 
 
 def update_app(app, check_only):
+    if not app.get("enabled", True):
+        logger.info("%s update checks are disabled", app["path"].name)
+        return
     installed = info(app["path"])
     if installed["CFBundleIdentifier"] != app["id"]:
         raise ValueError(

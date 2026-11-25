@@ -72,7 +72,18 @@ alias devclaude='ssh -t devbox /opt/homebrew/bin/tmux new -As claude'
 # Functions
 # -----------------------------------------------------------------------------
 awssync() {
-  aws s3 sync . s3://michael-king.com --delete \
+  local root origin
+  root=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
+  origin=$(git config --local --get remote.origin.url) || return 1
+  case "${origin%.git}" in
+    https://github.com/michaeltheitking/website|git@github.com:michaeltheitking/website|ssh://git@github.com/michaeltheitking/website) ;;
+    *) print -u2 "Run awssync from the personal website checkout."; return 1 ;;
+  esac
+  if [[ "${root:A}" != "${PWD:A}" || ! -s "$root/index.html" || ! -s "$root/projects.html" ]]; then
+    print -u2 "Run awssync from the complete website root."
+    return 1
+  fi
+  aws s3 sync "$root/" s3://michael-king.com --delete \
     --exclude ".*" \
     --exclude ".*/**" \
     --exclude "README.md" \
@@ -94,6 +105,9 @@ awssync() {
     --exclude "docs/*" \
     --exclude "docs/**" \
     --exclude "AGENTS.md" \
+    --exclude "CLAUDE.md" \
+    --exclude "print-contact.json" \
+    --exclude "staging/*" \
   && aws cloudfront create-invalidation --distribution-id E2LXTUFU951CL5 --paths "/*" > /dev/null \
   && echo "CloudFront cache invalidated."
 }
@@ -102,24 +116,27 @@ dbox() {
   cd ~/Dropbox/website
 }
 
-clip() {
-  local remote="michael@michaels-mac-mini"
+clip() (
+  local remote="devbox"
   local dir="/tmp/claude-images"
-  local file="clip-$(date +%Y%m%d-%H%M%S).png"
-  local local_file="/tmp/$file"
+  local temp_dir file local_file
+  temp_dir=$(mktemp -d) || return 1
+  trap 'rm -rf -- "$temp_dir"' EXIT
+  file="clip-${temp_dir:t}.png"
+  local_file="$temp_dir/$file"
 
   pngpaste "$local_file" || {
     echo "No image found in local clipboard"
     return 1
   }
 
-  ssh "$remote" "mkdir -p $dir"
-  scp "$local_file" "$remote:$dir/$file" >/dev/null
+  ssh "$remote" "mkdir -p $dir" || return 1
+  scp "$local_file" "$remote:$dir/$file" >/dev/null || return 1
 
   local remote_path="$dir/$file"
-  printf "%s" "$remote_path" | pbcopy
+  printf "%s" "$remote_path" | pbcopy || return 1
   echo "Copied remote image path: $remote_path"
-}
+)
 
 # -----------------------------------------------------------------------------
 # Private Local Overrides

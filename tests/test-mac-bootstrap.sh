@@ -8,6 +8,8 @@ export TEST_ROOT
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 export SOURCE_REPO="$TEST_ROOT/source"
 mkdir -p "$TEST_ROOT/bin" "$SOURCE_REPO"
+export HOME="$TEST_ROOT/home"
+mkdir -p "$HOME"
 
 fail() {
   echo "FAIL: $*" >&2
@@ -25,8 +27,15 @@ cat > "$SOURCE_REPO/bootstrap_new_mac.sh" <<'STUB'
 #!/usr/bin/env bash
 echo checkout-bootstrap >> "$EVENTS"
 STUB
+for file in setup.sh setup_common.sh setup_macos.sh verify.sh .zshrc .tmux.conf .p10k.zsh .gitignore_global \
+  scripts/macos-apps.sh scripts/github-auth.sh claude/remove-bartender-hooks.sh \
+  claude/settings.json claude/statusline-command.sh ssh/config ssh/github-known-hosts \
+  ghostty/config.ghostty codex/AGENTS.md; do
+  mkdir -p "$SOURCE_REPO/$(dirname "$file")"
+  cp -p "$REPO_DIR/$file" "$SOURCE_REPO/$file"
+done
 git -C "$SOURCE_REPO" init -q -b main
-git -C "$SOURCE_REPO" add bootstrap_new_mac.sh
+git -C "$SOURCE_REPO" add -f .
 git -C "$SOURCE_REPO" -c user.name=Test -c user.email=test@example.invalid commit -qm fixture
 
 cat > "$TEST_ROOT/bin/mock" <<'MOCK'
@@ -109,6 +118,18 @@ git clone -q "$SOURCE_REPO" "$DOTFILES_DIR"
 run_preflight || fail "existing checkout failed"
 grep -qx preflight-complete "$EVENTS" || fail "existing checkout did not continue"
 [ "$(wc -l < "$EVENTS" | tr -d ' ')" = 1 ] || fail "existing tools or checkout were changed"
+touch "$HOME/.zshrc"
+if run_preflight; then fail "existing configuration conflict passed preflight"; fi
+[ ! -e "$HOME/.codex" ] || fail "checkout preflight made links"
+rm "$HOME/.zshrc"
+rm "$DOTFILES_DIR/scripts/github-auth.sh"
+if run_preflight; then fail "incomplete checkout passed"; fi
+
+new_case unrelated
+touch "$TEST_CASE_DIR/selected" "$TEST_CASE_DIR/git-ready"
+git init -q "$DOTFILES_DIR"
+if run_preflight; then fail "unrelated repository passed"; fi
+grep -q 'Expected the mac_setup repository root' "$TEST_CASE_DIR/output" || fail "missing checkout diagnosis"
 
 new_case stale-selection
 touch "$TEST_CASE_DIR/selected"
@@ -140,4 +161,48 @@ ln -s "$TEST_CASE_DIR/absent" "$DOTFILES_DIR"
 if run_preflight; then fail "broken target symlink incorrectly passed"; fi
 [ -L "$DOTFILES_DIR" ] || fail "conflicting symlink changed"
 
-echo "PASS: Mac bootstrap preparation, tool checks, fallback, and target preservation"
+# Run core verification, app installation and final verification together with local stand-ins.
+new_case app-retry
+mkdir -p "$DOTFILES_DIR" "$TEST_CASE_DIR/installed"
+sed -n '/^log "Verifying terminal and GitHub setup"/,$p' "$REPO_DIR/bootstrap_new_mac.sh" > "$TEST_CASE_DIR/app-phase"
+cat > "$DOTFILES_DIR/verify.sh" <<'STUB'
+#!/bin/bash
+echo "verify ${1:-full}" >> "$EVENTS"
+STUB
+chmod +x "$DOTFILES_DIR/verify.sh"
+run_app_phase() (
+  set -eu
+  BREW_CASKS=(linear ghostty zed)
+  log() { :; }
+  have_cmd() { [ "$1" = mas ]; }
+  mac_app_present() { [ -f "$TEST_CASE_DIR/installed/screens" ]; }
+  mas() {
+    [ "$*" = 'get 1663047912' ] || exit 9
+    echo screens >> "$EVENTS"
+    touch "$TEST_CASE_DIR/installed/screens"
+  }
+  brew() {
+    case "$1 $2" in
+      "list --cask") [ -f "$TEST_CASE_DIR/installed/$3" ] ;;
+      "install --cask")
+        [ "$3" = --adopt ] || exit 9
+        echo "install $4" >> "$EVENTS"
+        [ "$4" != linear ] || [ -f "$TEST_CASE_DIR/retry" ] || return 1
+        touch "$TEST_CASE_DIR/installed/$4"
+        ;;
+      *) exit 9 ;;
+    esac
+  }
+  source "$TEST_CASE_DIR/app-phase"
+)
+if run_app_phase > "$TEST_CASE_DIR/output" 2>&1; then fail "failed cask reported success"; fi
+grep -Fq 'App installation failed: linear' "$TEST_CASE_DIR/output" || fail "missing app failure summary"
+[ "$(head -1 "$EVENTS")" = 'verify --core' ] || fail "apps ran before core verification"
+grep -qx 'verify full' "$EVENTS" || fail "app failure skipped final verification"
+touch "$TEST_CASE_DIR/retry"
+run_app_phase >> "$TEST_CASE_DIR/output" 2>&1 || fail "app retry failed"
+[ "$(grep -cx 'install linear' "$EVENTS")" = 2 ] || fail "failed cask was not retried"
+for event in 'install ghostty' 'install zed' screens; do
+  [ "$(grep -cx "$event" "$EVENTS")" = 1 ] || fail "missing or repeated install: $event"
+done
+echo "PASS: Mac bootstrap preparation, conflict handling and app retry"

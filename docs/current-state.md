@@ -19,6 +19,21 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-11-24: Screens 5 replaces Workbench in new-Mac setup. On the Mini, both Workbench bundles went to Trash.
+  Process, filesystem, and launchd checks confirmed removal of the watchdog, daily job, plist, and installed updater copy.
+  The Mini verifier found Screens 5.10.5 and the newly installed Linear 1.32.8. It reported zero failures.
+  GitHub credential storage produced one warning. The authenticated private Git read succeeded.
+  This supersedes the November 3 Workbench schedule. ChatGPT remains paused.
+  Isolated checks cover checkout validation, early conflict detection, and retry after an app install failure.
+  A full clean-Mac installation, Screens connection, and iStat settings import still need a disposable target.
+
+- 2026-11-03: Paused ChatGPT in the daily Mini app updater at Michael's request.
+  The repository and installed script set its `enabled` flag to `False`; the guard returns
+  before bundle reads, feed requests, installation, or app control in both run and check modes.
+  Workbench retains the 04:00 America/Chicago schedule. No app was quit or restarted.
+  Ten isolated updater tests and Ruff checks pass; the installed script matches the source.
+  The LaunchAgent plist is unchanged. Re-enable ChatGPT only after review and redeployment.
+
 - 2026-10-30: Installed the opt-in [daily Mini app updater](daily-app-updates.md).
   `launchctl print gui/501/com.michael.daily-app-updates` confirms a 04:00 local calendar event.
   The Mini's timezone resolves to America/Chicago. The installed script matches the repository source.

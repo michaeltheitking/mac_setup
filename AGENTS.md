@@ -68,6 +68,9 @@ Skip an ADR for routine package additions, formatting, or one-off fixes. When a 
 - For non-Homebrew tools, add an explicit idempotent install step.
 - Keep the script safe to re-run. Existing formulae/casks should be skipped.
 - Keep Homebrew casks installed with `brew install --cask --adopt`.
+- Check the checkout and link conflicts before package installation. Verify terminal and GitHub setup before desktop apps.
+- Continue after individual app installation failures. Report all failures and return a failure status.
+- Install Screens 5 through the Mac App Store. Use `mas` when the bundle is missing.
 - Keep OneDrive supplied by `microsoft-office`; its standalone cask conflicts with Office. Verification checks its application bundle.
 - Keep final verification mandatory. Never print bootstrap success after a failed or unavailable verifier.
 - Keep the Mac bootstrap runnable before Git exists. Check developer-tool Git before the first clone.
@@ -100,6 +103,7 @@ Before committing shell script changes, run:
 ```sh
 bash -n bootstrap_new_mac.sh
 zsh -n .zshrc
+zsh -f tests/test-shell-helpers.zsh
 bash tests/test-mac-bootstrap.sh
 ```
 

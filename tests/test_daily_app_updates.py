@@ -12,16 +12,19 @@ spec.loader.exec_module(updater)
 
 
 class UpdateTests(unittest.TestCase):
+    def setUp(self):
+        self.app = {**updater.APPS[0], "enabled": True}
+
     def feed(self, items):
         return (
             '<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">'
             f"<channel>{items}</channel></rss>"
         ).encode()
 
-    def item(self, build, extra="", host="downloads.astropad.com"):
+    def item(self, build, extra="", host="persistent.oaistatic.com"):
         return (
             f"<item><sparkle:version>{build}</sparkle:version>{extra}"
-            f'<enclosure url="https://{host}/workbench/mac/app.dmg" /></item>'
+            f'<enclosure url="https://{host}/app.zip" /></item>'
         )
 
     def test_selects_newest_compatible_public_full_release(self):
@@ -37,17 +40,52 @@ class UpdateTests(unittest.TestCase):
             )
             + self.item(12)
         )
-        release = updater.select_release(feed, updater.APPS[1], "27.2", "arm64")
+        release = updater.select_release(feed, self.app, "27.2", "arm64")
         self.assertEqual(release["build"], "12")
 
     def test_rejects_untrusted_download(self):
         with self.assertRaises(ValueError):
             updater.select_release(
                 self.feed(self.item(10, host="example.com")),
-                updater.APPS[1],
+                self.app,
                 "27.2",
                 "arm64",
             )
+
+    def test_disabled_chatgpt_skips_checks_and_app_control(self):
+        self.assertEqual([app["id"] for app in updater.APPS], ["com.openai.codex"])
+        for check_only in (False, True):
+            with (
+                self.subTest(check_only=check_only),
+                patch.object(updater, "info") as metadata,
+                patch.object(updater, "fetch") as fetch,
+                patch.object(updater, "install_release") as install,
+                patch.object(updater, "command") as command,
+                patch.object(updater, "quit_app") as quit_app,
+            ):
+                updater.update_app(updater.APPS[0], check_only)
+                metadata.assert_not_called()
+                fetch.assert_not_called()
+                install.assert_not_called()
+                command.assert_not_called()
+                quit_app.assert_not_called()
+
+    def test_enabled_app_installs_newer_release(self):
+        app = self.app
+        release = {"build": "12"}
+        with (
+            patch.object(
+                updater,
+                "info",
+                return_value={"CFBundleVersion": "11", "CFBundleIdentifier": app["id"]},
+            ),
+            patch.object(updater, "fetch", return_value=b"feed") as fetch,
+            patch.object(updater, "select_release", return_value=release),
+            patch.object(updater, "install_release") as install,
+        ):
+            updater.update_app(app, False)
+            fetch.assert_called_once_with(app["feed"])
+            install.assert_called_once_with(app, release)
 
     def test_current_or_newer_install_does_not_download_or_quit(self):
         for build in ("12", "13"):
@@ -58,14 +96,14 @@ class UpdateTests(unittest.TestCase):
                     "info",
                     return_value={
                         "CFBundleVersion": build,
-                        "CFBundleIdentifier": updater.APPS[1]["id"],
+                        "CFBundleIdentifier": self.app["id"],
                     },
                 ),
                 patch.object(updater, "fetch", return_value=b"feed"),
                 patch.object(updater, "select_release", return_value={"build": "12"}),
                 patch.object(updater, "install_release") as install,
             ):
-                updater.update_app(updater.APPS[1], False)
+                updater.update_app(self.app, False)
                 install.assert_not_called()
 
     def test_dry_run_reports_update_without_install(self):
@@ -75,14 +113,14 @@ class UpdateTests(unittest.TestCase):
                 "info",
                 return_value={
                     "CFBundleVersion": "11",
-                    "CFBundleIdentifier": updater.APPS[1]["id"],
+                    "CFBundleIdentifier": self.app["id"],
                 },
             ),
             patch.object(updater, "fetch", return_value=b"feed"),
             patch.object(updater, "select_release", return_value={"build": "12"}),
             patch.object(updater, "install_release") as install,
         ):
-            updater.update_app(updater.APPS[1], True)
+            updater.update_app(self.app, True)
             install.assert_not_called()
 
     def test_failed_launch_restores_previous_bundle(self):
@@ -95,7 +133,7 @@ class UpdateTests(unittest.TestCase):
             (target / "version").write_text("old")
             staged.mkdir()
             (staged / "version").write_text("new")
-            app = {**updater.APPS[1], "path": target}
+            app = {**self.app, "path": target}
             with (
                 patch.object(updater, "quit_app"),
                 patch.object(
@@ -119,7 +157,7 @@ class UpdateTests(unittest.TestCase):
             staged.mkdir()
             (staged / "version").write_text("new")
             with patch.object(updater, "quit_app"), patch.object(updater, "launch_app"):
-                updater.replace_app({**updater.APPS[1], "path": target}, staged, backup)
+                updater.replace_app({**self.app, "path": target}, staged, backup)
             self.assertEqual((target / "version").read_text(), "new")
             self.assertEqual((backup / "version").read_text(), "old")
 
@@ -146,7 +184,7 @@ class UpdateTests(unittest.TestCase):
                 self.assertRaises(OSError),
             ):
                 updater.replace_app(
-                    {**updater.APPS[1], "path": target},
+                    {**self.app, "path": target},
                     root / "new.app",
                     root / "old.app",
                 )

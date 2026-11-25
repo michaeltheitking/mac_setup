@@ -38,6 +38,10 @@ detect_platform() {
 }
 
 PLATFORM="$(detect_platform)"
+case "${1:-}" in
+  ""|--core) ;;
+  *) echo "Usage: verify.sh [--core]" >&2; exit 2 ;;
+esac
 if [ "$PLATFORM" != "macos" ] && [ "$PLATFORM" != "omarchy" ]; then
   echo "Unsupported platform. This repository supports macOS and Omarchy." >&2
   exit 1
@@ -122,19 +126,23 @@ check_cmd prettier "web and documentation formatting"
 if [ "$PLATFORM" = "macos" ]; then
   check_cmd node  "npm-based Claude Code install"
   check_cmd brew  "Homebrew package management"
+  check_cmd aws   "website deployment"
   check_cmd pngpaste "clip() clipboard-image helper"
   check_cmd btop "system monitoring"
   check_cmd fastfetch "shell system summary"
 
-  section "Required Microsoft apps"
-  # Office supplies OneDrive; its standalone cask conflicts with microsoft-office.
-  for app in "Microsoft Edge Beta" "Windows App" "OneDrive"; do
-    if [ -d "/Applications/$app.app" ] || [ -d "$HOME/Applications/$app.app" ]; then
-      tag_ok "$app application bundle exists (account setup remains manual)"
-    else
-      tag_fail "$app application bundle missing — run bootstrap; OneDrive comes from Microsoft Office"
-    fi
-  done
+  if [ "${1:-}" != --core ]; then
+    source "$DOTFILES_DIR/scripts/macos-apps.sh" || exit 1
+    section "Required Mac apps"
+    check_cmd codex "Codex CLI"
+    for app in "Microsoft Edge Beta" "Windows App" OneDrive Linear "Screens 5"; do
+      if mac_app_present "$app"; then
+        tag_ok "$app application bundle exists (account setup remains manual)"
+      else
+        tag_fail "$app application bundle missing — see the README for app recovery"
+      fi
+    done
+  fi
 else
   check_cmd omarchy "Omarchy system management"
   check_cmd pacman "Arch package management"

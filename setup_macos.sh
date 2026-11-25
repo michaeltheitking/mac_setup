@@ -6,6 +6,10 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
 source "$DOTFILES_DIR/setup_common.sh"
 
 require_platform macos
+case "${1:-}" in
+  ""|--preflight) ;;
+  *) echo "Usage: setup_macos.sh [--preflight]" >&2; exit 2 ;;
+esac
 
 preflight_directory "$HOME/.ssh"
 preflight_directory "$HOME/.config"
@@ -21,6 +25,7 @@ preflight_path "$HOME/.tmux.conf"
 preflight_path "$HOME/.config/ghostty/config"
 preflight_path "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
 
+[ "${1:-}" != --preflight ] || exit 0
 setup_common
 
 mkdir -p "$HOME/.ssh"
