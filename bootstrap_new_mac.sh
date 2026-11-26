@@ -144,7 +144,8 @@ if [ ! -e "$DOTFILES_DIR/.git" ]; then
 fi
 
 required_files=(bootstrap_new_mac.sh setup.sh setup_macos.sh setup_common.sh verify.sh
-  scripts/github-auth.sh scripts/macos-apps.sh claude/remove-bartender-hooks.sh
+  scripts/github-auth.sh scripts/macos-apps.sh scripts/install-michaels-mac-saver.sh
+  claude/remove-bartender-hooks.sh
   .zshrc .p10k.zsh .tmux.conf .gitignore_global ssh/config ssh/github-known-hosts
   ghostty/config.ghostty codex/AGENTS.md claude/settings.json claude/statusline-command.sh)
 if [ "$(git -C "$DOTFILES_DIR" rev-parse --show-toplevel)" != "$(cd "$DOTFILES_DIR" && pwd -P)" ] ||
@@ -285,6 +286,11 @@ if defaults write com.apple.finder FXPreferredViewStyle -string clmv; then
   echo "Finder Column View saved as the default."
 else
   echo "Could not save the Finder default. In Finder, choose View > as Columns." >&2
+fi
+
+log "Installing the Michael's Mac screen saver"
+if ! bash "$DOTFILES_DIR/scripts/install-michaels-mac-saver.sh"; then
+  echo "To retry the screen saver later, run: bash \"$DOTFILES_DIR/scripts/install-michaels-mac-saver.sh\"" >&2
 fi
 
 log "Finished"

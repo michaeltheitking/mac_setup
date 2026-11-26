@@ -19,6 +19,12 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-11-26: On macOS 27.2.1, the screen saver installer read the private iCloud Drive ZIP and installed Michael's Mac.
+  System Events selected the saver and confirmed it after a delay. A second run reused the installed bundle.
+  System Settings rendered the native preview. The Sequoia desktop wallpaper stayed selected.
+  The display sleeps after five minutes. The saver starts after twenty minutes, so real idle playback remains unverified.
+  iCloud reports the ZIP uploaded. Delivery to a second Mac remains unverified.
+
 - 2026-11-26: New-Mac bootstrap saves Column View as the Finder default after final verification.
   Isolated checks cover a successful write and the manual fallback when a write fails.
   The host already reported the same preference value. A fresh Finder session remains unverified.

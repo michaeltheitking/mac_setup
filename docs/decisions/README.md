@@ -18,6 +18,8 @@ Each decision includes:
 
 ### Existing decisions
 
+- [0007-install-private-screen-saver.md](0007-install-private-screen-saver.md)
+
 - [0006-opt-in-mini-app-updates.md](0006-opt-in-mini-app-updates.md)
 
 - [0005-shared-project-context-contract.md](0005-shared-project-context-contract.md)

@@ -28,7 +28,8 @@ cat > "$SOURCE_REPO/bootstrap_new_mac.sh" <<'STUB'
 echo checkout-bootstrap >> "$EVENTS"
 STUB
 for file in setup.sh setup_common.sh setup_macos.sh verify.sh .zshrc .tmux.conf .p10k.zsh .gitignore_global \
-  scripts/macos-apps.sh scripts/github-auth.sh claude/remove-bartender-hooks.sh \
+  scripts/macos-apps.sh scripts/github-auth.sh scripts/install-michaels-mac-saver.sh \
+  claude/remove-bartender-hooks.sh \
   claude/settings.json claude/statusline-command.sh ssh/config ssh/github-known-hosts \
   ghostty/config.ghostty codex/AGENTS.md; do
   mkdir -p "$SOURCE_REPO/$(dirname "$file")"
@@ -163,13 +164,17 @@ if run_preflight; then fail "broken target symlink incorrectly passed"; fi
 
 # Run core verification, app installation and final verification together with local stand-ins.
 new_case app-retry
-mkdir -p "$DOTFILES_DIR" "$TEST_CASE_DIR/installed"
+mkdir -p "$DOTFILES_DIR/scripts" "$TEST_CASE_DIR/installed"
 sed -n '/^log "Verifying terminal and GitHub setup"/,$p' "$REPO_DIR/bootstrap_new_mac.sh" > "$TEST_CASE_DIR/app-phase"
 cat > "$DOTFILES_DIR/verify.sh" <<'STUB'
 #!/bin/bash
 echo "verify ${1:-full}" >> "$EVENTS"
 STUB
 chmod +x "$DOTFILES_DIR/verify.sh"
+cat > "$DOTFILES_DIR/scripts/install-michaels-mac-saver.sh" <<'STUB'
+echo screen-saver >> "$EVENTS"
+[ -f "$TEST_CASE_DIR/screen-saver-archive-available" ]
+STUB
 run_app_phase() (
   set -eu
   BREW_CASKS=(linear ghostty zed)
@@ -212,14 +217,17 @@ grep -Fq 'App installation failed: linear' "$TEST_CASE_DIR/output" || fail "miss
 grep -qx 'verify full' "$EVENTS" || fail "app failure skipped final verification"
 ! grep -qx dark-mode "$EVENTS" || fail "failed bootstrap changed appearance"
 ! grep -qx finder-columns "$EVENTS" || fail "failed bootstrap changed Finder"
+! grep -qx screen-saver "$EVENTS" || fail "failed bootstrap installed the screen saver"
 touch "$TEST_CASE_DIR/retry"
-run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "desktop preference failure blocked bootstrap"
-[ "$(tail -3 "$EVENTS")" = $'verify full\ndark-mode\nfinder-columns' ] || fail "desktop preferences did not run after final verification"
+run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "desktop setup failure blocked bootstrap"
+[ "$(tail -4 "$EVENTS")" = $'verify full\ndark-mode\nfinder-columns\nscreen-saver' ] || fail "desktop setup did not run after final verification"
 grep -Fq 'System Settings > Appearance > Dark' "$TEST_CASE_DIR/output" || fail "missing Dark Mode fallback"
 grep -Fq 'View > as Columns' "$TEST_CASE_DIR/output" || fail "missing Finder fallback"
+grep -Fq 'To retry the screen saver later' "$TEST_CASE_DIR/output" || fail "missing screen saver retry instructions"
 grep -Fxq 'Your Mac is bootstrapped.' "$TEST_CASE_DIR/output" || fail "missing success after desktop preference failure"
-touch "$TEST_CASE_DIR/automation-allowed" "$TEST_CASE_DIR/finder-write-allowed"
+touch "$TEST_CASE_DIR/automation-allowed" "$TEST_CASE_DIR/finder-write-allowed" "$TEST_CASE_DIR/screen-saver-archive-available"
 run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "app retry failed"
+! grep -Fq 'To retry the screen saver later' "$TEST_CASE_DIR/output" || fail "successful screen saver install reported a failure"
 grep -Fxq 'Dark Mode enabled.' "$TEST_CASE_DIR/output" || fail "missing Dark Mode success"
 grep -Fxq 'Finder Column View saved as the default.' "$TEST_CASE_DIR/output" || fail "missing Finder success"
 grep -Fxq 'Reminder: Activate Bartender with the license key from your password manager.' "$TEST_CASE_DIR/output" || fail "missing Bartender activation reminder"

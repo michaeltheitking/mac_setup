@@ -42,6 +42,23 @@ SSH-selected machines retain active-config, trust, and authentication checks.
 Authentication needs network access. Treat transport failures separately from credential failures.
 Use [GitHub setup and recovery](github-authentication.md) on future machines.
 
+## Michael's Mac screen saver
+
+Bootstrap uses the Apple silicon build on macOS 13 or later. The ZIP lives in **iCloud Drive → Mac Setup**.
+Sign in to iCloud Drive and wait for the file to sync if bootstrap cannot find it.
+Run `bash ~/dotfiles/scripts/install-michaels-mac-saver.sh` to retry without running bootstrap again.
+The installer also accepts the path to another local copy of the same ZIP.
+
+Check **System Settings → Wallpaper → Screen Saver** for the selected name and preview.
+If System Events cannot select the saver, choose **Custom → Other → Michael's Mac** there.
+Set the screen saver to start before the display sleeps if you want to see it during idle time.
+To undo the selection, choose the previous saver or **Automatic** in the same panel.
+
+For a new build, verify the ZIP and update its SHA-256 in the installer as part of the same release.
+See the [screen saver distribution decision](decisions/0007-install-private-screen-saver.md).
+
+## Repository checks
+
 Use the existing project checks and review the exact diff.
 Check changed documentation links, instruction loading, and tracking rules.
 For documentation-only recovery, reverse the specific documentation commit after reviewing subsequent changes.
