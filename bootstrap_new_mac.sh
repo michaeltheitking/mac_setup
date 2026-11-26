@@ -144,7 +144,7 @@ if [ ! -e "$DOTFILES_DIR/.git" ]; then
 fi
 
 required_files=(bootstrap_new_mac.sh setup.sh setup_macos.sh setup_common.sh verify.sh
-  scripts/github-auth.sh scripts/macos-apps.sh scripts/install-michaels-mac-saver.sh
+  scripts/github-auth.sh scripts/macos-apps.sh scripts/install-michaels-mac-saver.sh scripts/set-screen-saver-delay.sh
   assets/MichaelsMac-AppleSilicon.zip claude/remove-bartender-hooks.sh
   .zshrc .p10k.zsh .tmux.conf .gitignore_global ssh/config ssh/github-known-hosts
   ghostty/config.ghostty codex/AGENTS.md claude/settings.json claude/statusline-command.sh)
@@ -291,6 +291,11 @@ fi
 log "Installing the Michael's Mac screen saver"
 if ! bash "$DOTFILES_DIR/scripts/install-michaels-mac-saver.sh"; then
   echo "To retry the screen saver later, run: bash \"$DOTFILES_DIR/scripts/install-michaels-mac-saver.sh\"" >&2
+fi
+
+log "Setting screen saver timing"
+if ! bash "$DOTFILES_DIR/scripts/set-screen-saver-delay.sh"; then
+  echo "Set Start Screen Saver in System Settings to a time before the display sleeps." >&2
 fi
 
 log "Finished"

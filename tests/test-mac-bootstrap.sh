@@ -29,6 +29,7 @@ echo checkout-bootstrap >> "$EVENTS"
 STUB
 for file in setup.sh setup_common.sh setup_macos.sh verify.sh .zshrc .tmux.conf .p10k.zsh .gitignore_global \
   scripts/macos-apps.sh scripts/github-auth.sh scripts/install-michaels-mac-saver.sh \
+  scripts/set-screen-saver-delay.sh \
   assets/MichaelsMac-AppleSilicon.zip claude/remove-bartender-hooks.sh \
   claude/settings.json claude/statusline-command.sh ssh/config ssh/github-known-hosts \
   ghostty/config.ghostty codex/AGENTS.md; do
@@ -44,6 +45,18 @@ cat > "$TEST_ROOT/bin/mock" <<'MOCK'
 set -euo pipefail
 case "${0##*/}" in
   uname) echo Darwin ;;
+  pmset) [ "$*" = '-g custom' ] && cat "$TEST_CASE_DIR/power" ;;
+  defaults)
+    case "$1 $2 $3 $4" in
+      '-currentHost read com.apple.screensaver idleTime') cat "$TEST_CASE_DIR/delay" ;;
+      '-currentHost write com.apple.screensaver idleTime')
+        [ "$5" = -int ] || exit 9
+        printf '%s\n' "$6" > "$TEST_CASE_DIR/delay"
+        printf 'delay %s\n' "$6" >> "$EVENTS"
+        ;;
+      *) exit 9 ;;
+    esac
+    ;;
   sudo) "$@" ;;
   xcode-select)
     case "$1" in
@@ -89,7 +102,7 @@ case "${0##*/}" in
 esac
 MOCK
 chmod +x "$TEST_ROOT/bin/mock"
-for tool in uname sudo xcode-select softwareupdate xcrun; do
+for tool in uname pmset defaults sudo xcode-select softwareupdate xcrun; do
   ln -s mock "$TEST_ROOT/bin/$tool"
 done
 
@@ -179,6 +192,10 @@ cat > "$DOTFILES_DIR/scripts/install-michaels-mac-saver.sh" <<'STUB'
 echo screen-saver >> "$EVENTS"
 [ -f "$TEST_CASE_DIR/screen-saver-archive-available" ]
 STUB
+cat > "$DOTFILES_DIR/scripts/set-screen-saver-delay.sh" <<'STUB'
+echo screen-saver-timing >> "$EVENTS"
+[ -f "$TEST_CASE_DIR/power-settings-available" ]
+STUB
 run_app_phase() (
   set -eu
   BREW_CASKS=(linear ghostty zed)
@@ -222,14 +239,17 @@ grep -qx 'verify full' "$EVENTS" || fail "app failure skipped final verification
 ! grep -qx dark-mode "$EVENTS" || fail "failed bootstrap changed appearance"
 ! grep -qx finder-columns "$EVENTS" || fail "failed bootstrap changed Finder"
 ! grep -qx screen-saver "$EVENTS" || fail "failed bootstrap installed the screen saver"
+! grep -qx screen-saver-timing "$EVENTS" || fail "failed bootstrap changed the screen saver delay"
 touch "$TEST_CASE_DIR/retry"
 run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "desktop setup failure blocked bootstrap"
-[ "$(tail -4 "$EVENTS")" = $'verify full\ndark-mode\nfinder-columns\nscreen-saver' ] || fail "desktop setup did not run after final verification"
+[ "$(tail -5 "$EVENTS")" = $'verify full\ndark-mode\nfinder-columns\nscreen-saver\nscreen-saver-timing' ] || fail "desktop setup did not run after final verification"
 grep -Fq 'System Settings > Appearance > Dark' "$TEST_CASE_DIR/output" || fail "missing Dark Mode fallback"
 grep -Fq 'View > as Columns' "$TEST_CASE_DIR/output" || fail "missing Finder fallback"
 grep -Fq 'To retry the screen saver later' "$TEST_CASE_DIR/output" || fail "missing screen saver retry instructions"
+grep -Fq 'Set Start Screen Saver in System Settings' "$TEST_CASE_DIR/output" || fail "missing screen saver timing fallback"
 grep -Fxq 'Your Mac is bootstrapped.' "$TEST_CASE_DIR/output" || fail "missing success after desktop preference failure"
-touch "$TEST_CASE_DIR/automation-allowed" "$TEST_CASE_DIR/finder-write-allowed" "$TEST_CASE_DIR/screen-saver-archive-available"
+touch "$TEST_CASE_DIR/automation-allowed" "$TEST_CASE_DIR/finder-write-allowed" \
+  "$TEST_CASE_DIR/screen-saver-archive-available" "$TEST_CASE_DIR/power-settings-available"
 run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "app retry failed"
 ! grep -Fq 'To retry the screen saver later' "$TEST_CASE_DIR/output" || fail "successful screen saver install reported a failure"
 grep -Fxq 'Dark Mode enabled.' "$TEST_CASE_DIR/output" || fail "missing Dark Mode success"
@@ -239,4 +259,28 @@ grep -Fxq 'Reminder: Activate Bartender with the license key from your password 
 for event in 'install ghostty' 'install zed' screens; do
   [ "$(grep -cx "$event" "$EVENTS")" = 1 ] || fail "missing or repeated install: $event"
 done
+
+new_case screen-saver-timing
+run_timing() {
+  PATH="$TEST_ROOT/bin:$PATH" bash "$REPO_DIR/scripts/set-screen-saver-delay.sh" > "$TEST_CASE_DIR/output" 2>&1
+}
+printf 'AC Power:\n displaysleep 5\n' > "$TEST_CASE_DIR/power"
+run_timing || fail "could not set the usual screen saver delay"
+grep -qx 120 "$TEST_CASE_DIR/delay" || fail "wrong delay for five-minute display sleep"
+printf 'Battery Power:\n displaysleep 2\nAC Power:\n displaysleep 5\n' > "$TEST_CASE_DIR/power"
+run_timing || fail "could not set a delay for battery power"
+grep -qx 60 "$TEST_CASE_DIR/delay" || fail "delay did not account for the shorter battery timer"
+run_timing || fail "could not reuse an earlier delay"
+[ "$(grep -cx 'delay 60' "$EVENTS")" = 1 ] || fail "rewrote an already suitable delay"
+printf 'Battery Power:\n displaysleep 1\nAC Power:\n displaysleep 0\n' > "$TEST_CASE_DIR/power"
+run_timing || fail "could not set a delay before one-minute display sleep"
+grep -qx 30 "$TEST_CASE_DIR/delay" || fail "disabled AC timer affected the battery delay"
+printf 'AC Power:\n displaysleep 0\n' > "$TEST_CASE_DIR/power"
+printf '0\n' > "$TEST_CASE_DIR/delay"
+run_timing || fail "could not enable the saver when display sleep is disabled"
+grep -qx 120 "$TEST_CASE_DIR/delay" || fail "wrong delay when display sleep is disabled"
+: > "$TEST_CASE_DIR/power"
+if run_timing; then fail "unavailable power settings passed"; fi
+grep -qx 120 "$TEST_CASE_DIR/delay" || fail "unavailable power settings changed the delay"
+
 echo "PASS: Mac bootstrap preparation, conflict handling, app retry and desktop preferences"

@@ -52,6 +52,7 @@ Use [manual settings backup and restore](docs/manual-settings.md) for settings o
 - `scripts/github-auth.sh` - shared HTTPS setup and read-only account, storage, and authenticated Git checks.
 - `scripts/github-ssh-auth.sh` - optional bounded GitHub SSH client-authentication health check.
 - `scripts/install-michaels-mac-saver.sh` - verifies the bundled screen saver archive, installs it for the current user, and selects it with System Events.
+- `scripts/set-screen-saver-delay.sh` - sets the screen saver to start before display sleep on battery or AC power.
 - `tests/test_setup.sh` - isolated setup tests for both platforms and link-conflict handling.
 - `ghostty/config.ghostty` - Ghostty terminal config.
 - `docs/decisions/` - architecture decision records for choices that outlive a single change (see Decision Records).

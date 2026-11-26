@@ -19,6 +19,9 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-11-26: System Settings showed a two-minute screen saver delay on the Mini. Display sleep remains five minutes.
+  This supersedes the earlier twenty-minute delay below. Bootstrap checks the shortest enabled display sleep timer.
+
 - 2026-11-26: The Git checkout now supplies the Michael's Mac ZIP. This supersedes the iCloud Drive source below.
   The repack removes macOS file metadata. The signed bundle contents and signature match the tested build.
 

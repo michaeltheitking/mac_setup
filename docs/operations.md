@@ -51,7 +51,9 @@ The installer also accepts the path to another copy of the bundled ZIP.
 
 Check **System Settings → Wallpaper → Screen Saver** for the selected name and preview.
 If System Events cannot select the saver, choose **Custom → Other → Michael's Mac** there.
-Set the screen saver to start before the display sleeps if you want to see it during idle time.
+Bootstrap checks both battery and AC display sleep settings. It keeps a delay that already starts early enough.
+Otherwise, it uses two minutes, or half the shortest enabled display sleep timer when that timer is two minutes or less.
+To reapply the timing after a power settings change, run `bash ~/dotfiles/scripts/set-screen-saver-delay.sh`.
 To undo the selection, choose the previous saver or **Automatic** in the same panel.
 
 For a new build, replace the ZIP and update its SHA-256 in the same commit. Verify the signature after extraction.

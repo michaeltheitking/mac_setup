@@ -47,6 +47,9 @@ On Apple silicon, bootstrap installs and selects **Michael's Mac** from the ZIP 
 To retry only the screen saver, run `bash ~/dotfiles/scripts/install-michaels-mac-saver.sh`.
 If macOS asks for Automation permission, allow Terminal to control System Events.
 
+Bootstrap sets the screen saver to start before the shortest enabled display sleep timer.
+It keeps an existing delay that already starts early enough.
+
 ### New Omarchy computer
 
 Unlock your desktop's Secret Service credential store. Then run these commands in a normal terminal session.
