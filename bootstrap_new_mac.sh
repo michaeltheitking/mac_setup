@@ -273,6 +273,13 @@ if [ "$app_install_status" != 0 ]; then
   exit 1
 fi
 
+log "Enabling macOS Dark Mode"
+if osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to true' >/dev/null; then
+  echo "Dark Mode enabled."
+else
+  echo "Could not enable Dark Mode. Choose System Settings > Appearance > Dark." >&2
+fi
+
 log "Finished"
 echo
 echo "Your Mac is bootstrapped."

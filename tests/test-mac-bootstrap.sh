@@ -181,6 +181,12 @@ run_app_phase() (
     echo screens >> "$EVENTS"
     touch "$TEST_CASE_DIR/installed/screens"
   }
+  osascript() {
+    [ "$#" = 2 ] && [ "$1" = -e ] &&
+      [ "$2" = 'tell application "System Events" to tell appearance preferences to set dark mode to true' ] || exit 9
+    echo dark-mode >> "$EVENTS"
+    [ -f "$TEST_CASE_DIR/automation-allowed" ]
+  }
   brew() {
     case "$1 $2" in
       "list --cask") [ -f "$TEST_CASE_DIR/installed/$3" ] ;;
@@ -199,10 +205,17 @@ if run_app_phase > "$TEST_CASE_DIR/output" 2>&1; then fail "failed cask reported
 grep -Fq 'App installation failed: linear' "$TEST_CASE_DIR/output" || fail "missing app failure summary"
 [ "$(head -1 "$EVENTS")" = 'verify --core' ] || fail "apps ran before core verification"
 grep -qx 'verify full' "$EVENTS" || fail "app failure skipped final verification"
+! grep -qx dark-mode "$EVENTS" || fail "failed bootstrap changed appearance"
 touch "$TEST_CASE_DIR/retry"
-run_app_phase >> "$TEST_CASE_DIR/output" 2>&1 || fail "app retry failed"
+run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "Automation denial blocked bootstrap"
+[ "$(tail -2 "$EVENTS")" = $'verify full\ndark-mode' ] || fail "Dark Mode did not run after final verification"
+grep -Fq 'System Settings > Appearance > Dark' "$TEST_CASE_DIR/output" || fail "missing Dark Mode fallback"
+grep -Fxq 'Your Mac is bootstrapped.' "$TEST_CASE_DIR/output" || fail "missing success after Automation denial"
+touch "$TEST_CASE_DIR/automation-allowed"
+run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "app retry failed"
+grep -Fxq 'Dark Mode enabled.' "$TEST_CASE_DIR/output" || fail "missing Dark Mode success"
 [ "$(grep -cx 'install linear' "$EVENTS")" = 2 ] || fail "failed cask was not retried"
 for event in 'install ghostty' 'install zed' screens; do
   [ "$(grep -cx "$event" "$EVENTS")" = 1 ] || fail "missing or repeated install: $event"
 done
-echo "PASS: Mac bootstrap preparation, conflict handling and app retry"
+echo "PASS: Mac bootstrap preparation, conflict handling, app retry and Dark Mode"

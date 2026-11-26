@@ -37,6 +37,9 @@ you intentionally use another location.
 If an app fails to install, review the error and run the same block again.
 For sign-in problems, see [GitHub setup and recovery](docs/github-authentication.md).
 
+Bootstrap enables Dark Mode after verification. If macOS prompts for permission,
+allow Terminal to control System Events. If the change fails, choose **System Settings → Appearance → Dark**.
+
 ### New Omarchy computer
 
 Unlock your desktop's Secret Service credential store. Then run these commands in a normal terminal session.

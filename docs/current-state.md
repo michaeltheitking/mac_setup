@@ -19,6 +19,10 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-11-26: New-Mac bootstrap enables Dark Mode after final verification.
+  The bootstrap fixture checks success and the manual fallback when Automation access fails.
+  The AppleScript compiles on macOS. A live appearance change during bootstrap remains unverified.
+
 - 2026-11-24: Screens 5 replaces Workbench in new-Mac setup. On the Mini, both Workbench bundles went to Trash.
   Process, filesystem, and launchd checks confirmed removal of the watchdog, daily job, plist, and installed updater copy.
   The Mini verifier found Screens 5.10.5 and the newly installed Linear 1.32.8. It reported zero failures.
