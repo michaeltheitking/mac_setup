@@ -107,11 +107,11 @@ handles Arch repositories and the AUR.
 The bootstrap installs these Homebrew casks:
 
 ```text
-1password, nikitabobko/tap/aerospace, bartender, chatgpt, claude, codex,
+1password, bartender, chatgpt, claude, codex,
 cursor, fantastical, font-jetbrains-mono-nerd-font, font-meslo-lg-nerd-font,
 ghostty, grandperspective, istat-menus, linear, microsoft-edge@beta, microsoft-office, notion,
 nvidia-geforce-now, openlogi, protonvpn, raindropio, raycast, saffsanity/sill/sill, spotify,
-tailscale-app, todoist-app, vlc, windows-app, wispr-flow, zed
+tailscale-app, todoist-app, vlc, windows-app, zed
 ```
 
 It installs these Homebrew formulas:

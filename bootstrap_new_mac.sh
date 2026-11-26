@@ -18,7 +18,6 @@ export DOTFILES_DIR
 
 BREW_CASKS=(
   1password
-  nikitabobko/tap/aerospace
   bartender
   chatgpt
   claude
@@ -44,7 +43,6 @@ BREW_CASKS=(
   tailscale-app
   todoist-app
   vlc
-  wispr-flow
   windows-app
   zed
 )
