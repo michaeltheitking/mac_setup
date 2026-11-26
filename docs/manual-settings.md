@@ -57,6 +57,8 @@ No app-specific export route was verified for the preferences below.
 Save private screenshots or short notes, then recreate the settings through the installed app.
 Use an app's supported export if your version provides one. Back up target settings before importing.
 
+Bootstrap reminds you to activate Bartender. Enter the key from your password manager directly in Bartender.
+
 | App or area                                           | Record and restore                                                                                                                                                                                           | Observable check                                                                                       |
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
 | Bartender                                             | Menu-item order, hidden items, triggers, hotkeys, and app permissions. Recreate through Bartender; do not transplant raw preference plists.                                                                  | Check visible and hidden items and one configured trigger.                                             |
