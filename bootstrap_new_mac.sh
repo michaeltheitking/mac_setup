@@ -280,6 +280,13 @@ else
   echo "Could not enable Dark Mode. Choose System Settings > Appearance > Dark." >&2
 fi
 
+log "Setting Finder to Column View"
+if defaults write com.apple.finder FXPreferredViewStyle -string clmv; then
+  echo "Finder Column View saved as the default."
+else
+  echo "Could not save the Finder default. In Finder, choose View > as Columns." >&2
+fi
+
 log "Finished"
 echo
 echo "Your Mac is bootstrapped."

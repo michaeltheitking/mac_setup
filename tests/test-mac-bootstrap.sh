@@ -187,6 +187,11 @@ run_app_phase() (
     echo dark-mode >> "$EVENTS"
     [ -f "$TEST_CASE_DIR/automation-allowed" ]
   }
+  defaults() {
+    [ "$*" = 'write com.apple.finder FXPreferredViewStyle -string clmv' ] || exit 9
+    echo finder-columns >> "$EVENTS"
+    [ -f "$TEST_CASE_DIR/finder-write-allowed" ]
+  }
   brew() {
     case "$1 $2" in
       "list --cask") [ -f "$TEST_CASE_DIR/installed/$3" ] ;;
@@ -206,16 +211,19 @@ grep -Fq 'App installation failed: linear' "$TEST_CASE_DIR/output" || fail "miss
 [ "$(head -1 "$EVENTS")" = 'verify --core' ] || fail "apps ran before core verification"
 grep -qx 'verify full' "$EVENTS" || fail "app failure skipped final verification"
 ! grep -qx dark-mode "$EVENTS" || fail "failed bootstrap changed appearance"
+! grep -qx finder-columns "$EVENTS" || fail "failed bootstrap changed Finder"
 touch "$TEST_CASE_DIR/retry"
-run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "Automation denial blocked bootstrap"
-[ "$(tail -2 "$EVENTS")" = $'verify full\ndark-mode' ] || fail "Dark Mode did not run after final verification"
+run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "desktop preference failure blocked bootstrap"
+[ "$(tail -3 "$EVENTS")" = $'verify full\ndark-mode\nfinder-columns' ] || fail "desktop preferences did not run after final verification"
 grep -Fq 'System Settings > Appearance > Dark' "$TEST_CASE_DIR/output" || fail "missing Dark Mode fallback"
-grep -Fxq 'Your Mac is bootstrapped.' "$TEST_CASE_DIR/output" || fail "missing success after Automation denial"
-touch "$TEST_CASE_DIR/automation-allowed"
+grep -Fq 'View > as Columns' "$TEST_CASE_DIR/output" || fail "missing Finder fallback"
+grep -Fxq 'Your Mac is bootstrapped.' "$TEST_CASE_DIR/output" || fail "missing success after desktop preference failure"
+touch "$TEST_CASE_DIR/automation-allowed" "$TEST_CASE_DIR/finder-write-allowed"
 run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "app retry failed"
 grep -Fxq 'Dark Mode enabled.' "$TEST_CASE_DIR/output" || fail "missing Dark Mode success"
+grep -Fxq 'Finder Column View saved as the default.' "$TEST_CASE_DIR/output" || fail "missing Finder success"
 [ "$(grep -cx 'install linear' "$EVENTS")" = 2 ] || fail "failed cask was not retried"
 for event in 'install ghostty' 'install zed' screens; do
   [ "$(grep -cx "$event" "$EVENTS")" = 1 ] || fail "missing or repeated install: $event"
 done
-echo "PASS: Mac bootstrap preparation, conflict handling, app retry and Dark Mode"
+echo "PASS: Mac bootstrap preparation, conflict handling, app retry and desktop preferences"

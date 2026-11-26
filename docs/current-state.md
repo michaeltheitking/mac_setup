@@ -19,6 +19,10 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-11-26: New-Mac bootstrap saves Column View as the Finder default after final verification.
+  Isolated checks cover a successful write and the manual fallback when a write fails.
+  The host already reported the same preference value. A fresh Finder session remains unverified.
+
 - 2026-11-26: New-Mac bootstrap enables Dark Mode after final verification.
   The bootstrap fixture checks success and the manual fallback when Automation access fails.
   The AppleScript compiles on macOS. A live appearance change during bootstrap remains unverified.

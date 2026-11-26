@@ -40,6 +40,9 @@ For sign-in problems, see [GitHub setup and recovery](docs/github-authentication
 Bootstrap enables Dark Mode after verification. If macOS prompts for permission,
 allow Terminal to control System Events. If the change fails, choose **System Settings → Appearance → Dark**.
 
+Bootstrap also saves Column View as the Finder default. Finder reads it when it next starts.
+Folders with a saved view can still open in that view.
+
 ### New Omarchy computer
 
 Unlock your desktop's Secret Service credential store. Then run these commands in a normal terminal session.
