@@ -29,7 +29,7 @@ echo checkout-bootstrap >> "$EVENTS"
 STUB
 for file in setup.sh setup_common.sh setup_macos.sh verify.sh .zshrc .tmux.conf .p10k.zsh .gitignore_global \
   scripts/macos-apps.sh scripts/github-auth.sh scripts/install-michaels-mac-saver.sh \
-  claude/remove-bartender-hooks.sh \
+  assets/MichaelsMac-AppleSilicon.zip claude/remove-bartender-hooks.sh \
   claude/settings.json claude/statusline-command.sh ssh/config ssh/github-known-hosts \
   ghostty/config.ghostty codex/AGENTS.md; do
   mkdir -p "$SOURCE_REPO/$(dirname "$file")"
@@ -123,6 +123,10 @@ touch "$HOME/.zshrc"
 if run_preflight; then fail "existing configuration conflict passed preflight"; fi
 [ ! -e "$HOME/.codex" ] || fail "checkout preflight made links"
 rm "$HOME/.zshrc"
+mv "$DOTFILES_DIR/assets/MichaelsMac-AppleSilicon.zip" "$TEST_CASE_DIR/asset-backup.zip"
+if run_preflight; then fail "checkout with missing screen saver archive passed"; fi
+grep -Fq 'Missing or empty checkout file: assets/MichaelsMac-AppleSilicon.zip' "$TEST_CASE_DIR/output" || fail "missing screen saver archive diagnosis"
+mv "$TEST_CASE_DIR/asset-backup.zip" "$DOTFILES_DIR/assets/MichaelsMac-AppleSilicon.zip"
 rm "$DOTFILES_DIR/scripts/github-auth.sh"
 if run_preflight; then fail "incomplete checkout passed"; fi
 

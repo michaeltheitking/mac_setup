@@ -26,5 +26,6 @@ Document data requirements without embedding private values. Do not synchronize 
 - `tests/`: Automated checks and fixtures.
 - `ssh/`: Managed SSH configuration and pinned host keys.
 - `scripts/`: Command entry points and maintenance helpers.
+- `assets/`: Reviewed release assets shipped with the checkout, including the Apple silicon screen saver ZIP.
 - `ghostty/`: Managed terminal configuration.
 - `istat-menus/`: Reviewed macOS preferences export and manual restore instructions; excludes license and device fields.

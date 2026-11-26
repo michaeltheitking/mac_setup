@@ -19,6 +19,9 @@ Use separate development checkouts. Do not install production schedules merely b
 
 ## Known gaps and next work
 
+- 2026-11-26: The Git checkout now supplies the Michael's Mac ZIP. This supersedes the iCloud Drive source below.
+  The repack removes macOS file metadata. The signed bundle contents and signature match the tested build.
+
 - 2026-11-26: On macOS 27.2.1, the screen saver installer read the private iCloud Drive ZIP and installed Michael's Mac.
   System Events selected the saver and confirmed it after a delay. A second run reused the installed bundle.
   System Settings rendered the native preview. The Sequoia desktop wallpaper stayed selected.

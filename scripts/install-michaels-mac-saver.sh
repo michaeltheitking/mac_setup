@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-archive="${1:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/Mac Setup/MichaelsMac-AppleSilicon.zip}"
-archive_sha256=ed5e1d8fe9d7c4859268dbc1d09d7c4f8537f09af29a7389d717fa9e1c15680a
+archive="${1:-$(dirname "${BASH_SOURCE[0]}")/../assets/MichaelsMac-AppleSilicon.zip}"
+archive_sha256=5ce703cd15c4c34e80c0705af3409f8f835bcbb55319493235ed16e451432e8c
 install_dir="$HOME/Library/Screen Savers"
 bundle_name=MichaelsMac.saver
 installed_bundle="$install_dir/$bundle_name"
@@ -27,7 +27,7 @@ if [ -e "$installed_bundle" ] || [ -L "$installed_bundle" ]; then
   echo "Michael's Mac screen saver is already installed."
 else
   if [ ! -f "$archive" ]; then
-    echo "Michael's Mac archive is unavailable. Check the Mac Setup folder in iCloud Drive." >&2
+    echo "Michael's Mac archive is missing: $archive" >&2
     exit 1
   fi
 

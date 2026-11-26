@@ -43,8 +43,8 @@ allow Terminal to control System Events. If the change fails, choose **System Se
 Bootstrap also saves Column View as the Finder default. Finder reads it when it next starts.
 Folders with a saved view can still open in that view.
 
-On Apple silicon, bootstrap installs and selects **Michael's Mac** from the ZIP in **iCloud Drive → Mac Setup**.
-If iCloud Drive is not ready, run `bash ~/dotfiles/scripts/install-michaels-mac-saver.sh` after it syncs.
+On Apple silicon, bootstrap installs and selects **Michael's Mac** from the ZIP in the GitHub checkout.
+To retry only the screen saver, run `bash ~/dotfiles/scripts/install-michaels-mac-saver.sh`.
 If macOS asks for Automation permission, allow Terminal to control System Events.
 
 ### New Omarchy computer
