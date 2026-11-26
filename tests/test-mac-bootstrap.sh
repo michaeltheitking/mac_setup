@@ -255,6 +255,7 @@ run_app_phase > "$TEST_CASE_DIR/output" 2>&1 || fail "app retry failed"
 grep -Fxq 'Dark Mode enabled.' "$TEST_CASE_DIR/output" || fail "missing Dark Mode success"
 grep -Fxq 'Finder Column View saved as the default.' "$TEST_CASE_DIR/output" || fail "missing Finder success"
 grep -Fxq 'Reminder: Activate Bartender with the license key from your password manager.' "$TEST_CASE_DIR/output" || fail "missing Bartender activation reminder"
+grep -Fxq 'Reminder: Open Fantastical and activate it.' "$TEST_CASE_DIR/output" || fail "missing Fantastical activation reminder"
 [ "$(grep -cx 'install linear' "$EVENTS")" = 2 ] || fail "failed cask was not retried"
 for event in 'install ghostty' 'install zed' screens; do
   [ "$(grep -cx "$event" "$EVENTS")" = 1 ] || fail "missing or repeated install: $event"

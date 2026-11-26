@@ -57,6 +57,7 @@ Save private screenshots or short notes, then recreate the settings through the 
 Use an app's supported export if your version provides one. Back up target settings before importing.
 
 Bootstrap reminds you to activate Bartender. Enter the key from your password manager directly in Bartender.
+It also reminds you to open Fantastical and activate it.
 
 | App or area                                           | Record and restore                                                                                                                                                                                           | Observable check                                                                                       |
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
